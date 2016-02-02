@@ -10,12 +10,16 @@ source("R/generic_functions.R")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
+#- find the most recent file
+files <-  list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/Height&Diam",pattern="HEIGHT&DIAMETER",full.names=T)
+files2 <- files[grep(".csv",files)]
+dates <- c()
+for (i in 1:length(files2)){
+  dates[i] <- as.numeric(substr(files2[i],start=100,stop=102)) # gets the month and date as a single number
+}
 
-
-
-
-#- plot data over time to get growth
-hddata <- read.csv("W://WORKING_DATA/GHS39/GREAT/Share/Data/Height&Diam/GHS39_GREAT_MAIN_HEIGHT&DIAMETER_20160108-20160128_L1.csv")
+#- read data, plot size over time
+hddata <- read.csv(files2[which.max(dates)])
 hddata$prov <- as.factor(substr(hddata$pot,start=1,stop=1))
 hddata$room <- as.factor(hddata$room)
 hddata$prov_trt <- as.factor(paste(hddata$prov,hddata$room,sep="-"))
@@ -52,9 +56,12 @@ plot3d(x=hddata.m$Date,y=hddata.m$room,z=hddata.m$h.m,col=palette()[hddata.m$pro
 plot3d(x=hddata.m$Date,y=hddata.m$room,z=hddata.m$diam.m,col=palette()[hddata.m$prov],size=12)
 plot3d(x=hddata.m$Date,y=hddata.m$room,z=hddata.m$d2h.m,col=palette()[hddata.m$prov],size=12)
 
+
+
+
 #------------------------------------------------------------------------------------------------------------
 #- get and plot the growth increments, ending on a specified date
-focaldate <- as.Date("2016-01-28")
+focaldate <- max(hddata$Date)
 hddata2.m <- summaryBy(diam+h+d2h~room+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean),keep.names=T)
 hddata2.m$dh <-c(NA,diff(hddata2.m$h)) 
 hddata2.m$ddiam <-c(NA,diff(hddata2.m$diam)) 
@@ -67,7 +74,7 @@ plot(dh~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,20),xla
 plot(ddiam~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,1),xlab="room",ylab="dDiameter (mm)",pch=16,cex=2)
 plot(dd2h~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,2),xlab="room",ylab="dD2h (cm3)",pch=16,cex=2)
 
-#- plot RGR over time
+#- plot RGR over time. Ontogenetic drift is already apparent.
 rgrdat <- subset(hddata2.m,Date>as.Date("2016-01-10"))
 plot3d(x=rgrdat$Date,y=rgrdat$room,z=rgrdat$rgr_d2h,size=12)
 
@@ -78,7 +85,8 @@ plot3d(x=rgrdat$Date,y=rgrdat$room,z=rgrdat$rgr_d2h,size=12)
 
 #------------------------------------------------------------------------------------------------------------
 #- get and plot the growth increments for DRY VS WET in B, ending on a specified date
-focaldate <- as.Date("2016-01-28")
+#- This code will have to change when new RGR estimates are available, as the diff() function will return more values.
+focaldate <- max(hddata$Date)
 hddata3.m <- summaryBy(diam+h+d2h~room+Water_trt+Date,data=subset(hddata,prov=="B"),FUN=c(mean),keep.names=T)
 hddata3.m$dh <-c(NA,diff(hddata3.m$h)) 
 hddata3.m$ddiam <-c(NA,diff(hddata3.m$diam)) 
