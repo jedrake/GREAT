@@ -3,11 +3,10 @@ library(doBy)
 library(magicaxis)
 library(lme4)
 library(plotrix)
-source("//ad.uws.edu.au/dfshare/HomesHWK$/30035219/My Documents/Work/R/generic_functions.R")
-source("C:/Repos/wtc3_flux_share/R/functions.R")
+source("R/generic_functions.R")
 
 #- read in the irrigation testing data
-irr1 <- read.csv("W://WORKING_DATA/GHS39/GREAT/Share/Data/irrigation testing.csv")
+irr1 <- read.csv("W://WORKING_DATA/GHS39/GREAT/Share/Data/irrigation/irrigation testing.csv")
 irr1$group <- factor(substr(irr1$dripper,start=1,stop=1))
 irr <- subset(irr1,group %in% c(1,6) & runtime<5.5)
 irr$group <- factor(irr$group)
