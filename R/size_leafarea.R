@@ -1,7 +1,17 @@
 library(plotBy)
 library(doBy)
 library(magicaxis)
-source("C:/Repos/GREAT/R/generic_functions.R")
+source("R/generic_functions.R")
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#-- Script to read, process, and plot the plant size and leaf area data
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+
+
+
 
 
 #- plot data over time to get growth
