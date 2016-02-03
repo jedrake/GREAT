@@ -40,3 +40,24 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   return(hddata)
 }
 #-----------------------------------------------------------------------------------------
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to read and process the leaf number and leaf size datasets
+getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  
+  la <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160128_L1.csv",sep=""))
+  la$prov <- as.factor(substr(la$pot,start=1,stop=1))
+  la$room <- as.factor(la$room)
+  la$prov_trt <- as.factor(paste(la$prov,la$room,sep="-"))
+  la$Date <- as.Date("2016-1-28")
+  
+  #- assign drought treatments
+  la$Water_trt <- "wet"
+  la$Water_trt[grep("Bd",la$pot)] <- "dry"
+  la$Water_trt <- factor(la$Water_trt,levels=c("wet","dry"))
+}
+#-----------------------------------------------------------------------------------------

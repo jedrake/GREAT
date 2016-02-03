@@ -98,16 +98,6 @@ with(toplot,plot(dd2h~as.numeric(room),col=Water_trt,ylim=c(0,2),xlab="room",yla
 
 #- process the total plant leaf area data
 
-la <-read.csv("W://WORKING_DATA/GHS39/GREAT/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160128_L1.csv")
-la$prov <- as.factor(substr(la$pot,start=1,stop=1))
-la$room <- as.factor(la$room)
-la$prov_trt <- as.factor(paste(la$prov,la$room,sep="-"))
-la$Date <- as.Date("2016-1-28")
-
-#- assign drought treatments
-la$Water_trt <- "wet"
-la$Water_trt[grep("Bd",la$pot)] <- "dry"
-la$Water_trt <- factor(la$Water_trt,levels=c("wet","dry"))
 
 #- calculate total plant leaf area. This method uses a different average leaf size for each plant
 la$canopy <- with(la,leaf_no*lf_area)
