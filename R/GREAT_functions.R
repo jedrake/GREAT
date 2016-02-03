@@ -61,3 +61,31 @@ getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   la$Water_trt <- factor(la$Water_trt,levels=c("wet","dry"))
 }
 #-----------------------------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------------------------
+#- function to read and process the Asat and AQ datasets
+getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  
+  aq <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ-compiled-20160202-20160203-L1.csv",sep=""))
+  names(aq)[1:2] <- tolower(names(aq)[1:2])
+  aq$prov <- as.factor(substr(aq$pot,start=1,stop=1))
+  aq$room <- as.factor(aq$room)
+  aq$prov_trt <- as.factor(paste(aq$prov,aq$room,sep="-"))
+
+  #- assign drought treatments
+  aq$Water_trt <- "wet"
+  aq$Water_trt[grep("Bd",aq$pot)] <- "dry"
+  aq$Water_trt <- factor(aq$Water_trt,levels=c("wet","dry"))
+  
+  #- assign light levels to a factor variable
+  aq$LightFac <- NA
+  aq$LightFac[which(aq$PARi<150)] <- 1
+  aq$LightFac[which(aq$PARi>400 & aq$PARi<600)] <- 2
+  aq$LightFac[which(aq$PARi>800 & aq$PARi<1100)] <- 3
+  aq$LightFac[which(aq$PARi>1200)] <- 4
+  aq$LightFac <- as.factor(aq$LightFac)
+  
+  return(aq)
+}
+#-----------------------------------------------------------------------------------------
