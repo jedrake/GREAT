@@ -12,6 +12,10 @@ source("R/GREAT_functions.R")
 #-----------------------------------------------------------------------------------------
 
 hddata <- getSize() # specify path to "GREAT" share folder on HIE-Data2. Defaults to W://WORKING_DATA/GHS39/GREAT
+
+
+#------------------------------------------------------------------------------------------------------------
+#- average across rooms, plot
 hddata.m <- summaryBy(diam+h+d2h~room+prov+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean,standard.error))
 hddata.l <- split(hddata.m,hddata.m$room)
 
@@ -35,12 +39,12 @@ library(rgl)
 plot3d(x=hddata.m$Date,y=hddata.m$room,z=hddata.m$h.m,col=palette()[hddata.m$prov],size=12)
 plot3d(x=hddata.m$Date,y=hddata.m$room,z=hddata.m$diam.m,col=palette()[hddata.m$prov],size=12)
 plot3d(x=hddata.m$Date,y=hddata.m$room,z=hddata.m$d2h.m,col=palette()[hddata.m$prov],size=12)
-
+#------------------------------------------------------------------------------------------------------------
 
 
 
 #------------------------------------------------------------------------------------------------------------
-#- get and plot the growth increments, ending on a specified date
+#- get and plot the growth increments and RGR estimates of d2h, ending on a specified date
 focaldate <- max(hddata$Date)
 hddata2.m <- summaryBy(diam+h+d2h~room+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean),keep.names=T)
 hddata2.m$dh <-c(NA,diff(hddata2.m$h)) 
