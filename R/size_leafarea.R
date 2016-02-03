@@ -2,6 +2,7 @@ library(plotBy)
 library(doBy)
 library(magicaxis)
 source("R/generic_functions.R")
+source("R/GREAT_functions.R")
 
 
 #-----------------------------------------------------------------------------------------
@@ -10,28 +11,7 @@ source("R/generic_functions.R")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
-#- find the most recent file
-files <-  list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/Height&Diam",pattern="HEIGHT&DIAMETER",full.names=T)
-files2 <- files[grep(".csv",files)]
-dates <- c()
-for (i in 1:length(files2)){
-  dates[i] <- as.numeric(substr(files2[i],start=100,stop=102)) # gets the month and date as a single number
-}
-
-#- read data, plot size over time
-hddata <- read.csv(files2[which.max(dates)])
-hddata$prov <- as.factor(substr(hddata$pot,start=1,stop=1))
-hddata$room <- as.factor(hddata$room)
-hddata$prov_trt <- as.factor(paste(hddata$prov,hddata$room,sep="-"))
-hddata$diam <- with(hddata,((d1+d2)/2))
-hddata$d2h <- with(hddata,(diam/10)^2*h) #cm^3
-hddata$Date <- as.Date(hddata$date,format="%d/%m/%Y")
-
-#- assign drought treatments
-hddata$Water_trt <- "wet"
-hddata$Water_trt[grep("Bd",hddata$pot)] <- "dry"
-hddata$Water_trt <- factor(hddata$Water_trt,levels=c("wet","dry"))
-
+hddata <- getSize() # specify path to "GREAT" share folder on HIE-Data2. Defaults to W://WORKING_DATA/GHS39/GREAT
 hddata.m <- summaryBy(diam+h+d2h~room+prov+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean,standard.error))
 hddata.l <- split(hddata.m,hddata.m$room)
 
