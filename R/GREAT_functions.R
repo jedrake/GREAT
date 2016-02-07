@@ -86,6 +86,45 @@ getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   aq$LightFac[which(aq$PARi>1200)] <- 4
   aq$LightFac <- as.factor(aq$LightFac)
   
-  return(aq)
+  
+  #- assign the temperature levels
+  aq$TleafFac <- cut(aq$Tleaf,breaks=c(15,22,26,29,34,37,45),labels=1:6)
+  
+  #- average across replicate logs
+  aq2 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=aq,FUN=mean,keep.names=T)
+  
+  return(aq2)
+}
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to read and process the temperature response curves of photosynthesis
+getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  
+  avt <-read.csv(paste(path,"/Share/Data/GasEx/AvT/GREAT-AvT-compiled-20160205-L1.csv",sep=""))
+  names(avt)[1:2] <- tolower(names(avt)[1:2])
+  avt$prov <- as.factor(substr(avt$pot,start=1,stop=1))
+  avt$room <- as.factor(avt$room)
+  avt$prov_trt <- as.factor(paste(avt$prov,avt$room,sep="-"))
+  
+  #- assign drought treatments
+  avt$Water_trt <- "wet"
+  
+  #- assign light levels to a factor variable
+  avt$LightFac <- NA
+  avt$LightFac[which(avt$PARi<150)] <- 1
+  avt$LightFac[which(avt$PARi>1200)] <- 4
+  avt$LightFac <- as.factor(avt$LightFac)
+  
+  #- assign the temperature levels
+  avt$TleafFac <- cut(avt$Tleaf,breaks=c(15,22,26,29,34,37,45),labels=1:6)
+  
+  avt2 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=avt,FUN=mean,keep.names=T)
+  return(avt2)
 }
 #-----------------------------------------------------------------------------------------
