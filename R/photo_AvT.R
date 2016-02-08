@@ -39,7 +39,7 @@ legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
 #-------------------------------------------------------
 #- plot TREATMENT MEANS
 
-avt.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+prov,data=avt,FUN=c(mean,standard.error))
+avt.m <- summaryBy(Photo+Cond+Tleaf+PARi~TleafFac+LightFac+prov,data=avt,FUN=c(mean,standard.error))
 
 #- plot each light level's temperature response
 windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
@@ -78,8 +78,8 @@ legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
 #- merge the short and long-term temperature response curves and plot them
 #- get the AQ data
 aq <- getAQ()
-aq.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+prov,data=aq,FUN=c(mean,standard.error))
-names(aq.m)[4:9] <- paste(names(aq.m)[4:9],"LT",sep=".")
+aq.m <- summaryBy(Photo+Cond+Tleaf+PARi~TleafFac+LightFac+prov,data=aq,FUN=c(mean,standard.error))
+names(aq.m)[4:11] <- paste(names(aq.m)[4:11],"LT",sep=".")
 
 at.all <- merge(avt.m,aq.m,by=c("prov","TleafFac","LightFac"))
 
