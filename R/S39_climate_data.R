@@ -191,9 +191,13 @@ for (i in 1:length(dat.vwc.l)){
          legend=F,ylim=c(0,0.3),las=1)
   axis(side=4,labels=T,las=1)
   legend("bottomright",paste("Room",toplot$room[1]),bty="n",xpd=NA)
+  axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.vwc$DateTime),to=max(dat.vwc$DateTime),by="day"),
+               labels=F)
 }
 title(ylab=expression(VWC~(m^3~m^-3)),xlab="Date",
       outer=T,cex.lab=3)
+axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.vwc$DateTime),to=max(dat.vwc$DateTime),by="day"),
+             labels=T)
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
@@ -228,9 +232,12 @@ for (i in 1:length(dat.vwc.l)){
                                   direction="updown",col=c("red","blue")))
   axis(side=4,labels=T,las=1)
   legend("bottomright",paste("Room",toplot$room[1]),bty="n",xpd=NA)
+  axis.Date(side=1,at=seq.Date(from=min(dat.vwc.d2$Date),to=max(dat.vwc.d2$Date),by="day"),labels=F)
 }
 title(ylab=expression(VWC~(m^3~m^-3)),xlab="Date",
       outer=T,cex.lab=3)
+axis.Date(side=1,at=seq.Date(from=min(dat.vwc.d2$Date),to=max(dat.vwc.d2$Date),by="day"),labels=T)
+
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
