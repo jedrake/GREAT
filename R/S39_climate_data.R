@@ -24,7 +24,7 @@ source("R/generic_functions.R")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- get the "fast" files. This takes a little while, as the files are huge.
-fastfiles <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160205/",pattern="fast",full.names=T)
+fastfiles <- list.files("R://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160211/",pattern="fast",full.names=T)
 
 dat <- list()
 for(i in 1:length(fastfiles)){
@@ -104,7 +104,7 @@ plotBy(VPD~DateTime_hr|room,data=dat.fast.hr,legend=F,type="l",lwd=2,ylim=c(0,7)
 axis(4,labels=T,las=1)
 axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="day"),
              labels=F)
-plotBy(PAR~DateTime_hr,data=subset(dat.fast.hr,bay %in% 3:5),col="gray",legend=F,type="l",lwd=2,ylim=c(0,2000),las=1)
+plotBy(PAR~DateTime_hr,data=subset(dat.fast.hr,bay %in% 3:8),col="gray",legend=F,type="l",lwd=2,ylim=c(0,2000),las=1)
 axis(4,labels=T,las=1)
 axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="day"),
              labels=T)
@@ -135,7 +135,7 @@ title(ylab=expression(PAR),outer=T,adj=0.1,line=3,cex.lab=2)
 #- read in the VWC data ("slow")
 
 #- get the vwc files. 
-vwc.files <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160205/",pattern="VW",full.names=T)
+vwc.files <- list.files("R://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160211/",pattern="VW",full.names=T)
 
 dat <- list()
 for(i in 1:length(vwc.files)){
