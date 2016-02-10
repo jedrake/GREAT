@@ -16,12 +16,12 @@ hddata <- getSize() # specify path to "GREAT" share folder on HIE-Data2. Default
 
 #------------------------------------------------------------------------------------------------------------
 #- average across rooms, plot
-hddata.m <- summaryBy(diam+h+d2h~room+prov+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean,standard.error))
+hddata.m <- summaryBy(diam+h+d2h~room+prov+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean,standard.error), na.rm=T)
 hddata.l <- split(hddata.m,hddata.m$room)
 
 #- plot d2h
 windows(30,60);par(mfrow=c(6,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
-ylims=c(0,3)
+ylims=c(0,12)
 for(i in 1:length(hddata.l)){
   toplot <- hddata.l[[i]]
   plotBy(d2h.mean~Date|prov,data=toplot,type="o",ylim=ylims,pch=16,legend=F,yaxt="n",xaxt="n",cex=1.5,
@@ -46,7 +46,7 @@ plot3d(x=hddata.m$Date,y=hddata.m$room,z=hddata.m$d2h.m,col=palette()[hddata.m$p
 #------------------------------------------------------------------------------------------------------------
 #- get and plot the growth increments and RGR estimates of d2h, ending on a specified date
 focaldate <- max(hddata$Date)
-hddata2.m <- summaryBy(diam+h+d2h~room+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean),keep.names=T)
+hddata2.m <- summaryBy(diam+h+d2h~room+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean),keep.names=T, na.rm=T)
 hddata2.m$dh <-c(NA,diff(hddata2.m$h)) 
 hddata2.m$ddiam <-c(NA,diff(hddata2.m$diam)) 
 hddata2.m$dd2h <-c(NA,diff(hddata2.m$d2h)) 
@@ -54,9 +54,9 @@ hddata2.m$rgr_d2h <-c(NA,diff(log(hddata2.m$d2h)/10)) # assumes a 10-day interva
 
 #- plot growth increments
 windows(40,60);par(mfrow=c(3,1),mar=c(5,7,1,1),oma=c(0,0,0,0),cex.lab=2)
-plot(dh~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,20),xlab="room",ylab="dHeight (cm)",pch=16,cex=2)
-plot(ddiam~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,1),xlab="room",ylab="dDiameter (mm)",pch=16,cex=2)
-plot(dd2h~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,2),xlab="room",ylab="dD2h (cm3)",pch=16,cex=2)
+plot(dh~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,30),xlab="room",ylab="dHeight (cm)",pch=16,cex=2)
+plot(ddiam~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,2),xlab="room",ylab="dDiameter (mm)",pch=16,cex=2)
+plot(dd2h~as.numeric(room),data=subset(hddata2.m,Date==focaldate),ylim=c(0,10),xlab="room",ylab="dD2h (cm3)",pch=16,cex=2)
 
 #- plot RGR over time. Ontogenetic drift is already apparent.
 rgrdat <- subset(hddata2.m,Date>as.Date("2016-01-10"))
@@ -71,17 +71,17 @@ plot3d(x=rgrdat$Date,y=rgrdat$room,z=rgrdat$rgr_d2h,size=12)
 #- get and plot the growth increments for DRY VS WET in B, ending on a specified date
 #- This code will have to change when new RGR estimates are available, as the diff() function will return more values.
 focaldate <- max(hddata$Date)
-hddata3.m <- summaryBy(diam+h+d2h~room+Water_trt+Date,data=subset(hddata,prov=="B"),FUN=c(mean),keep.names=T)
+hddata3.m <- summaryBy(diam+h+d2h~room+Water_trt+Date,data=subset(hddata,prov=="B"),FUN=c(mean),keep.names=T, na.rm=T)
 hddata3.m$dh <-c(NA,diff(hddata3.m$h)) 
 hddata3.m$ddiam <-c(NA,diff(hddata3.m$diam)) 
 hddata3.m$dd2h <-c(NA,diff(hddata3.m$d2h)) 
 toplot <- subset(hddata3.m,Date==focaldate)
 
 windows(40,60);par(mfrow=c(3,1),mar=c(5,7,1,1),oma=c(0,0,0,0),cex.lab=2)
-with(toplot,plot(dh~as.numeric(room),col=Water_trt,ylim=c(0,20),xlab="room",ylab="dHeight (cm)",pch=16,cex=2))
+with(toplot,plot(dh~as.numeric(room),col=Water_trt,ylim=c(0,30),xlab="room",ylab="dHeight (cm)",pch=16,cex=2))
 legend("topleft",pch=16,col=c("black","red"),legend=c("wet","dry"),cex=1.5)
-with(toplot,plot(ddiam~as.numeric(room),col=Water_trt,ylim=c(0,1),xlab="room",ylab="dDiameter (mm)",pch=16,cex=2))
-with(toplot,plot(dd2h~as.numeric(room),col=Water_trt,ylim=c(0,2),xlab="room",ylab="dD2h (cm3)",pch=16,cex=2))
+with(toplot,plot(ddiam~as.numeric(room),col=Water_trt,ylim=c(0,2),xlab="room",ylab="dDiameter (mm)",pch=16,cex=2))
+with(toplot,plot(dd2h~as.numeric(room),col=Water_trt,ylim=c(0,10),xlab="room",ylab="dD2h (cm3)",pch=16,cex=2))
 #------------------------------------------------------------------------------------------------------------
 
 
