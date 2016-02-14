@@ -13,7 +13,6 @@ source("R/GREAT_functions.R")
 
 hddata <- getSize() # specify path to "GREAT" share folder on HIE-Data2. Defaults to W://WORKING_DATA/GHS39/GREAT
 
-
 #------------------------------------------------------------------------------------------------------------
 #- average across rooms, plot
 hddata.m <- summaryBy(diam+h+d2h~room+prov+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean,standard.error))

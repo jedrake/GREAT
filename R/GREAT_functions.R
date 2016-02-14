@@ -64,6 +64,15 @@ getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 
 #-----------------------------------------------------------------------------------------
+#- function to read and process the leaf punch datasets
+#- note, these punches haven't been weighed yet so there basically is no data.
+getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  dat <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160202_L1.csv",sep=""))
+  
+}  
+#-----------------------------------------------------------------------------------------  
+  
+#-----------------------------------------------------------------------------------------
 #- function to read and process the Asat and AQ datasets
 getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
@@ -128,3 +137,5 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   return(avt2)
 }
 #-----------------------------------------------------------------------------------------
+
+
