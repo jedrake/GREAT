@@ -24,11 +24,8 @@ source("R/generic_functions.R")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- get the "fast" files. This takes a little while, as the files are huge.
-<<<<<<< HEAD
+
 fastfiles <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160215/",pattern="fast",full.names=T)
-=======
-fastfiles <- list.files("R://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160211/",pattern="fast",full.names=T)
->>>>>>> cd869bbd8df201708dba96111f648c78f44a0068
 
 dat <- list()
 for(i in 1:length(fastfiles)){
@@ -140,11 +137,7 @@ title(ylab=expression(PAR),outer=T,adj=0.1,line=3,cex.lab=2)
 #- read in the VWC data ("slow")
 
 #- get the vwc files. 
-<<<<<<< HEAD
 vwc.files <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160215/",pattern="VW",full.names=T)
-=======
-vwc.files <- list.files("R://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160211/",pattern="VW",full.names=T)
->>>>>>> cd869bbd8df201708dba96111f648c78f44a0068
 
 dat <- list()
 for(i in 1:length(vwc.files)){
