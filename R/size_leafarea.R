@@ -96,22 +96,22 @@ with(toplot,plot(dd2h~as.numeric(room),col=Water_trt,ylim=c(0,10),xlab="room",yl
 #------------------------------------------------------------------------------------------------------------
 
 #- process the total plant leaf area data
-
+la <- getLA()
 
 #- calculate total plant leaf area. This method uses a different average leaf size for each plant
 la$canopy <- with(la,leaf_no*lf_area)
 
 
 #----------------------------------------------------------------------------------------------------
-#- calculate total plant leaf area using a room-specific mean value
-leaf_size <- summaryBy(lf_area~room+lf_size,data=la,FUN=mean,keep.names=F)
+#- calculate total plant leaf area using a room and date-specific mean value
+leaf_size <- summaryBy(lf_area~room+lf_size+Date,data=la,FUN=mean,keep.names=F,na.rm=T)
 
 
 #-- average leaf size is temperature dependent, but not provenance dependent
 boxplot(lf_area~lf_size+room,data=la)
 boxplot(lf_area~prov+room,data=subset(la,lf_size=="large"))
 
-la2.1 <- merge(la,leaf_size,by=c("room","lf_size"))
+la2.1 <- merge(la,leaf_size,by=c("room","lf_size","Date"))
 la2.1$canopy2 <- with(la2.1,leaf_no*lf_area.mean)
 
 la2 <- summaryBy(canopy+canopy2~room+pot+prov+prov_trt+Date+Water_trt,data=la2.1,FUN=sum,keep.names=T)
@@ -123,25 +123,11 @@ la2 <- merge(la2,leaf_no,by="pot")
 
 
 #- merge total plant leaf area with tree size
-la3 <- merge(la2,subset(hddata,Date==as.Date("2016-1-28")),by=c("room","prov","prov_trt","pot","Date","Water_trt"))
-
-#- merge in the growth increments for each plant
-hddata.l <- split(hddata,hddata$pot)
-dh <- ddiam <- dd2h <- pot <- c()
-for(i in 1:length(hddata.l)){
-  dat <- hddata.l[[i]]
-  
-  dh[i] <- diff(dat$h)[nrow(dat)-1] 
-  ddiam[i] <- diff(dat$diam)[nrow(dat)-1] 
-  dd2h[i] <- diff(dat$d2h)[nrow(dat)-1]
-  pot[i] <- as.character(dat$pot[1])
-}
-inc.df <- data.frame(pot,dh,ddiam,dd2h)
-la4 <- merge(la3,inc.df,by="pot")
-la4$logLA <- with(la4,log10(canopy))
-la4$logd2h <- with(la4,log10(d2h))
+la3 <- merge(la2,subset(hddata,Date %in% as.Date(c("2016-1-28","2016-02-08"))),by=c("room","prov","prov_trt","pot","Date","Water_trt"))
+la3$logLA <- with(la3,log10(canopy))
+la3$logd2h <- with(la3,log10(d2h))
 
 #- plot log-log relation between d2h and leaf area, compare to allometry from GLAHD
 windows()
-with(la4,plot(logLA~logd2h))
+plotBy(logLA~logd2h|Date,data=la3)
 abline(a=1.889,b=0.7687) # allometry from GLAHD
