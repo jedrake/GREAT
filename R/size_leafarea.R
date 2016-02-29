@@ -48,8 +48,10 @@ focaldate <- max(hddata$Date)
 hddata2.m <- summaryBy(diam+h+d2h~room+Date,data=subset(hddata,Water_trt=="wet"),FUN=c(mean),keep.names=T, na.rm=T)
 hddata2.m$dh <-c(NA,diff(hddata2.m$h)) 
 hddata2.m$ddiam <-c(NA,diff(hddata2.m$diam)) 
-hddata2.m$dd2h <-c(NA,diff(hddata2.m$d2h)) 
-hddata2.m$rgr_d2h <-c(NA,diff(log(hddata2.m$d2h)/10)) # assumes a 10-day interval
+hddata2.m$dd2h <-c(NA,diff(hddata2.m$d2h))
+hddata2.m$dDate <-c(NA,diff(hddata2.m$Date)) 
+
+hddata2.m$rgr_d2h <-c(NA,diff(log(hddata2.m$d2h)))/hddata2.m$dDate # no longer assumes a 10-day interval
 
 #- plot growth increments
 windows(40,60);par(mfrow=c(3,1),mar=c(5,7,1,1),oma=c(0,0,0,0),cex.lab=2)
@@ -124,6 +126,7 @@ la2 <- merge(la2,leaf_no,by="pot")
 
 #- merge total plant leaf area with tree size
 la3 <- merge(la2,subset(hddata,Date %in% as.Date(c("2016-1-28","2016-02-08"))),by=c("room","prov","prov_trt","pot","Date","Water_trt"))
+la3 <- la3[complete.cases(la3),]
 la3$logLA <- with(la3,log10(canopy))
 la3$logd2h <- with(la3,log10(d2h))
 
@@ -131,3 +134,36 @@ la3$logd2h <- with(la3,log10(d2h))
 windows()
 plotBy(logLA~logd2h|Date,data=la3)
 abline(a=1.889,b=0.7687) # allometry from GLAHD
+
+plotBy(logLA~logd2h|Date,data=la3)
+plot3d(x=la3$logd2h,y=la3$room,z=la3$logLA,col=palette()[as.factor(la3$Date)],size=7)
+
+#--------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------
+#---- get the SLA data from punches. SLA increase with temperature, to a point.
+sla <- getPunches()
+
+sla.m <- summaryBy(SLA+LMA~room+prov+Date,data=subset(sla,Water_trt=="wet"),FUN=c(mean,standard.error),keep.names=T, na.rm=T)
+
+#- plot provenance means
+windows(40,30);par(mfrow=c(1,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
+plotBy(SLA.mean~as.numeric(room)|prov,data=sla.m,type="o",ylim=c(200,600),pch=16,legend=F,yaxt="n",xaxt="n",cex=1.5,
+       ylab="",xlab="",
+       panel.first=adderrorbars(x=as.numeric(sla.m$room),y=sla.m$SLA.mean,SE=sla.m$SLA.standard.error,direction="updown"))
+magaxis(side=c(1,2,3,4),labels=c(1,1,0,0),las=1)
+legend("topleft",c("A","B","C"),pch=16,col=c("black","red","green3"),cex=2)
+title(ylab=expression(SLA~(cm^2~g^-1)),outer=T,adj=0.5,cex.lab=3)
+title(xlab="Room",outer=T,cex.lab=3)
+
+#- dry vs. wet
+sla.m.dry <- summaryBy(SLA+LMA~room+prov+Date+Water_trt,data=subset(sla,prov=="B"),FUN=c(mean,standard.error),keep.names=T, na.rm=T)
+windows(40,30);par(mfrow=c(1,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
+plotBy(SLA.mean~as.numeric(room)|Water_trt,data=sla.m.dry,type="o",ylim=c(200,600),pch=16,legend=F,yaxt="n",xaxt="n",cex=1.5,
+       ylab="",xlab="",
+       panel.first=adderrorbars(x=as.numeric(sla.m.dry$room),y=sla.m.dry$SLA.mean,SE=sla.m.dry$SLA.standard.error,direction="updown"))
+magaxis(side=c(1,2,3,4),labels=c(1,1,0,0),las=1)
+legend("topleft",c("Wet","Dry"),pch=16,col=c("black","red"),cex=2)
+title(ylab=expression(SLA~(cm^2~g^-1)),outer=T,adj=0.5,cex.lab=3)
+title(xlab="Room",outer=T,cex.lab=3)
+
+#--------------------------------------------------------------------------------------------------------------------

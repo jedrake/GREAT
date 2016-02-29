@@ -73,10 +73,22 @@ getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf punch datasets
-#- note, these punches haven't been weighed yet so there basically is no data.
 getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
-  dat <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160202_L1.csv",sep=""))
+  dat <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160129_L1.csv",sep=""))
+  dat$Date <- as.Date("2016-1-29")
   
+  dat$SLA <- with(dat,area_cm2/(mass_mg/1000))         # in cm2 g-1
+  dat$LMA <- with(dat,(mass_mg/1000)/(area_cm2/10000)) # in g m-2
+  
+  dat$prov <- as.factor(substr(dat$pot,start=1,stop=1)) # overwrite "prov" to be A, B, or C. No Bw or Bd allowed.
+  dat$room <- as.factor(dat$room)
+  dat$prov_trt <- as.factor(paste(dat$prov,dat$room,sep="-"))
+  
+  #- assign drought treatments
+  dat$Water_trt <- "wet"
+  dat$Water_trt[grep("Bd",dat$pot)] <- "dry"
+  dat$Water_trt <- factor(dat$Water_trt,levels=c("wet","dry"))
+  return(dat)
 }  
 #-----------------------------------------------------------------------------------------  
   
@@ -84,7 +96,15 @@ getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #- function to read and process the Asat and AQ datasets
 getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
-  aq <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ-compiled-20160202-20160203-L1.csv",sep=""))
+  #- read in the first set of measurements
+  aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ-compiled-20160202-20160203-L1.csv",sep=""))
+  aq1$campaign = 1
+  
+  #- read in the second set (prov B only!)
+  aq2 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ2-compiled-20160225-20160226-L1.csv",sep=""))
+  aq2$campaign = 2
+
+  aq <- rbind(aq1,aq2)
   names(aq)[1:2] <- tolower(names(aq)[1:2])
   aq$prov <- as.factor(substr(aq$pot,start=1,stop=1))
   aq$room <- as.factor(aq$room)
@@ -103,17 +123,51 @@ getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   aq$LightFac[which(aq$PARi>1200)] <- 4
   aq$LightFac <- as.factor(aq$LightFac)
   
+  #- a few pots have strange data. UWS3 didn't seem to actually drop to low PARi on three cases.
+  #-   so remove those bad data. This should remove 3 datapoints!
+  aq <- aq[complete.cases(aq),]
   
   #- assign the temperature levels
   aq$TleafFac <- cut(aq$Tleaf,breaks=c(15,22,26,29,34,37,45),labels=1:6)
   
   #- average across replicate logs
-  aq2 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=aq,FUN=mean,keep.names=T)
-  
-  return(aq2)
+  aq.means <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac+campaign,data=aq,FUN=mean,keep.names=T)
+  return(aq.means)
 }
 #-----------------------------------------------------------------------------------------
 
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to read the soil moisture data
+getVWC_AQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  
+  #- read in the data
+  vwc <- read.csv(paste(path,"/Share/Data/GHS39_GREAT_MAIN_SOILVWC_hydrosense_L1.csv",sep=""))
+  names(vwc)[1:3] <- tolower(names(vwc)[1:3])
+  vwc$prov <- as.factor(substr(vwc$treat,start=1,stop=1))
+  vwc$room <- as.factor(vwc$room)
+  vwc$prov_trt <- as.factor(paste(vwc$prov,vwc$room,sep="-"))
+  
+  #- fix up the "pot" variable to be the same as in the AQ datasets
+  vwc$pot <- paste(vwc$treat,sprintf("%02d",vwc$pot),sep="-")
+  
+  #- assign drought treatments
+  vwc$Water_trt <- "wet"
+  vwc$Water_trt[grep("Bd",vwc$treat)] <- "dry"
+  vwc$Water_trt <- factor(vwc$Water_trt,levels=c("wet","dry"))
+  
+  #- average across sub-replicate measurements
+  vwc.m <- summaryBy(VWC1~pot+Water_trt,data=vwc,FUN=mean,keep.names=T,na.rm=T)
+  names(vwc.m)[ncol(vwc.m)] <- "vwc"
+  
+  return(vwc.m)
+}
+
+#-----------------------------------------------------------------------------------------
 
 
 
@@ -178,3 +232,16 @@ getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #-----------------------------------------------------------------------------------------
 
 
+
+
+#-----------------------------------------------------------------------------------------
+#- function to fit the June et al. (2004) FPB model for the temperature response of photosynthesis.
+#- accepts a dataframe, returns a named vector of parameter estiamtes and their se's.
+fitAvT <- function(dat){
+  try(A_Topt <- nls(Photo~ Jref*exp(-1*((Tleaf-Topt)/theta)^2),data=dat,start=list(Jref=20,Topt=25,theta=20)))
+  A_Topt2 <- summary(A_Topt)
+  results <- A_Topt2$coefficients[1:6]
+  names(results)[1:6] <- c("Aref","Topt","theta","Aref.se","Topt.se","theta.se")
+  return(results)
+}
+#-----------------------------------------------------------------------------------------
