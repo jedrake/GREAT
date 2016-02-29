@@ -70,6 +70,75 @@ legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
 
 
 
+#-------------------------------------------------------
+#-------------------------------------------------------
+#- fit AvT to estimate Topts again, for the DIRECT 
+#   short term fits only!
+tofit <- subset(avt, LightFac==4)
+tofit.l <- split(tofit,tofit$prov)
+
+#- fit all the curves
+AvTfits.list.st <- lapply(tofit.l,FUN=fitAvT)
+
+
+#- pull out the parameter means and SE's for plotting
+AvTfits <- data.frame(do.call(rbind,
+                              list(AvTfits.list.st[[1]][[1]],AvTfits.list.st[[2]][[1]],AvTfits.list.st[[3]][[1]])))
+
+windows(30,60);par(mfrow=c(3,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
+#- plot Asat at Topt
+barplot2(height=AvTfits$Aref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,30),las=1,
+         ylab=expression(A[ref]~(mu*mol~m^-2~s^-1)),
+         ci.l=AvTfits$Aref-AvTfits$Aref.se,ci.u=AvTfits$Aref+AvTfits$Aref.se)
+title(main="Short-term data")
+
+#- plot Topt
+barplot2(height=AvTfits$Topt,names.arg=c("A","B","C"),plot.ci=T,las=1,ylim=c(0,30),
+         ylab=expression(T[opt]~(degree*C)),
+         ci.l=AvTfits$Topt-AvTfits$Topt.se,ci.u=AvTfits$Topt+AvTfits$Topt.se)
+#- plot Theta
+barplot2(height=AvTfits$theta,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,25),las=1,
+         ylab=expression(Omega~(degree*C)),
+         ci.l=AvTfits$theta-AvTfits$theta.se,ci.u=AvTfits$theta+AvTfits$theta.se)
+title(xlab="Provenance",outer=T,cex.lab=2,adj=0.6)
+dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AvTshorttermfits.pdf")
+
+
+#- pull out the predictions and confidence intervals for plotting
+toplot <- data.frame(do.call(rbind,
+                             list(AvTfits.list.st[[1]][[2]],AvTfits.list.st[[2]][[2]],AvTfits.list.st[[3]][[2]])))
+toplot$prov <- c(rep("A",51),rep("B",51),rep("C",51))
+
+windows(30,30);par(mar=c(5,7,1,1))
+COL=palette()[1:3]
+
+plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=2,
+       ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),
+       xlab=expression(T[leaf]~(degree*C)))
+as <- subset(toplot,prov=="A")
+bs <- subset(toplot,prov=="B")
+cs <- subset(toplot,prov=="C")
+
+polygon(x = c(as$Tleaf, rev(as$Tleaf)), y = c(as$Sim.97.5, rev(as$Sim.2.5)), col = alpha(COL[1],0.5), border = NA)
+polygon(x = c(bs$Tleaf, rev(bs$Tleaf)), y = c(bs$Sim.97.5, rev(bs$Sim.2.5)), col = alpha(COL[2],0.5), border = NA)
+polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5, rev(cs$Sim.2.5)), col = alpha(COL[3],0.5), border = NA)
+legend("bottomleft",c("A","B","C"),fill=COL,cex=2,title="Provenance")
+title(main="Short-term data, predictions and 95% CI")
+
+#- add TREATMENT MEANS
+aq.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+Water_trt+prov,data=avt,FUN=c(mean,standard.error))
+plotmeans <- subset(aq.m,LightFac==4 & Water_trt=="wet")
+plotBy(Photo.mean~Tleaf.mean|prov,data=plotmeans,add=T,pch=16,cex=2,legend=F,
+       panel.first=(adderrorbars(x=plotmeans$Tleaf.mean,y=plotmeans$Photo.mean,
+                                 SE=plotmeans$Photo.standard.error,direction="updown")))
+dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AvTshortterm_predictions.pdf")
+
+#-------------------------------------------------------
+#-------------------------------------------------------
+
+
+
+
 
 
 

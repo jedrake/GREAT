@@ -234,14 +234,54 @@ getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 
 
+
+#-----------------------------------------------------------------------------------------
+#- function to get the confidence intervals of an NLS fit
+#https://quantitativeconservationbiology.wordpress.com/2013/07/02/confidence-interval-for-a-model-fitted-with-nls-in-r/
+
+as.lm.nls <- function(object, ...) {
+  if (!inherits(object, "nls")) {
+    w <- paste("expected object of class nls but got object of class:", 
+               paste(class(object), collapse = " "))
+    warning(w)
+  }
+  
+  gradient <- object$m$gradient()
+  if (is.null(colnames(gradient))) {
+    colnames(gradient) <- names(object$m$getPars())
+  }
+  
+  response.name <- if (length(formula(object)) == 2) "0" else 
+    as.character(formula(object)[[2]])
+  
+  lhs <- object$m$lhs()
+  L <- data.frame(lhs, gradient)
+  names(L)[1] <- response.name
+  
+  fo <- sprintf("%s ~ %s - 1", response.name, 
+                paste(colnames(gradient), collapse = "+"))
+  fo <- as.formula(fo, env = as.proto.list(L))
+  
+  do.call("lm", list(fo, offset = substitute(fitted(object))))
+  
+}
+#-----------------------------------------------------------------------------------------
+
 #-----------------------------------------------------------------------------------------
 #- function to fit the June et al. (2004) FPB model for the temperature response of photosynthesis.
-#- accepts a dataframe, returns a named vector of parameter estiamtes and their se's.
+#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
+#-   and [2] a dataframe with the predictions and 95% confidence intervals.
 fitAvT <- function(dat){
   try(A_Topt <- nls(Photo~ Jref*exp(-1*((Tleaf-Topt)/theta)^2),data=dat,start=list(Jref=20,Topt=25,theta=20)))
   A_Topt2 <- summary(A_Topt)
   results <- A_Topt2$coefficients[1:6]
   names(results)[1:6] <- c("Aref","Topt","theta","Aref.se","Topt.se","theta.se")
-  return(results)
+  
+  TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
+  predicts <- predictNLS(A_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)
+  predicts.df <- data.frame(predicts$summary)
+  predicts.df$Tleaf <- TT
+  
+  return(list(results,predicts.df))
 }
 #-----------------------------------------------------------------------------------------
