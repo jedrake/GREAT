@@ -267,6 +267,10 @@ as.lm.nls <- function(object, ...) {
 }
 #-----------------------------------------------------------------------------------------
 
+
+
+
+
 #-----------------------------------------------------------------------------------------
 #- function to fit the June et al. (2004) FPB model for the temperature response of photosynthesis.
 #- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
@@ -279,6 +283,29 @@ fitAvT <- function(dat){
   
   TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
   predicts <- predictNLS(A_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)
+  predicts.df <- data.frame(predicts$summary)
+  predicts.df$Tleaf <- TT
+  
+  return(list(results,predicts.df))
+}
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to fit a Q10 model of respiration
+#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
+#-   and [2] a dataframe with the predictions and 95% confidence intervals.
+fitRvT <- function(dat){
+  try(R_Topt <- nls(Rarea~  Rref*Q10^((Tleaf-22.5)/10),data=dat,start=list(Rref=10,Q10=2)))
+  R_Topt2 <- summary(R_Topt)
+  results <- R_Topt2$coefficients[1:4]
+  names(results)[1:4] <- c("Rref","Q10","Rref.se","Q10.se")
+  
+  TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
+  predicts <- predictNLS(R_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)
   predicts.df <- data.frame(predicts$summary)
   predicts.df$Tleaf <- TT
   
