@@ -229,6 +229,7 @@ rgrdat$Date.x <- rgrdat$Date.y <- rgrdat$punch_no <- rgrdat$area_cm2 <- rgrdat$m
 #- okay, so NOW we have a dataframe with all the bits in it for a formal RGR analysis. 
 #    We have growth, canopy leaf area, and SLA. These were measured INDEPENDENTLY.
 head(rgrdat)
+rgrdat$logmass <- log10(rgrdat$totmass)
 
 #- calculate LAR (m2 kg-1)
 rgrdat$LAR <- with(rgrdat,canopy/10000/(totmass/1000))
@@ -236,8 +237,9 @@ rgrdat$LAR <- with(rgrdat,canopy/10000/(totmass/1000))
 #- calculate net assimilation rate (NAR; g m-2 d-1) from absolute growth rate and total canopy leaf area
 rgrdat$NAR <- with(rgrdat,AGR/(canopy/10000))
 
-pairs(subset(rgrdat,Water_trt=="wet")[,c("RGR","AGR","canopy","LAR","NAR","SLA","room")],
-      col=palette()[subset(rgrdat,Water_trt=="wet")$prov])
+#- plot interrelationships
+pairs(subset(rgrdat,Water_trt=="wet")[,c("RGR","AGR","LAR","NAR","canopy","SLA","logmass","room")],
+      col=rev(brewer.pal(6,"RdYlGn"))[subset(rgrdat,Water_trt=="wet")$room])
 #--------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------
 
