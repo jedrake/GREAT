@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------------------
 #- function to read and return the most recent size measurements of height and diameter
-getSize <- function(path="R://WORKING_DATA/GHS39/GREAT"){
+getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   #- work out the path
   
@@ -56,18 +56,26 @@ getSize <- function(path="R://WORKING_DATA/GHS39/GREAT"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf number and leaf size datasets
-getLA <- function(path="R://WORKING_DATA/GHS39/GREAT"){
+getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   la <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160128_L1.csv",sep=""))
+  la$Date <- as.Date("2016-1-28")
+  
+  la2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160209_L1.csv",sep=""))
+  la2$Date <- as.Date("2016-2-09")
+  
+  la <- rbind(la,la2)
+  
   la$prov <- as.factor(substr(la$pot,start=1,stop=1))
   la$room <- as.factor(la$room)
   la$prov_trt <- as.factor(paste(la$prov,la$room,sep="-"))
-  la$Date <- as.Date("2016-1-28")
   
   #- assign drought treatments
   la$Water_trt <- "wet"
   la$Water_trt[grep("Bd",la$pot)] <- "dry"
   la$Water_trt <- factor(la$Water_trt,levels=c("wet","dry"))
+  
+  return(la)
 }
 #-----------------------------------------------------------------------------------------
 

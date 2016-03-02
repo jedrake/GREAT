@@ -1,6 +1,7 @@
 library(plotBy)
 library(doBy)
 library(magicaxis)
+library(RColorBrewer)
 source("R/generic_functions.R")
 source("R/GREAT_functions.R")
 
