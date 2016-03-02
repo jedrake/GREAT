@@ -28,15 +28,23 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   hddata$prov <- as.factor(substr(hddata$pot,start=1,stop=1))
   hddata$room <- as.factor(hddata$room)
   hddata$prov_trt <- as.factor(paste(hddata$prov,hddata$room,sep="-"))
+  hddata$Date <- as.Date(hddata$date,format="%d/%m/%Y")
+  
+  
+  #- Bd-78 was mistakenly recorded on 2016-01-28 
+  hddata[which(hddata$pot=="Bd-78" & hddata$Date==as.Date("2016-01-28")),"d1"] <- 2.68
+  hddata[which(hddata$pot=="Bd-78" & hddata$Date==as.Date("2016-01-28")),"d2"] <- 2.75
+  
   hddata$diam <- with(hddata,((d1+d2)/2))
   hddata$d2h <- with(hddata,(diam/10)^2*h) #cm^3
-  hddata$Date <- as.Date(hddata$date,format="%d/%m/%Y")
   hddata$date <- NULL
   
   #- assign drought treatments
   hddata$Water_trt <- "wet"
   hddata$Water_trt[grep("Bd",hddata$pot)] <- "dry"
   hddata$Water_trt <- factor(hddata$Water_trt,levels=c("wet","dry"))
+  
+
   
   return(hddata)
 }
@@ -312,3 +320,94 @@ fitRvT <- function(dat){
   return(list(results,predicts.df))
 }
 #-----------------------------------------------------------------------------------------
+
+
+
+
+
+#- function to return an estimated mass based on tree size (d2h). Takes a vector of d2h (cm3), returns
+#-  a vector of estimated total mass (g). Can later be expanded to include other predictors (provenance, etc),
+#-  and other predictors (total leaf area, for example).
+returnMassFromAllom <- function(d2hdat,plotson=T){
+  
+  #----------------------------------------------------------------------------------------------------------------
+  #- read in the raw data
+  path="W://WORKING_DATA/GHS39/GREAT"
+  files <-  list.files(paste(path,"/Share/Data/Harvests/",sep=""),pattern="GHS39_GREAT_MAIN_BIOMASS",full.names=T)
+  files2 <- files[grep(".csv",files)] # only get the .csv files
+  
+  #- pull out the longer file name that has a different structure
+  longfile <- files2[which.max(nchar(files2))]
+  files3 <- files2[-which.max(nchar(files2))]
+  
+  dates <- c()
+  dat.i <- list()
+  for (i in 1:length(files3)){
+    dates[i] <- as.numeric(substr(files3[i],start=75,stop=82)) # extract the date from the file name
+    dat.i[[i]] <- read.csv(files2[i])
+    dat.i[[i]]$Date <- base::as.Date(as.character(dates[i]),format="%Y%m%d")
+    names(dat.i[[i]]) <- c("Pot","h","d1","d2","leafarea","leafno","leafdm","stemdm","rootdm","Date")
+  }
+  dat <- do.call(rbind,dat.i)
+  dat$prov <- as.factor(substr(dat$Pot,start=1,stop=1))
+  
+  #- read in the longer datafile, fix up names for merging
+  dat.long <- read.csv(longfile)
+  dat.long <- dat.long[,c("Code","h..cm.","d1..mm.","d2..mm.","leafno....","leafarea..cm2.","leafdm","stemdm","rootdm","Date")]
+  dat.long$Date <- base::as.Date(as.character(dat.long$Date),format="%Y%m%d")
+  names(dat.long) <- c("Pot","h","d1","d2","leafno","leafarea","leafdm","stemdm","rootdm","Date")
+  dat.long$prov <- as.factor(substr(dat.long$Pot,start=1,stop=1))
+  
+  dat <- rbind(dat,dat.long)
+  #----------------------------------------------------------------------------------------------------------------
+  
+  #----------------------------------------------------------------------------------------------------------------
+  #- Do some data manipulation
+  
+  #- height was measured in mm for the first dataset. convert to cm
+  firsts <- which(dat$Date == as.Date("2016-01-07"))
+  dat[firsts,"h"] <- dat[firsts,"h"]/10
+  
+  #- do some simple math
+  dat$diam <- base::rowMeans(cbind(dat$d1,dat$d2))
+  dat$d2h <- with(dat,h*(diam/10)^2) # calculates in units of cubic centimeters
+  dat$totdm <- base::rowSums(cbind(dat$leafdm,dat$stemdm,dat$rootdm))
+  
+  #- total leaf area was recorded incorrectly for C-33. It should be 1079, not 107.9 cm2. 
+  dat[which(dat$Pot=="C-33"),"leafarea"] <- 1079
+  
+  #- log transform (base 10!)
+  dat$logd2h <- log10(dat$d2h)
+  dat$logtotdm <- log10(dat$totdm)
+  #----------------------------------------------------------------------------------------------------------------
+  
+  
+  #----------------------------------------------------------------------------------------------------------------
+  #- model the allometry, return predicted mass for the vector of d2h values
+  lm1 <- lm(logtotdm~logd2h,data=dat)
+  predictions <- 10^predict(lm1,newdata=data.frame(logd2h=log10(d2hdat)))
+  #----------------------------------------------------------------------------------------------------------------
+  
+  
+  #----------------------------------------------------------------------------------------------------------------
+  #- how many of the observations lie outside of the allometry?
+  toolow <- which(d2hdat < min(dat$d2h))
+  toohigh <- which(d2hdat > max(dat$d2h))
+  
+  outsides <- sum(length(toolow),length(toohigh))
+  total <- length(d2hdat)
+  
+  print(paste(outsides," observations of ",total," outside of allometry",sep=""))
+  #----------------------------------------------------------------------------------------------------------------
+  
+  
+  #----------------------------------------------------------------------------------------------------------------
+  #- exploratory plotting
+  if (plotson==T){
+    plotBy(logtotdm~logd2h|prov,data=dat)
+    abline(lm1)
+  }
+  #----------------------------------------------------------------------------------------------------------------
+  
+  return(predictions)
+}
