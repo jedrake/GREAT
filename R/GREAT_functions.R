@@ -64,10 +64,42 @@ getLA <- function(path="R://WORKING_DATA/GHS39/GREAT"){
 
 
 #-----------------------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+#- function to read and process the leaf punch datasets
+getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  dat <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160129_L1.csv",sep=""))
+  dat$Date <- as.Date("2016-1-29")
+  
+  dat$SLA <- with(dat,area_cm2/(mass_mg/1000))         # in cm2 g-1
+  dat$LMA <- with(dat,(mass_mg/1000)/(area_cm2/10000)) # in g m-2
+  
+  dat$prov <- as.factor(substr(dat$pot,start=1,stop=1)) # overwrite "prov" to be A, B, or C. No Bw or Bd allowed.
+  dat$room <- as.factor(dat$room)
+  dat$prov_trt <- as.factor(paste(dat$prov,dat$room,sep="-"))
+  
+  #- assign drought treatments
+  dat$Water_trt <- "wet"
+  dat$Water_trt[grep("Bd",dat$pot)] <- "dry"
+  dat$Water_trt <- factor(dat$Water_trt,levels=c("wet","dry"))
+  return(dat)
+}  
+#-----------------------------------------------------------------------------------------  
+  
+#-----------------------------------------------------------------------------------------
+>>>>>>> 3792fe33b1bdff12efbdf834b3e0f52985fa78a1
 #- function to read and process the Asat and AQ datasets
 getAQ <- function(path="R://WORKING_DATA/GHS39/GREAT"){
   
-  aq <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ-compiled-20160202-20160203-L1.csv",sep=""))
+  #- read in the first set of measurements
+  aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ-compiled-20160202-20160203-L1.csv",sep=""))
+  aq1$campaign = 1
+  
+  #- read in the second set (prov B only!)
+  aq2 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ2-compiled-20160225-20160226-L1.csv",sep=""))
+  aq2$campaign = 2
+
+  aq <- rbind(aq1,aq2)
   names(aq)[1:2] <- tolower(names(aq)[1:2])
   aq$prov <- as.factor(substr(aq$pot,start=1,stop=1))
   aq$room <- as.factor(aq$room)
@@ -86,17 +118,51 @@ getAQ <- function(path="R://WORKING_DATA/GHS39/GREAT"){
   aq$LightFac[which(aq$PARi>1200)] <- 4
   aq$LightFac <- as.factor(aq$LightFac)
   
+  #- a few pots have strange data. UWS3 didn't seem to actually drop to low PARi on three cases.
+  #-   so remove those bad data. This should remove 3 datapoints!
+  aq <- aq[complete.cases(aq),]
   
   #- assign the temperature levels
   aq$TleafFac <- cut(aq$Tleaf,breaks=c(15,22,26,29,34,37,45),labels=1:6)
   
   #- average across replicate logs
-  aq2 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=aq,FUN=mean,keep.names=T)
-  
-  return(aq2)
+  aq.means <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac+campaign,data=aq,FUN=mean,keep.names=T)
+  return(aq.means)
 }
 #-----------------------------------------------------------------------------------------
 
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to read the soil moisture data
+getVWC_AQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  
+  #- read in the data
+  vwc <- read.csv(paste(path,"/Share/Data/GHS39_GREAT_MAIN_SOILVWC_hydrosense_L1.csv",sep=""))
+  names(vwc)[1:3] <- tolower(names(vwc)[1:3])
+  vwc$prov <- as.factor(substr(vwc$treat,start=1,stop=1))
+  vwc$room <- as.factor(vwc$room)
+  vwc$prov_trt <- as.factor(paste(vwc$prov,vwc$room,sep="-"))
+  
+  #- fix up the "pot" variable to be the same as in the AQ datasets
+  vwc$pot <- paste(vwc$treat,sprintf("%02d",vwc$pot),sep="-")
+  
+  #- assign drought treatments
+  vwc$Water_trt <- "wet"
+  vwc$Water_trt[grep("Bd",vwc$treat)] <- "dry"
+  vwc$Water_trt <- factor(vwc$Water_trt,levels=c("wet","dry"))
+  
+  #- average across sub-replicate measurements
+  vwc.m <- summaryBy(VWC1~pot+Water_trt,data=vwc,FUN=mean,keep.names=T,na.rm=T)
+  names(vwc.m)[ncol(vwc.m)] <- "vwc"
+  
+  return(vwc.m)
+}
+
+#-----------------------------------------------------------------------------------------
 
 
 
@@ -127,4 +193,121 @@ getAvT <- function(path="R://WORKING_DATA/GHS39/GREAT"){
   avt2 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=avt,FUN=mean,keep.names=T)
   return(avt2)
 }
+<<<<<<< HEAD
 #-----------------------------------------------------------------------------------------
+=======
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to read and process the temperature response curves of respiration
+getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  
+  rvt <-read.csv(paste(path,"/Share/Data/GasEx/Rdark/GREAT-Rdark-compiled-20160211-L1.csv",sep=""))
+  names(rvt)[1:2] <- tolower(names(rvt)[1:2])
+  rvt$prov <- as.factor(substr(rvt$pot,start=1,stop=1))
+  rvt$room <- as.factor(rvt$room)
+  rvt$prov_trt <- as.factor(paste(rvt$prov,rvt$room,sep="-"))
+  rvt$Rarea <- rvt$Photo*-1
+  
+  #- assign drought treatments
+  rvt$Water_trt <- "wet"
+  
+  #- assign the temperature levels
+  rvt$TleafFac <- cut(rvt$Tleaf,breaks=c(10,15,20,25,27.5,35),labels=1:5)
+  
+  #- average across sub-replicate logs
+  rvt2 <- summaryBy(.~room+pot+prov+prov_trt+Water_trt+TleafFac,data=rvt,FUN=mean,keep.names=T)
+  
+  #- got them all? We're missing the fourth temperature for bw-26.
+  xtabs(~pot,data=rvt2)
+  return(rvt2)
+}
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to get the confidence intervals of an NLS fit
+#https://quantitativeconservationbiology.wordpress.com/2013/07/02/confidence-interval-for-a-model-fitted-with-nls-in-r/
+
+as.lm.nls <- function(object, ...) {
+  if (!inherits(object, "nls")) {
+    w <- paste("expected object of class nls but got object of class:", 
+               paste(class(object), collapse = " "))
+    warning(w)
+  }
+  
+  gradient <- object$m$gradient()
+  if (is.null(colnames(gradient))) {
+    colnames(gradient) <- names(object$m$getPars())
+  }
+  
+  response.name <- if (length(formula(object)) == 2) "0" else 
+    as.character(formula(object)[[2]])
+  
+  lhs <- object$m$lhs()
+  L <- data.frame(lhs, gradient)
+  names(L)[1] <- response.name
+  
+  fo <- sprintf("%s ~ %s - 1", response.name, 
+                paste(colnames(gradient), collapse = "+"))
+  fo <- as.formula(fo, env = as.proto.list(L))
+  
+  do.call("lm", list(fo, offset = substitute(fitted(object))))
+  
+}
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to fit the June et al. (2004) FPB model for the temperature response of photosynthesis.
+#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
+#-   and [2] a dataframe with the predictions and 95% confidence intervals.
+fitAvT <- function(dat){
+  try(A_Topt <- nls(Photo~ Jref*exp(-1*((Tleaf-Topt)/theta)^2),data=dat,start=list(Jref=20,Topt=25,theta=20)))
+  A_Topt2 <- summary(A_Topt)
+  results <- A_Topt2$coefficients[1:6]
+  names(results)[1:6] <- c("Aref","Topt","theta","Aref.se","Topt.se","theta.se")
+  
+  TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
+  predicts <- predictNLS(A_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)
+  predicts.df <- data.frame(predicts$summary)
+  predicts.df$Tleaf <- TT
+  
+  return(list(results,predicts.df))
+}
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to fit a Q10 model of respiration
+#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
+#-   and [2] a dataframe with the predictions and 95% confidence intervals.
+fitRvT <- function(dat){
+  try(R_Topt <- nls(Rarea~  Rref*Q10^((Tleaf-22.5)/10),data=dat,start=list(Rref=10,Q10=2)))
+  R_Topt2 <- summary(R_Topt)
+  results <- R_Topt2$coefficients[1:4]
+  names(results)[1:4] <- c("Rref","Q10","Rref.se","Q10.se")
+  
+  TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
+  predicts <- predictNLS(R_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)
+  predicts.df <- data.frame(predicts$summary)
+  predicts.df$Tleaf <- TT
+  
+  return(list(results,predicts.df))
+}
+#-----------------------------------------------------------------------------------------
+>>>>>>> 3792fe33b1bdff12efbdf834b3e0f52985fa78a1
