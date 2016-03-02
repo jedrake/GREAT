@@ -92,7 +92,7 @@ windows(30,30);par(mar=c(5,7,1,1))
 COL=palette()[1:3]
 
 plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,1.75),lwd=3,cex.lab=2,
-       ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),
+       ylab=expression(R[dark]~(mu*mol~m^-2~s^-1)),
        xlab=expression(T[leaf]~(degree*C)))
 as <- subset(toplot,prov=="A")
 bs <- subset(toplot,prov=="B")
