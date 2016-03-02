@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------------------
 #- function to read and return the most recent size measurements of height and diameter
-getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getSize <- function(path="R://WORKING_DATA/GHS39/GREAT"){
   
   #- work out the path
   
@@ -37,7 +37,7 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   hddata$diam <- with(hddata,((d1+d2)/2))
   hddata$d2h <- with(hddata,(diam/10)^2*h) #cm^3
-  hddata$date <- NULL
+
   
   #- assign drought treatments
   hddata$Water_trt <- "wet"
@@ -56,25 +56,18 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf number and leaf size datasets
-getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getLA <- function(path="R://WORKING_DATA/GHS39/GREAT"){
   
-  #- read in the leaf count and leaf size datasets, measured on two dates.
-  la1 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160128_L1.csv",sep=""))
-  la2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160209_L1.csv",sep=""))
-  la1$Date <- as.Date("2016-01-28")
-  la2$Date <- as.Date("2016-02-08") #- note that this is a bit of a fib to merge the leaf area with the d2h measures
-  
-  #- merge into a single file
-  la <- rbind(la1,la2)
+  la <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160128_L1.csv",sep=""))
   la$prov <- as.factor(substr(la$pot,start=1,stop=1))
   la$room <- as.factor(la$room)
   la$prov_trt <- as.factor(paste(la$prov,la$room,sep="-"))
+  la$Date <- as.Date("2016-1-28")
   
   #- assign drought treatments
   la$Water_trt <- "wet"
   la$Water_trt[grep("Bd",la$pot)] <- "dry"
   la$Water_trt <- factor(la$Water_trt,levels=c("wet","dry"))
-  return(la)
 }
 #-----------------------------------------------------------------------------------------
 
@@ -102,7 +95,7 @@ getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
 #-----------------------------------------------------------------------------------------
 #- function to read and process the Asat and AQ datasets
-getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getAQ <- function(path="R://WORKING_DATA/GHS39/GREAT"){
   
   #- read in the first set of measurements
   aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ-compiled-20160202-20160203-L1.csv",sep=""))
@@ -183,7 +176,7 @@ getVWC_AQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the temperature response curves of photosynthesis
-getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getAvT <- function(path="R://WORKING_DATA/GHS39/GREAT"){
   
   avt <-read.csv(paste(path,"/Share/Data/GasEx/AvT/GREAT-AvT-compiled-20160205-L1.csv",sep=""))
   names(avt)[1:2] <- tolower(names(avt)[1:2])
@@ -206,6 +199,7 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   avt2 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=avt,FUN=mean,keep.names=T)
   return(avt2)
 }
+#-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
 
@@ -411,3 +405,4 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   
   return(predictions)
 }
+

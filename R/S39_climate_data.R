@@ -24,8 +24,7 @@ source("R/generic_functions.R")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- get the "fast" files. This takes a little while, as the files are huge.
-
-fastfiles <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160215/",pattern="fast",full.names=T)
+fastfiles <- list.files("R://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160302/",pattern="fast",full.names=T)
 
 dat <- list()
 for(i in 1:length(fastfiles)){
@@ -85,8 +84,7 @@ dat.fast.hr <- dat.fast.hr[!(dat.fast.hr$Date %in% c(as.Date("2016-1-20"),as.Dat
 
 #-----------------------------------------------------------------------------------------
 #- Averages, only after 13 Jan (humidifier fixed in bay 8)
-trt_means <- summaryBy(Tair+RH+VPD~room,data=subset(dat.fast.hr,DateTime_hr>=as.POSIXct("2016-1-15 00:00:00")))
-plotBy(VPD.mean~Tair.mean,data=trt_means)
+summaryBy(Tair+RH+VPD~room,data=subset(dat.fast.hr,DateTime_hr>=as.POSIXct("2016-1-15 00:00:00")))
 #-----------------------------------------------------------------------------------------
 
 
@@ -95,20 +93,20 @@ windows(40,70);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(6,7,1,4))
 
 plotBy(Tair~DateTime_hr|room,data=dat.fast.hr,legend=F,type="l",ylim=c(15,45),lwd=2,las=1)
 axis(4,labels=T,las=1)
-axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="week"),
+axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="day"),
              labels=F)
 legend("top",legend=levels(dat.fast.hr$room),col=palette()[1:6],lty=1,ncol=6,bty="n",lwd=2)
 plotBy(RH~DateTime_hr|room,data=dat.fast.hr,legend=F,type="l",ylim=c(25,120),lwd=2,las=1)
 axis(4,labels=T,las=1)
-axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="week"),
+axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="day"),
              labels=F)
 plotBy(VPD~DateTime_hr|room,data=dat.fast.hr,legend=F,type="l",lwd=2,ylim=c(0,7),las=1)
 axis(4,labels=T,las=1)
-axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="week"),
+axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="day"),
              labels=F)
 plotBy(PAR~DateTime_hr,data=subset(dat.fast.hr,bay %in% 3:8),col="gray",legend=F,type="l",lwd=2,ylim=c(0,2000),las=1)
 axis(4,labels=T,las=1)
-axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="week"),
+axis.POSIXct(side=1,at=seq.POSIXt(from=min(dat.fast.hr$DateTime_hr),to=max(dat.fast.hr$DateTime_hr),by="day"),
              labels=T)
 title(ylab=expression(T[air]~(degree*C)),outer=T,adj=0.9,line=3,cex.lab=2)
 title(ylab=expression(RH~("%")),outer=T,adj=0.65,line=3,cex.lab=2)
@@ -137,7 +135,7 @@ title(ylab=expression(PAR),outer=T,adj=0.1,line=3,cex.lab=2)
 #- read in the VWC data ("slow")
 
 #- get the vwc files. 
-vwc.files <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160215/",pattern="VW",full.names=T)
+vwc.files <- list.files("R://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160302/",pattern="VW",full.names=T)
 
 dat <- list()
 for(i in 1:length(vwc.files)){
@@ -219,7 +217,7 @@ dat.vwc.d <- dplyr::summarize(group_by(dat.vwc,Date,room,Water_treatment,id),
                               VWC=mean(VWC,na.rm=T))
 dat.vwc.d <- as.data.frame(dat.vwc.d)
 
-dat.vwc.d2 <- summaryBy(VWC~Date+room+Water_treatment,data=dat.vwc.d,FUN=c(mean,standard.error),na.rm=T)
+dat.vwc.d2 <- summaryBy(VWC~Date+room+Water_treatment,data=dat.vwc.d,FUN=c(mean,standard.error))
 
 
 #- plot treatment averages for soil moisture over time
