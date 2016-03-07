@@ -33,7 +33,7 @@ title(ylab=expression(R[dark]~(mu*mol~m^-2~s^-1)),outer=T,cex.lab=2)
 
 rvt.m <- summaryBy(Rarea+Tleaf+CTleaf~TleafFac+prov,data=rvt,FUN=c(mean,standard.error),na.rm=T)
 
-#- plot each light level's temperature response
+#- plot temperature response
 plotBy(Rarea.mean~CTleaf.mean|prov,data=rvt.m,las=1,xlim=c(10,35),ylim=c(0,2),legend=F,pch=16,
        axes=F)
 magaxis(side=1:4,labels=c(0,1,0,1),las=1)

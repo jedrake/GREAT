@@ -103,7 +103,7 @@ getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
 #-----------------------------------------------------------------------------------------
 #- function to read and process the Asat and AQ datasets
-getAQ <- function(path="R://WORKING_DATA/GHS39/GREAT"){
+getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   #- read in the first set of measurements
   aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ-compiled-20160202-20160203-L1.csv",sep=""))
@@ -184,7 +184,7 @@ getVWC_AQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the temperature response curves of photosynthesis
-getAvT <- function(path="R://WORKING_DATA/GHS39/GREAT"){
+getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   avt <-read.csv(paste(path,"/Share/Data/GasEx/AvT/GREAT-AvT-compiled-20160205-L1.csv",sep=""))
   names(avt)[1:2] <- tolower(names(avt)[1:2])
@@ -327,6 +327,49 @@ fitRvT <- function(dat){
 
 
 
+#-----------------------------------------------------------------------------------------
+#- function to fit the June et al. (2004) FPB model for the temperature response of GROWTH
+#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
+#-   and [2] a dataframe with the predictions and 95% confidence intervals.
+fitAGRvT <- function(dat){
+  try(G_Topt <- nls(AGR.mean~ AGRref*exp(-1*((Tair-Topt)/theta)^2),data=dat,start=list(AGRref=0.5,Topt=30,theta=20)))
+  G_Topt2 <- summary(G_Topt)
+  results <- G_Topt2$coefficients[1:6]
+  names(results)[1:6] <- c("AGRref","Topt","theta","AGRref.se","Topt.se","theta.se")
+  
+  TT <- seq(min(dat$Tair),max(dat$Tair),length=51)
+  predicts <- predictNLS(G_Topt, newdata=data.frame(Tair = TT),interval="confidence",level=0.95)
+  predicts.df <- data.frame(predicts$summary)
+  predicts.df$Tleaf <- TT
+  
+  return(list(results,predicts.df))
+}
+#-----------------------------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------------------------
+#- function to fit the June et al. (2004) FPB model for the temperature response of GROWTH
+#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
+#-   and [2] a dataframe with the predictions and 95% confidence intervals.
+fitRGRvT <- function(dat){
+  try(G_Topt <- nls(RGR.mean~ RGRref*exp(-1*((Tair-Topt)/theta)^2),data=dat,start=list(RGRref=0.15,Topt=25,theta=20)))
+  G_Topt2 <- summary(G_Topt)
+  results <- G_Topt2$coefficients[1:6]
+  names(results)[1:6] <- c("RGRref","Topt","theta","RGRref.se","Topt.se","theta.se")
+  
+  TT <- seq(min(dat$Tair),max(dat$Tair),length=51)
+  predicts <- predictNLS(G_Topt, newdata=data.frame(Tair = TT),interval="confidence",level=0.95)
+  predicts.df <- data.frame(predicts$summary)
+  predicts.df$Tleaf <- TT
+  
+  return(list(results,predicts.df))
+}
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
 #- function to return an estimated mass based on tree size (d2h). Takes a vector of d2h (cm3), returns
 #-  a vector of estimated total mass (g). Can later be expanded to include other predictors (provenance, etc),
 #-  and other predictors (total leaf area, for example).
@@ -414,3 +457,129 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   return(predictions)
 }
 
+
+
+
+
+returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
+  
+  #-----------------------------------------------------------------------------------------
+  #- get the size data, estimate mass
+  
+  hddata <- getSize(path=path) # specify path to "GREAT" share folder on HIE-Data2. Defaults to W://WORKING_DATA/GHS39/GREAT
+  hddata$totmass <- returnMassFromAllom(d2hdat=hddata$d2h,plotson=plotson) #- predict mass from d2h allometry
+  #-----------------------------------------------------------------------------------------
+  
+  
+  
+  #-----------------------------------------------------------------------------------------
+  #- calculate RGR and AGR based on the estimated total mass
+  hddata <- hddata[with(hddata,order(pot,Date)),]
+  
+  hddata.l <- split(hddata,hddata$pot)
+  for(i in 1:length(hddata.l)){
+    crap <- hddata.l[[i]]
+    hddata.l[[i]]$RGR <- c(NA,diff(log(hddata.l[[i]]$totmass)))/c(NA,diff(hddata.l[[i]]$Date)) # g g-1 day-1
+    hddata.l[[i]]$AGR <- c(NA,diff(hddata.l[[i]]$totmass))/c(NA,diff(hddata.l[[i]]$Date))      # g day-1
+    
+  }
+  hddata2 <- do.call(rbind,hddata.l)
+  
+  
+  #- pull out the most important agr and rgr estimates (during our growth interval from Jan 28th to Feb 8th)
+  rgrinterval1 <- subset(hddata2,Date==as.Date("2016-02-08"))
+  rgrinterval <- rgrinterval1[complete.cases(rgrinterval1),] # remove missing data
+  #-----------------------------------------------------------------------------------------
+  
+  #------------------------------------------------------------------------------------------------------------
+  #------------------------------------------------------------------------------------------------------------
+  #- merge in the measurements of total plant leaf area to the RGR interval
+  
+  #- process the total plant leaf area data
+  la <- getLA()
+  
+  #- calculate total plant leaf area. This method uses a different average leaf size for each plant
+  la$canopy <- with(la,leaf_no*lf_area)
+  
+  
+  #----------------------------------------------------------------------------------------------------
+  #- calculate total plant leaf area using a room and date-specific mean value
+  leaf_size <- summaryBy(lf_area~room+lf_size+Date,data=la,FUN=mean,keep.names=F,na.rm=T)
+  
+  
+  #-- average leaf size is temperature dependent, but not provenance dependent
+  #boxplot(lf_area~lf_size+room,data=la)
+  #boxplot(lf_area~prov+room,data=subset(la,lf_size=="large"))
+  
+  la2.1 <- merge(la,leaf_size,by=c("room","lf_size","Date"))
+  la2.1$canopy2 <- with(la2.1,leaf_no*lf_area.mean)
+  
+  la2 <- summaryBy(canopy+canopy2~room+pot+prov+prov_trt+Date+Water_trt,data=la2.1,FUN=sum,keep.names=T)
+  
+  #- merge in total plant leaf number
+  leaf_no <-summaryBy(leaf_no~pot,data=la,FUN=sum,keep.names=T)
+  la2 <- merge(la2,leaf_no,by="pot")
+  
+  #- average the leaf area data across the two dates, which bracket the RGR growth interval
+  la.m <- summaryBy(canopy+canopy2+leaf_no~room+pot+prov+prov_trt+Water_trt,data=la2,FUN=mean,keep.names=T)
+  
+  
+  #- merge total plant leaf area with tree size from the interval measurements
+  la3 <- merge(la.m,subset(rgrinterval,Date %in% as.Date(c("2016-1-28","2016-02-08"))),by=c("room","prov","prov_trt","pot","Water_trt"))
+  la3 <- la3[complete.cases(la3),]
+  la3$logLA <- with(la3,log10(canopy))
+  la3$logd2h <- with(la3,log10(d2h))
+  
+  #- plot log-log relation between d2h and leaf area, compare to allometry from GLAHD
+  # windows()
+  # plotBy(logLA~logd2h|Date,data=la3)
+  # abline(a=1.889,b=0.7687) # allometry from GLAHD
+  #--------------------------------------------------------------------------------------------------------------------
+  #--------------------------------------------------------------------------------------------------------------------
+  
+  
+  
+  
+  
+  
+  
+  #--------------------------------------------------------------------------------------------------------------------
+  #--------------------------------------------------------------------------------------------------------------------
+  #---- get the SLA data from punches. SLA increase with temperature, to a point.
+  sla <- getPunches()
+  
+  rgrdat <- merge(la3,sla,by=c("room","prov","pot","prov_trt","Water_trt"))
+  rgrdat$Date.x <- rgrdat$Date.y <- rgrdat$punch_no <- rgrdat$area_cm2 <- rgrdat$mass_mg <- NULL
+  
+  
+  
+  
+  #--------------------------------------------------------------------------------------------------------------------
+  #--------------------------------------------------------------------------------------------------------------------
+  #- okay, so NOW we have a dataframe with all the bits in it for a formal RGR analysis. 
+  #    We have growth, canopy leaf area, and SLA. These were measured INDEPENDENTLY.
+  #head(rgrdat)
+  rgrdat$logmass <- log10(rgrdat$totmass)
+  
+  #- calculate LAR (m2 kg-1)
+  rgrdat$LAR <- with(rgrdat,canopy/10000/(totmass/1000))
+  
+  #- calculate net assimilation rate (NAR; g m-2 d-1) from absolute growth rate and total canopy leaf area
+  rgrdat$NAR <- with(rgrdat,AGR/(canopy/10000))
+  
+  #- plot interrelationships
+  if(plotson==T){
+    windows()
+    pairs(subset(rgrdat,Water_trt=="wet")[,c("RGR","AGR","LAR","NAR","canopy","SLA","logmass","room")],
+          col=rev(brewer.pal(6,"RdYlGn"))[subset(rgrdat,Water_trt=="wet")$room])
+  }
+  
+  
+  #- get rid of some unwanted variabels to make things simpler
+  rgrdat$canopy2 <- rgrdat$date <- rgrdat$d1 <- rgrdat$d2 <- rgrdat$Comment <- rgrdat$leaf_no <- NULL
+  
+  return(rgrdat)
+  #--------------------------------------------------------------------------------------------------------------------
+  #--------------------------------------------------------------------------------------------------------------------
+  
+}
