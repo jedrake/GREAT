@@ -370,6 +370,36 @@ fitRGRvT <- function(dat){
 
 
 
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#-  Attempting to write a generic function to fit temperature response curves.
+#- function to fit the June et al. (2004) FPB model for the temperature response of GROWTH
+#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
+#-   and [2] a dataframe with the predictions and 95% confidence intervals.
+fitJuneT <- function(dat,namex,namey,start=list(Rref=2,Topt=20,theta=20)){
+  dat$Yvar <- dat[[namey]]
+  dat$Xvar <- dat[[namex]]
+  
+  try(G_Topt <- nls(Yvar~ Rref*exp(-1*((Xvar-Topt)/theta)^2),data=dat,start=list(Rref=0.15,Topt=25,theta=20)))
+  G_Topt2 <- summary(G_Topt)
+  results <- G_Topt2$coefficients[1:6]
+  names(results)[1:6] <- c(paste(namey,"ref",sep=""),"Topt","theta",paste(namey,"ref.se",sep=""),"Topt.se","theta.se")
+   
+  TT <- seq(min(dat$Xvar),max(dat$Xvar),length=51)
+  predicts <- predictNLS(G_Topt, newdata=data.frame(Xvar = TT),interval="confidence",level=0.95)
+  predicts.df <- data.frame(predicts$summary)
+  predicts.df$Tleaf <- TT
+  
+  return(list(results,predicts.df))
+}
+#-----------------------------------------------------------------------------------------
+
+
+
+
 #- function to return an estimated mass based on tree size (d2h). Takes a vector of d2h (cm3), returns
 #-  a vector of estimated total mass (g). Can later be expanded to include other predictors (provenance, etc),
 #-  and other predictors (total leaf area, for example).
@@ -398,10 +428,25 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   
   #- read in the longer datafile, fix up names for merging
   dat.long <- read.csv(longfile)
-  dat.long <- dat.long[,c("Code","h..cm.","d1..mm.","d2..mm.","leafno....","leafarea..cm2.","leafdm","stemdm","rootdm","Date")]
-  dat.long$Date <- base::as.Date(as.character(dat.long$Date),format="%Y%m%d")
+  dat.long <- dat.long[,c("Code","h..cm.","d1..mm.","d2..mm.","leafno....","leafarea..cm2.",
+                          "leafsubdm","leaf_add","stemdm","rootdm","rootdm_measured")]
+  dat.long$Date <- base::as.Date("2016-02-22")
+                                 
+  
+  #- calculate total leaf and root dry mass
+  dat.long$leafdm <- with(dat.long,leafsubdm+leaf_add)
+  dat.long$rootdm <- with(dat.long,rootdm+rootdm_measured)
+  
+  dat.long <- dat.long[,c("Code","h..cm.","d1..mm.","d2..mm.","leafno....","leafarea..cm2.",
+                          "leafdm","stemdm","rootdm","Date")]
   names(dat.long) <- c("Pot","h","d1","d2","leafno","leafarea","leafdm","stemdm","rootdm","Date")
   dat.long$prov <- as.factor(substr(dat.long$Pot,start=1,stop=1))
+  
+  #- these mass values are in mg. Convert to g.
+  dat.long$leafdm <- dat.long$leafdm/1000
+  dat.long$stemdm <- dat.long$stemdm/1000
+  dat.long$rootdm <- dat.long$rootdm/1000
+  
   
   dat <- rbind(dat,dat.long)
   #----------------------------------------------------------------------------------------------------------------
@@ -429,7 +474,7 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   
   #----------------------------------------------------------------------------------------------------------------
   #- model the allometry, return predicted mass for the vector of d2h values
-  lm1 <- lm(logtotdm~logd2h,data=dat)
+  lm1 <- lm(logtotdm~logd2h+I(logd2h^2),data=dat)
   predictions <- 10^predict(lm1,newdata=data.frame(logd2h=log10(d2hdat)))
   #----------------------------------------------------------------------------------------------------------------
   
@@ -449,8 +494,11 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   #----------------------------------------------------------------------------------------------------------------
   #- exploratory plotting
   if (plotson==T){
-    plotBy(logtotdm~logd2h|prov,data=dat)
-    abline(lm1)
+    plotBy(logtotdm~logd2h|prov,data=dat,pch=15)
+    coefs <- coef(lm1)
+    xval <- seq(min(dat$logd2h),max(dat$logd2h),length=101)
+    preds <- coefs[1]+xval*coefs[2]+xval^2*coefs[3]
+    lines(preds~xval)
   }
   #----------------------------------------------------------------------------------------------------------------
   
@@ -507,12 +555,21 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   leaf_size <- summaryBy(lf_area~room+lf_size+Date,data=la,FUN=mean,keep.names=F,na.rm=T)
   
   
-  #-- average leaf size is temperature dependent, but not provenance dependent
-  #boxplot(lf_area~lf_size+room,data=la)
-  #boxplot(lf_area~prov+room,data=subset(la,lf_size=="large"))
+
   
   la2.1 <- merge(la,leaf_size,by=c("room","lf_size","Date"))
   la2.1$canopy2 <- with(la2.1,leaf_no*lf_area.mean)
+  
+  #-- average leaf size is temperature dependent, but not provenance dependent
+  if(plotson==T){
+    windows(40,50);par(mfrow=c(3,1),cex.lab=1.7,mar=c(7,7,2,1))
+    boxplot(leaf_no~lf_size+room,data=subset(la,Water_trt=="wet" & Date==as.Date("2016-01-28")),las=2,ylab="Leaf number (n)",col=c("grey","red"))
+    legend("topleft",c("small","large"),fill=c("grey","red"))
+    boxplot(lf_area~lf_size+room,data=subset(la,Water_trt=="wet"& Date==as.Date("2016-01-28")),las=2,ylab="Average leaf size (cm2)",col=c("grey","red"))
+    boxplot(canopy~prov+room,data=subset(la,Water_trt=="wet"& Date==as.Date("2016-01-28")),las=2,ylim=c(0,1000),ylab="Total canopy size (cm2)",col=c("blue","orange","forestgreen"))
+    legend("topleft",c("A","B","C"),fill=c("blue","orange","forestgreen"))
+    
+  }
   
   la2 <- summaryBy(canopy+canopy2~room+pot+prov+prov_trt+Date+Water_trt,data=la2.1,FUN=sum,keep.names=T)
   
@@ -564,13 +621,17 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #- calculate LAR (m2 kg-1)
   rgrdat$LAR <- with(rgrdat,canopy/10000/(totmass/1000))
   
+  #- calculate leaf mass fraction (g g-1)
+  rgrdat$LMF <- with(rgrdat,canopy/SLA/totmass)
+  
   #- calculate net assimilation rate (NAR; g m-2 d-1) from absolute growth rate and total canopy leaf area
   rgrdat$NAR <- with(rgrdat,AGR/(canopy/10000))
+  
   
   #- plot interrelationships
   if(plotson==T){
     windows()
-    pairs(subset(rgrdat,Water_trt=="wet")[,c("RGR","AGR","LAR","NAR","canopy","SLA","logmass","room")],
+    pairs(subset(rgrdat,Water_trt=="wet")[,c("RGR","AGR","LAR","LMF","NAR","canopy","SLA","logmass","room")],
           col=rev(brewer.pal(6,"RdYlGn"))[subset(rgrdat,Water_trt=="wet")$room])
   }
   

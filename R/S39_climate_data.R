@@ -5,6 +5,8 @@ library(plantecophys)
 library(plotBy)
 library(doBy)
 library(reshape2)
+library(RColorBrewer)
+
 source("R/generic_functions.R")
 
 #-----------------------------------------------------------------------------------------
@@ -24,7 +26,7 @@ source("R/generic_functions.R")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- get the "fast" files. This takes a little while, as the files are huge.
-fastfiles <- list.files("R://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160302/",pattern="fast",full.names=T)
+fastfiles <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160302/",pattern="fast",full.names=T)
 
 dat <- list()
 for(i in 1:length(fastfiles)){
@@ -83,9 +85,50 @@ dat.fast.hr <- dat.fast.hr[!(dat.fast.hr$Date %in% c(as.Date("2016-1-20"),as.Dat
 
 
 #-----------------------------------------------------------------------------------------
-#- Averages, only after 13 Jan (humidifier fixed in bay 8)
-summaryBy(Tair+RH+VPD~room,data=subset(dat.fast.hr,DateTime_hr>=as.POSIXct("2016-1-15 00:00:00")))
+#- Averages,during our growth interval from Jan 28th to Feb 8th
+dat.fast.growth <- summaryBy(Tair+RH+VPD~room,
+                           data=subset(dat.fast.hr,DateTime_hr>=as.POSIXct("2016-1-28 00:00:00")
+                                       & DateTime_hr<=as.POSIXct("2016-2-8 00:00:00")),keep.names=T)
+plot(VPD~Tair,data=dat.fast.growth)
 #-----------------------------------------------------------------------------------------
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- create daily averages
+dat.fast.day <- dplyr::summarize(group_by(dat.fast.hr,Date,room),
+                                Tair=mean(Tair,na.rm=T),
+                                RH=mean(RH,na.rm=T),
+                                VPD=mean(VPD,na.rm=T))
+dat.fast.day <- as.data.frame(dat.fast.day)
+dat.fast.day <- subset(dat.fast.day,Date>as.Date("2016-01-07") & Date < as.Date("2016-03-02"))
+
+
+windows(50,70);par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(6,7,1,4),las=1,cex.axis=1.7)
+
+plotBy(Tair~Date|room,type="o",col=rev(brewer.pal(6,"RdYlGn")),data=dat.fast.day,legend=F)
+axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
+axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="month"),labels=T,tck=0.05)
+
+plotBy(RH~Date|room,type="o",col=rev(brewer.pal(6,"RdYlGn")),data=dat.fast.day,legend=F)
+axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
+axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="month"),labels=T,tck=0.05)
+
+plotBy(VPD~Date|room,type="o",col=rev(brewer.pal(6,"RdYlGn")),data=dat.fast.day,legend=F)
+axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
+axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="month"),labels=T,tck=0.05)
+
+title(ylab=expression(T[air]~(degree*C)),outer=T,adj=0.9,line=3,cex.lab=2)
+title(ylab=expression(RH~("%")),outer=T,adj=0.5,line=3,cex.lab=2)
+title(ylab=expression(VPD~(kPa)),outer=T,adj=0.1,line=3,cex.lab=2)
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+
+
+
+
 
 
 #- plot hourly data
@@ -135,7 +178,7 @@ title(ylab=expression(PAR),outer=T,adj=0.1,line=3,cex.lab=2)
 #- read in the VWC data ("slow")
 
 #- get the vwc files. 
-vwc.files <- list.files("R://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160302/",pattern="VW",full.names=T)
+vwc.files <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160302/",pattern="VW",full.names=T)
 
 dat <- list()
 for(i in 1:length(vwc.files)){

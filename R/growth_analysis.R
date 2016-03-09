@@ -20,8 +20,70 @@ dat <- returnRGR(plotson=T)
 
 
 #-----------------------------------------------------------------------------------------
+#- plot mean d2h over time in 3-d manner
+
+# size <- getSize()
+# dat <- summaryBy(d2h~Date+prov+room+Water_trt,data=size,FUN=mean,keep.names=T,na.rm=T)
+# 
+# 
+# library(rgl)
+# palette(rev(brewer.pal(6,"Spectral")))
+# plot3d(x=subset(dat,Water_trt=="wet")$room,y=subset(dat,Water_trt=="wet")$Date,
+#        z=subset(dat,Water_trt=="wet")$d2h,
+#        col=palette()[as.factor(subset(dat,Water_trt=="wet")$prov)],
+#        xlab="Room",ylab="Date",zlab="d2h",size=10)
+# #-----------------------------------------------------------------------------------------
+
+windows(20,30);par(mfrow=c(3,1))
+plotBy(NAR~RGR|room,data=dat,log="xy",pch=16)
+plotBy(SLA~RGR|room,data=dat,log="xy",legend=F,pch=16)
+plotBy(LMF~RGR|room,data=dat,log="xy",legend=F,pch=16)
+
+
+library(rgl)
+palette(rev(brewer.pal(6,"Spectral")))
+plot3d(x=subset(dat,Water_trt=="wet")$canopy,y=subset(dat,Water_trt=="wet")$NAR,
+       z=subset(dat,Water_trt=="wet")$RGR,
+       col=palette()[as.numeric(subset(dat,Water_trt=="wet")$room)],
+       xlab="Canopy (cm2)",ylab="NAR",zlab="AGR",size=10)
+
+#-----------------------------------------------------------------------------------------
 #- average across provenances, ignore the dry data, and plot temperature response curves
-dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR~room+prov,FUN=c(mean,standard.error),data=subset(dat,Water_trt=="wet"),na.rm=T)
+dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy~room,FUN=c(mean,standard.error),data=subset(dat,Water_trt=="wet"),na.rm=T)
+
+
+
+
+windows();par(mar=c(6,7,1,1))
+dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~room,FUN=c(mean,standard.error),data=subset(dat,Water_trt=="wet"),na.rm=T)
+
+#- AGR vs. canopy leaf area
+plotBy(AGR~canopy|room,data=subset(dat,Water_trt=="wet"),col=rev(brewer.pal(6,"Spectral")),pch=16,
+       xlab="Total crown leaf area (cm2)",ylab="Absolute growth rate (AGR; g day-1)",cex.lab=2)
+adderrorbars(x=dat2$canopy.mean,y=dat2$AGR.mean,SE=dat2$AGR.standard.error,direction="updown")
+adderrorbars(x=dat2$canopy.mean,y=dat2$AGR.mean,SE=dat2$canopy.standard.error,direction="leftright")
+plotBy(AGR.mean~canopy.mean|room,data=dat2,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3)
+arrows(x0=dat2$canopy.mean[1:5],x1=dat2$canopy.mean[2:6],y0=dat2$AGR.mean[1:5],y1=dat2$AGR.mean[2:6])
+
+#- AGR vs. mass
+plotBy(AGR~totmass|room,data=subset(dat,Water_trt=="wet"),col=rev(brewer.pal(6,"Spectral")),pch=16,
+       xlab="Total mass (g)",ylab="Absolute growth rate (AGR; g day-1)",cex.lab=2)
+adderrorbars(x=dat2$totmass.mean,y=dat2$AGR.mean,SE=dat2$AGR.standard.error,direction="updown")
+adderrorbars(x=dat2$totmass.mean,y=dat2$AGR.mean,SE=dat2$totmass.standard.error,direction="leftright")
+plotBy(AGR.mean~totmass.mean|room,data=dat2,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3)
+arrows(x0=dat2$totmass.mean[1:5],x1=dat2$totmass.mean[2:6],y0=dat2$AGR.mean[1:5],y1=dat2$AGR.mean[2:6])
+
+
+#- RGR vs. mass
+plotBy(RGR~totmass|room,data=subset(dat,Water_trt=="wet"),col=rev(brewer.pal(6,"Spectral")),pch=16,
+       xlab="Total mass (g)",ylab="Relative growth rate (RGR; g day-1)",cex.lab=2)
+adderrorbars(x=dat2$totmass.mean,y=dat2$RGR.mean,SE=dat2$RGR.standard.error,direction="updown")
+adderrorbars(x=dat2$totmass.mean,y=dat2$RGR.mean,SE=dat2$totmass.standard.error,direction="leftright")
+plotBy(RGR.mean~totmass.mean|room,data=dat2,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3)
+arrows(x0=dat2$totmass.mean[1:5],x1=dat2$totmass.mean[2:6],y0=dat2$RGR.mean[1:5],y1=dat2$RGR.mean[2:6])
+
+
+
 
 #- merge in room temperature key
 key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
@@ -61,6 +123,55 @@ title(xlab=expression(T[air]~(degree*C)),outer=T,cex.lab=2)
 title(ylab=expression(AGR~(g~d^-1)),outer=T,cex.lab=2,adj=0.9)
 title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,cex.lab=2,adj=0.15)
 
+
+
+#-----------------------------------------------------------------------------------------
+#- average across provenances, ignore the dry data, and plot temperature response curves
+dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF~room+prov,FUN=c(mean,standard.error),data=subset(dat,Water_trt=="wet"),na.rm=T)
+
+#- merge in room temperature key
+key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
+dat2 <- merge(dat2,key)
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#- plot temperature response curves for NAR, LMF, and SLA
+palette(rev(brewer.pal(3,"Set2")))
+
+windows(30,60);par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
+
+#- NAR
+plotBy(NAR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,8),legend=F,pch=16,cex=2,
+       axes=F,xlab="",ylab="",
+       panel.first=adderrorbars(x=dat2$Tair,y=dat2$NAR.mean,SE=dat2$NAR.standard.error,direction="updown"))
+magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+magaxis(side=1,labels=c(1),las=1)
+legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white",cex=2)
+
+
+#- LMF
+plotBy(LMF.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,cex=2,
+       axes=F,xlab="",ylab="",
+       panel.first=adderrorbars(x=dat2$Tair,y=dat2$LMF.mean,SE=dat2$LMF.standard.error,direction="updown"))
+magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+magaxis(side=1,labels=c(1),las=1)
+
+
+#- SLA
+plotBy(SLA.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(300,500),legend=F,pch=16,cex=2,
+       axes=F,xlab="",ylab="",
+       panel.first=adderrorbars(x=dat2$Tair,y=dat2$SLA.mean,SE=dat2$SLA.standard.error,direction="updown"))
+magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+magaxis(side=1,labels=c(1),las=1)
+
+
+title(xlab=expression(T[air]~(degree*C)),outer=T,cex.lab=2)
+title(ylab=expression(NAR~(g~m^-2~d^-1)),outer=T,cex.lab=2,adj=0.95)
+title(ylab=expression(LMF~(g~g^-1)),outer=T,cex.lab=2,adj=0.5)
+title(ylab=expression(SLA~(cm^2~g^-1)),outer=T,cex.lab=2,adj=0.1)
+dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/NAR_LMF_SLA.pdf")
 #-----------------------------------------------------------------------------------------
 
 
