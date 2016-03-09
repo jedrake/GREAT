@@ -94,34 +94,34 @@ dat2 <- merge(dat2,key)
 
 #-----------------------------------------------------------------------------------------
 #- plot temperature response curves for AGR and RGR
-
-windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
-
-#- agr
-plotBy(AGR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.8),legend=F,pch=16,
-       axes=F,xlab="",ylab="")
-magaxis(side=1:4,labels=c(0,1,0,1),las=1)
-adderrorbars(x=dat2$Tair,y=dat2$AGR.mean,SE=dat2$AGR.standard.error,direction="updown")
-plotBy(AGR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.8),legend=F,pch=16,
-       axes=F,xlab="",ylab="",add=T)
-magaxis(side=1,labels=c(1),las=1)
-legend("topleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
-
-
-#- RGR
-plotBy(RGR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.2),legend=F,pch=16,
-       axes=F,xlab="",ylab="")
-magaxis(side=1:4,labels=c(0,1,0,1),las=1)
-adderrorbars(x=dat2$Tair,y=dat2$RGR.mean,SE=dat2$RGR.standard.error,direction="updown")
-plotBy(RGR.mean~Tair|prov,data=dat2,legend=F,pch=16,
-       axes=F,xlab="",ylab="",add=T)
-magaxis(side=1,labels=c(1),las=1)
-
-
-
-title(xlab=expression(T[air]~(degree*C)),outer=T,cex.lab=2)
-title(ylab=expression(AGR~(g~d^-1)),outer=T,cex.lab=2,adj=0.9)
-title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,cex.lab=2,adj=0.15)
+# 
+# windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
+# 
+# #- agr
+# plotBy(AGR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.8),legend=F,pch=16,
+#        axes=F,xlab="",ylab="")
+# magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+# adderrorbars(x=dat2$Tair,y=dat2$AGR.mean,SE=dat2$AGR.standard.error,direction="updown")
+# plotBy(AGR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.8),legend=F,pch=16,
+#        axes=F,xlab="",ylab="",add=T)
+# magaxis(side=1,labels=c(1),las=1)
+# legend("topleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
+# 
+# 
+# #- RGR
+# plotBy(RGR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.2),legend=F,pch=16,
+#        axes=F,xlab="",ylab="")
+# magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+# adderrorbars(x=dat2$Tair,y=dat2$RGR.mean,SE=dat2$RGR.standard.error,direction="updown")
+# plotBy(RGR.mean~Tair|prov,data=dat2,legend=F,pch=16,
+#        axes=F,xlab="",ylab="",add=T)
+# magaxis(side=1,labels=c(1),las=1)
+# 
+# 
+# 
+# title(xlab=expression(T[air]~(degree*C)),outer=T,cex.lab=2)
+# title(ylab=expression(AGR~(g~d^-1)),outer=T,cex.lab=2,adj=0.9)
+# title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,cex.lab=2,adj=0.15)
 
 
 
@@ -143,7 +143,7 @@ palette(rev(brewer.pal(3,"Set2")))
 windows(30,60);par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
 
 #- NAR
-plotBy(NAR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,8),legend=F,pch=16,cex=2,
+plotBy(NAR.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,10),legend=F,pch=16,cex=2,
        axes=F,xlab="",ylab="",
        panel.first=adderrorbars(x=dat2$Tair,y=dat2$NAR.mean,SE=dat2$NAR.standard.error,direction="updown"))
 magaxis(side=1:4,labels=c(0,1,0,1),las=1)
@@ -160,7 +160,7 @@ magaxis(side=1,labels=c(1),las=1)
 
 
 #- SLA
-plotBy(SLA.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(300,500),legend=F,pch=16,cex=2,
+plotBy(SLA.mean~Tair|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(250,500),legend=F,pch=16,cex=2,
        axes=F,xlab="",ylab="",
        panel.first=adderrorbars(x=dat2$Tair,y=dat2$SLA.mean,SE=dat2$SLA.standard.error,direction="updown"))
 magaxis(side=1:4,labels=c(0,1,0,1),las=1)
@@ -196,7 +196,7 @@ AGRvTfits <- data.frame(do.call(rbind,
 
 windows(30,60);par(mfrow=c(3,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
 #- plot Asat at Topt
-barplot2(height=AGRvTfits$AGRref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,0.6),las=1,
+barplot2(height=AGRvTfits$AGRref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,0.5),las=1,
          ylab=expression(AGR~(g~d^-1)),
          ci.l=AGRvTfits$AGRref-AGRvTfits$AGRref.se,ci.u=AGRvTfits$AGRref+AGRvTfits$AGRref.se)
 
@@ -205,7 +205,7 @@ barplot2(height=AGRvTfits$Topt,names.arg=c("A","B","C"),plot.ci=T,las=1,ylim=c(0
          ylab=expression(T[opt]~(degree*C)),
          ci.l=AGRvTfits$Topt-AGRvTfits$Topt.se,ci.u=AGRvTfits$Topt+AGRvTfits$Topt.se)
 #- plot Theta
-barplot2(height=AGRvTfits$theta,names.arg=c("A","B","C"),plot.ci=T,ylim=c(-10,0),las=1,
+barplot2(height=AGRvTfits$theta,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,10),las=1,
          ylab=expression(Omega~(degree*C)),
          ci.l=AGRvTfits$theta-AGRvTfits$theta.se,ci.u=AGRvTfits$theta+AGRvTfits$theta.se)
 title(xlab="Provenance",outer=T,cex.lab=2,adj=0.6)
@@ -220,7 +220,7 @@ toplot$prov <- c(rep("A",51),rep("B",51),rep("C",51))
 windows(30,30);par(mar=c(5,7,1,1))
 COL=palette()[1:3]
 
-plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,0.6),lwd=3,cex.lab=2,
+plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,0.5),lwd=3,cex.lab=2,
        ylab=expression(AGR~(g~d^-1)),
        xlab=expression(T[air]~(degree*C)))
 as <- subset(toplot,prov=="A")
@@ -230,7 +230,7 @@ cs <- subset(toplot,prov=="C")
 polygon(x = c(as$Tleaf, rev(as$Tleaf)), y = c(as$Sim.97.5., rev(as$Sim.2.5.)), col = alpha(COL[1],0.5), border = NA)
 polygon(x = c(bs$Tleaf, rev(bs$Tleaf)), y = c(bs$Sim.97.5., rev(bs$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
 polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5., rev(cs$Sim.2.5.)), col = alpha(COL[3],0.5), border = NA)
-legend("bottomleft",c("A","B","C"),fill=COL,cex=2,title="Provenance")
+legend("topleft",c("A","B","C"),fill=COL,cex=2,title="Provenance")
 
 #- add TREATMENT MEANS
 plotBy(AGR.mean~Tair|prov,data=dat2,add=T,pch=16,cex=2,legend=F,
@@ -269,7 +269,7 @@ RGRvTfits <- data.frame(do.call(rbind,
 
 windows(30,60);par(mfrow=c(3,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
 #- plot Asat at Topt
-barplot2(height=RGRvTfits$RGRref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,0.2),las=1,
+barplot2(height=RGRvTfits$RGRref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,0.15),las=1,
          ylab=expression(RGR~(g~g^-1~d^-1)),
          ci.l=RGRvTfits$RGRref-RGRvTfits$RGRref.se,ci.u=RGRvTfits$RGRref+RGRvTfits$RGRref.se)
 
@@ -310,6 +310,41 @@ plotBy(RGR.mean~Tair|prov,data=dat2,add=T,pch=16,cex=2,legend=F,
        panel.first=(adderrorbars(x=dat2$Tair,y=dat2$RGR.mean,
                                  SE=dat2$RGR.standard.error,direction="updown")))
 dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/RGRvT_predictions.pdf")
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- Biomass fractions
+dat <- getHarvest()
+size <- getSize()
+
+#- pull out just the unique pot and room numbers from teh size dataframe
+size2 <- unique(size[,c("pot","room","Water_trt")])
+
+#- merge pot ids and harvest. Note the pre-treatment plants get excluded here
+dat2 <- merge(size2,dat,by.x=c("pot"),by.y="Pot")
+
+#- calculate leaf, stem, and root mass fractions
+dat2$LMF <- with(dat2,leafdm/totdm)
+dat2$SMF <- with(dat2,stemdm/totdm)
+dat2$RMF <- with(dat2,rootdm/totdm)
+
+#- plot
+windows(40,60);par(mfrow=c(3,1),mar=c(5,7,1,1),cex.lab=2,cex.axis=1.3,las=1)
+plotBy(LMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
+       legend=F,xlab="log(Total mass, g)",ylab="Leaf mass fraction")
+legend("bottom",legend=1:6,col=rev(brewer.pal(6,"RdYlGn")),pch=15,cex=1.5,ncol=6)
+plotBy(SMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
+       legend=F,xlab="log(Total mass, g)",ylab="Stem mass fraction")
+plotBy(RMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
+       legend=F,xlab="log(Total mass, g)",ylab="Root mass fraction")
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------

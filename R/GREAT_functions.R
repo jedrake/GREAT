@@ -332,7 +332,7 @@ fitRvT <- function(dat){
 #- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
 #-   and [2] a dataframe with the predictions and 95% confidence intervals.
 fitAGRvT <- function(dat){
-  try(G_Topt <- nls(AGR.mean~ AGRref*exp(-1*((Tair-Topt)/theta)^2),data=dat,start=list(AGRref=0.5,Topt=30,theta=20)))
+  try(G_Topt <- nls(AGR.mean~ AGRref*exp(-1*((Tair-Topt)/theta)^2),data=dat,start=list(AGRref=0.5,Topt=30,theta=5)))
   G_Topt2 <- summary(G_Topt)
   results <- G_Topt2$coefficients[1:6]
   names(results)[1:6] <- c("AGRref","Topt","theta","AGRref.se","Topt.se","theta.se")
@@ -400,14 +400,11 @@ fitJuneT <- function(dat,namex,namey,start=list(Rref=2,Topt=20,theta=20)){
 
 
 
-#- function to return an estimated mass based on tree size (d2h). Takes a vector of d2h (cm3), returns
-#-  a vector of estimated total mass (g). Can later be expanded to include other predictors (provenance, etc),
-#-  and other predictors (total leaf area, for example).
-returnMassFromAllom <- function(d2hdat,plotson=T){
-  
-  #----------------------------------------------------------------------------------------------------------------
-  #- read in the raw data
-  path="W://WORKING_DATA/GHS39/GREAT"
+#-----------------------------------------------------------------------------------------
+#- function to return the harvest data as a dataframe
+getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+
+    #- read in the raw data
   files <-  list.files(paste(path,"/Share/Data/Harvests/",sep=""),pattern="GHS39_GREAT_MAIN_BIOMASS",full.names=T)
   files2 <- files[grep(".csv",files)] # only get the .csv files
   
@@ -431,12 +428,13 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   dat.long <- dat.long[,c("Code","h..cm.","d1..mm.","d2..mm.","leafno....","leafarea..cm2.",
                           "leafsubdm","leaf_add","stemdm","rootdm","rootdm_measured")]
   dat.long$Date <- base::as.Date("2016-02-22")
-                                 
+  
   
   #- calculate total leaf and root dry mass
-  dat.long$leafdm <- with(dat.long,leafsubdm+leaf_add)
-  dat.long$rootdm <- with(dat.long,rootdm+rootdm_measured)
+  dat.long$leafdm <- base::rowSums(dat.long[,c("leafsubdm","leaf_add")],na.rm=T)
+  dat.long$rootdm <- base::rowSums(dat.long[,c("rootdm","rootdm_measured")],na.rm=T)
   
+
   dat.long <- dat.long[,c("Code","h..cm.","d1..mm.","d2..mm.","leafno....","leafarea..cm2.",
                           "leafdm","stemdm","rootdm","Date")]
   names(dat.long) <- c("Pot","h","d1","d2","leafno","leafarea","leafdm","stemdm","rootdm","Date")
@@ -469,8 +467,20 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   #- log transform (base 10!)
   dat$logd2h <- log10(dat$d2h)
   dat$logtotdm <- log10(dat$totdm)
-  #----------------------------------------------------------------------------------------------------------------
+  return(dat)
+}
+#----------------------------------------------------------------------------------------------------------------
+
+
+
+
+#- function to return an estimated mass based on tree size (d2h). Takes a vector of d2h (cm3), returns
+#-  a vector of estimated total mass (g). Can later be expanded to include other predictors (provenance, etc),
+#-  and other predictors (total leaf area, for example).
+returnMassFromAllom <- function(d2hdat,plotson=T){
   
+  #- get the harvest data
+  dat <- getHarvest()
   
   #----------------------------------------------------------------------------------------------------------------
   #- model the allometry, return predicted mass for the vector of d2h values
