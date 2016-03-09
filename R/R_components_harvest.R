@@ -17,13 +17,13 @@ crap <- unlist(strsplit(as.character(Rdat2$Pot), "-"))
 Rdat2$prov <- as.factor(crap[seq(1,length(crap)-1,2)])
 Rdat2$pot <- as.factor(paste(Rdat2$prov,as.numeric(crap[seq(0,length(crap),2)]),sep="-"))
 Rdat2$prov <- NULL #- remove the "prov" variable. It gets added later with getSize().
-
+Rdat2$Pot <- NULL
 
 #------------------------------------------------------------------------------------------------
 #- merge in the harvest mass data, to calculate mass-specific respiration rates
 finalHarvest <- read.csv(paste(path,"/Share/Data/Harvests/GHS39_GREAT_MAIN_BIOMASS_20160217-20160224_L1.csv",sep=""))
 finalHarvest <- finalHarvest[,c("Code","LA_sub","leafsubdm","stemdm","rootdm","rootdm_measured")]
-Rdat3 <- merge(Rdat2,finalHarvest,by.x=c("Pot"),by.y=c("Code"))
+Rdat3 <- merge(Rdat2,finalHarvest,by.x=c("pot"),by.y=c("Code"))
 
 #- calculate mass-based respiration rates
 Rdat3$Rmass <- NA
@@ -78,7 +78,7 @@ magaxis(side=1:4,labels=c(1,1,0,1),las=1)
 legend("topright",legend="Leaf",bty="n",cex=2)
 legend(x=2.5,y=2.7,xpd=NA,legend=c("A","B","C"),pch=16,col=palette()[1:3],ncol=3,bty="n",cex=1.5)
 #- Rmass for leaves
-plotBy(Rmass.mean~room|prov,data=subset(toplot,Organ=="leaf"),las=1,xlim=c(1,6),ylim=c(0,50),legend=F,pch=16,cex=2,
+plotBy(Rmass.mean~room|prov,data=subset(toplot,Organ=="leaf"),las=1,xlim=c(1,6),ylim=c(0,40),legend=F,pch=16,cex=2,
        panel.first=adderrorbars(x=subset(toplot,Organ=="leaf")$room,
                                 y=subset(toplot,Organ=="leaf")$Rmass.mean,
                                 SE=subset(toplot,Organ=="leaf")$Rmass.standard.error,direction="updown"),
@@ -99,7 +99,7 @@ legend("topright",legend="Stem",bty="n",cex=2)
 
 
 #- Rmass for roots
-plotBy(Rmass.mean~room|prov,data=subset(toplot,Organ=="root"),las=1,xlim=c(1,6),ylim=c(0,35),legend=F,pch=16,cex=2,
+plotBy(Rmass.mean~room|prov,data=subset(toplot,Organ=="root"),las=1,xlim=c(1,6),ylim=c(0,40),legend=F,pch=16,cex=2,
        panel.first=adderrorbars(x=subset(toplot,Organ=="root")$room,
                                 y=subset(toplot,Organ=="root")$Rmass.mean,
                                 SE=subset(toplot,Organ=="root")$Rmass.standard.error,direction="updown"),
