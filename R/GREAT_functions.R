@@ -518,7 +518,9 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
 
 
 
-
+#- function to caculate and return growth metrics. Returns a list of two dataframes:
+#     [1] RGR and AGR caculated for all available data.
+#     [2] RGT and AGR merged with canopy leaf area and SLA for the intensive growth interval only
 returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   
   #-----------------------------------------------------------------------------------------
@@ -649,7 +651,7 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #- get rid of some unwanted variabels to make things simpler
   rgrdat$canopy2 <- rgrdat$date <- rgrdat$d1 <- rgrdat$d2 <- rgrdat$Comment <- rgrdat$leaf_no <- NULL
   
-  return(rgrdat)
+  return(list(hddata2,rgrdat))
   #--------------------------------------------------------------------------------------------------------------------
   #--------------------------------------------------------------------------------------------------------------------
   

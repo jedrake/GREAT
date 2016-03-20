@@ -16,24 +16,113 @@ source("R/GREAT_functions.R")
 #-----------------------------------------------------------------------------------------
 
 #- get the data, process it for RGR.
-dat <- returnRGR(plotson=T)
+dat.list <- returnRGR(plotson=T)
+dat <- dat.list[[2]]
+dat.all <- dat.list[[1]]
 
 
 #-----------------------------------------------------------------------------------------
-#- plot mean d2h over time in 3-d manner
+#- plot mean AGR and RGR over time in 3-d manner
 
-# size <- getSize()
-# dat <- summaryBy(d2h~Date+prov+room+Water_trt,data=size,FUN=mean,keep.names=T,na.rm=T)
-# 
-# 
-# library(rgl)
-# palette(rev(brewer.pal(6,"Spectral")))
-# plot3d(x=subset(dat,Water_trt=="wet")$room,y=subset(dat,Water_trt=="wet")$Date,
-#        z=subset(dat,Water_trt=="wet")$d2h,
-#        col=palette()[as.factor(subset(dat,Water_trt=="wet")$prov)],
-#        xlab="Room",ylab="Date",zlab="d2h",size=10)
-# #-----------------------------------------------------------------------------------------
+dat.m <- summaryBy(AGR+RGR+totmass~Date+Water_trt+room+prov,data=dat.all,FUN=mean,keep.names=T,na.rm=T)
 
+library(rgl)
+palette(rev(brewer.pal(6,"Spectral")))
+plot3d(x=subset(dat.m,Water_trt=="wet")$room,y=subset(dat.m,Water_trt=="wet")$Date,
+       z=subset(dat.m,Water_trt=="wet")$AGR,
+       col="black",#col=palette()[as.factor(subset(dat.m,Water_trt=="wet")$prov)],
+       xlab="Room",ylab="Date",zlab="AGR",size=15)
+
+plot3d(x=subset(dat.m,Water_trt=="wet")$room,y=subset(dat.m,Water_trt=="wet")$Date,
+       z=subset(dat.m,Water_trt=="wet")$RGR,type="p",
+       col="black",#col=palette()[as.factor(subset(dat.m,Water_trt=="wet")$prov)],
+       xlab="Room",ylab="Date",zlab="RGR",size=15)
+
+plot3d(x=subset(dat.m,Water_trt=="wet")$room,y=subset(dat.m,Water_trt=="wet")$Date,
+       z=subset(dat.m,Water_trt=="wet")$totmass,type="p",
+       col=palette()[as.factor(subset(dat.m,Water_trt=="wet")$prov)],
+       xlab="Room",ylab="Date",zlab="totmass",size=15)
+
+#- plot again in 2d, with panels
+dat.m <- summaryBy(AGR+RGR+totmass~Date+Water_trt+room+prov,data=dat.all,FUN=mean,keep.names=T,na.rm=T)
+dat.m$logtotmass <- log10(dat.m$totmass)
+
+dat.m.l <- split(dat.m,dat.m$Date)
+palette(rev(brewer.pal(3,"Set2")))
+
+#- plot AGR
+windows(30,60);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(7,7,1,2))
+for(i in 2:length(dat.m.l)){
+  toplot <- subset(dat.m.l[[i]],Water_trt=="wet")
+  
+  plotBy(AGR~as.numeric(room)|prov,data=toplot,pch=16,cex=2,ylim=c(0,max(toplot$AGR)+0.01),legend=F)
+  if(i==2) legend("topleft",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3])
+}
+title(xlab=expression(Room),outer=T,cex.lab=2)
+title(ylab=expression(AGR~(g~d^-1)),outer=T,cex.lab=2,adj=0.5)
+#dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/NAR_LMF_SLA.pdf")
+
+#- plot RGR
+windows(30,60);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(7,7,1,2))
+for(i in 2:length(dat.m.l)){
+  toplot <- subset(dat.m.l[[i]],Water_trt=="wet")
+  
+  plotBy(RGR~as.numeric(room)|prov,data=toplot,pch=16,cex=2,ylim=c(0,max(toplot$RGR)+0.01),legend=F)
+  if(i==2) legend("topleft",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3])
+}
+title(xlab=expression(Room),outer=T,cex.lab=2)
+title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,cex.lab=2,adj=0.5)
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- plot totalmass over time, as Belinda requested
+dat.m.l2 <- split(dat.m,dat.m$room)
+
+
+#- plot linear-scale
+windows(40,60);par(mfrow=c(5,1),mar=c(0,0,0,0),oma=c(7,7,1,2),las=1)
+for(i in 1:length(dat.m.l)){
+  toplot <- subset(dat.m.l2[[i]],Water_trt=="wet")
+  
+  plotBy(totmass~Date|prov,data=toplot,pch=16,cex=2,ylim=c(0,15),legend=F)
+  if(i==1) legend("topleft",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3])
+  legend("top",legend=paste("Room",i,sep=" "),bty="n",cex=2)
+  axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=F,tck=0.05,las=2,cex.axis=1.5)
+  
+}
+title(xlab=Date),outer=T,cex.lab=2)
+title(ylab=expression(Total~mass~(g)),outer=T,cex.lab=2,adj=0.5)
+axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=T,tck=0.05,las=2,cex.axis=1.5)
+
+#- plot log-scale
+windows(40,60);par(mfrow=c(5,1),mar=c(0,0,0,0),oma=c(7,7,1,2),las=1)
+for(i in 1:length(dat.m.l)){
+  toplot <- subset(dat.m.l2[[i]],Water_trt=="wet")
+  
+  plotBy(logtotmass~Date|prov,data=toplot,pch=16,cex=2,ylim=c(-1,1.5),legend=F)
+  if(i==1) legend("topleft",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3])
+  legend("top",legend=paste("Room",i,sep=" "),bty="n",cex=2)
+  axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=F,tck=0.05,las=2,cex.axis=1.5)
+  
+}
+title(xlab=Date),outer=T,cex.lab=2)
+title(ylab=expression(log[10](Total~mass~(g))),outer=T,cex.lab=2,adj=0.5)
+axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=T,tck=0.05,las=2,cex.axis=1.5)
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
 windows(20,30);par(mfrow=c(3,1))
 plotBy(NAR~RGR|room,data=dat,log="xy",pch=16)
 plotBy(SLA~RGR|room,data=dat,log="xy",legend=F,pch=16)
@@ -46,6 +135,11 @@ plot3d(x=subset(dat,Water_trt=="wet")$canopy,y=subset(dat,Water_trt=="wet")$NAR,
        z=subset(dat,Water_trt=="wet")$RGR,
        col=palette()[as.numeric(subset(dat,Water_trt=="wet")$room)],
        xlab="Canopy (cm2)",ylab="NAR",zlab="AGR",size=10)
+
+
+
+
+
 
 #-----------------------------------------------------------------------------------------
 #- average across provenances, ignore the dry data, and plot temperature response curves
@@ -345,6 +439,14 @@ plotBy(SMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=
        legend=F,xlab="log(Total mass, g)",ylab="Stem mass fraction")
 plotBy(RMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
        legend=F,xlab="log(Total mass, g)",ylab="Root mass fraction")
+
+#- plot total final biomass
+dat2.m <- summaryBy(leafdm+stemdm+rootdm+totdm~room+prov,data=subset(dat2,Water_trt=="wet"),FUN=c(mean,standard.error),keep.names=F)
+windows();par(cex.lab=1.5)
+plotBy(totdm.mean~as.numeric(room)|prov,data=dat2.m,pch=16,cex=2,ylim=c(0,12),xlab="Room",ylab="Total dry mass (g)",
+       panel.first=adderrorbars(x=as.numeric(dat2.m$room),y=dat2.m$totdm.mean,SE=dat2.m$totdm.standard.error,direction="updown"))
+
+
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
