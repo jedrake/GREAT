@@ -85,13 +85,13 @@ dat.m.l2 <- split(dat.m,dat.m$room)
 
 
 #- plot linear-scale
-windows(40,60);par(mfrow=c(5,1),mar=c(0,0,0,0),oma=c(7,7,1,2),las=1)
-for(i in 1:length(dat.m.l)){
+windows(40,70);par(mfrow=c(6,1),mar=c(0,0,0,0),oma=c(7,7,1,2),las=1)
+for(i in 1:length(dat.m.l2)){
   toplot <- subset(dat.m.l2[[i]],Water_trt=="wet")
   
   plotBy(totmass~Date|prov,data=toplot,pch=16,cex=2,ylim=c(0,15),legend=F)
-  if(i==1) legend("topleft",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3])
-  legend("top",legend=paste("Room",i,sep=" "),bty="n",cex=2)
+  if(i==1) legend("topright",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3],ncol=3)
+  legend("topleft",legend=paste("Room",i,sep=" "),bty="n",cex=2)
   axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=F,tck=0.05,las=2,cex.axis=1.5)
   
 }
@@ -100,13 +100,13 @@ title(ylab=expression(Total~mass~(g)),outer=T,cex.lab=2,adj=0.5)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=T,tck=0.05,las=2,cex.axis=1.5)
 
 #- plot log-scale
-windows(40,60);par(mfrow=c(5,1),mar=c(0,0,0,0),oma=c(7,7,1,2),las=1)
-for(i in 1:length(dat.m.l)){
+windows(40,70);par(mfrow=c(6,1),mar=c(0,0,0,0),oma=c(7,7,1,2),las=1)
+for(i in 1:length(dat.m.l2)){
   toplot <- subset(dat.m.l2[[i]],Water_trt=="wet")
   
   plotBy(logtotmass~Date|prov,data=toplot,pch=16,cex=2,ylim=c(-1,1.5),legend=F)
-  if(i==1) legend("topleft",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3])
-  legend("top",legend=paste("Room",i,sep=" "),bty="n",cex=2)
+  if(i==1) legend("bottomright",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3],ncol=3)
+  legend("topleft",legend=paste("Room",i,sep=" "),bty="n",cex=2)
   axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=F,tck=0.05,las=2,cex.axis=1.5)
   
 }
