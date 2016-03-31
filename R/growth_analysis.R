@@ -185,7 +185,31 @@ dat2 <- merge(dat2,key)
 #  at teh low end of temperature. How robust is that conclusion? Let's look at the four times
 #  we estimated SLA (punches twice, gas exchange leaves, and harvest).
 sla <- getSLA()
+punches <- subset(sla[[1]],Water_trt=="wet")[,c("room","prov","SLA","LMA")]
+punches$type <- "punches"
+gxleaves <- subset(sla[[2]],Water_trt=="wet")[,c("room","prov","SLA","LMA")]
+gxleaves$type <- "leaves"
+harvests <- subset(sla[[3]],Water_trt=="wet")[,c("room","prov","SLA","LMA")]
+harvests$type <- "canopy"
+SLA <- rbind(punches,gxleaves,harvests)
+SLA$room <- as.numeric(SLA$room)
+SLA$prov <- as.factor(SLA$prov)
+SLA.m <- summaryBy(SLA+LMA~room+prov+type,data=SLA,FUN=c(mean,standard.error),na.rm=T)
 
+#- plot the three types of SLA.
+plotBy(SLA.mean~room|prov,data=subset(SLA.m,type=="punches"),pch=16,ylim=c(0,500),cex=1.5,legend=F,type="o",
+       panel.first=adderrorbars(x=subset(SLA.m,type=="punches")$room,
+                                y=subset(SLA.m,type=="punches")$SLA.mean,
+                                SE=subset(SLA.m,type=="punches")$SLA.standard.error,direction="updown"))
+plotBy(SLA.mean~room|prov,data=subset(SLA.m,type=="leaves"),pch=1,add=T,legend=F,type="o",
+       panel.first=adderrorbars(x=subset(SLA.m,type=="leaves")$room,
+                                y=subset(SLA.m,type=="leaves")$SLA.mean,
+                                SE=subset(SLA.m,type=="leaves")$SLA.standard.error,direction="updown"))
+plotBy(SLA.mean~room|prov,data=subset(SLA.m,type=="canopy"),pch=15,add=T,legend=F,type="o",
+       panel.first=adderrorbars(x=subset(SLA.m,type=="canopy")$room,
+                                y=subset(SLA.m,type=="canopy")$SLA.mean,
+                                SE=subset(SLA.m,type=="canopy")$SLA.standard.error,direction="updown"))
+text(x=c(3,3,3),y=c(150,250,500),labels=c("GX-leaves","harvests","punches"))
 #-----------------------------------------------------------------------------------------
 
 

@@ -138,6 +138,8 @@ getSLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   leaf3 <- merge(leaf,key,by=("pot"))
   leaf3$prov2 <- leaf3$Pot <- NULL
+  leaf3$Prov <- as.factor(substr(as.character(leaf3$Prov),start=1,stop=1))
+  names(leaf3)[2] <- tolower(names(leaf3)[2])
   #---
   
   
