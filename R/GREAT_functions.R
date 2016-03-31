@@ -6,9 +6,6 @@
 
 
 
-
-
-
 #-----------------------------------------------------------------------------------------
 #- function to read and return the most recent size measurements of height and diameter
 getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
@@ -80,15 +77,23 @@ getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #-----------------------------------------------------------------------------------------
 
 
+
+
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf punch datasets
 getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
-  dat <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160129_L1.csv",sep=""))
-  dat$Date <- as.Date("2016-1-29")
+  dat1 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160129_L1.csv",sep=""))
+  dat1$Date <- as.Date("2016-1-29")
+  
+  dat2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160209_L1.csv",sep=""))
+  dat2$Date <- as.Date("2016-2-9")
+  
+  dat <- rbind(dat1,dat2)
   
   dat$SLA <- with(dat,area_cm2/(mass_mg/1000))         # in cm2 g-1
   dat$LMA <- with(dat,(mass_mg/1000)/(area_cm2/10000)) # in g m-2
   
+  dat$prov2 <- dat$prov
   dat$prov <- as.factor(substr(dat$pot,start=1,stop=1)) # overwrite "prov" to be A, B, or C. No Bw or Bd allowed.
   dat$room <- as.factor(dat$room)
   dat$prov_trt <- as.factor(paste(dat$prov,dat$room,sep="-"))
@@ -100,6 +105,54 @@ getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   return(dat)
 }  
 #-----------------------------------------------------------------------------------------  
+
+
+
+#-----------------------------------------------------------------------------------------
+#- function to compile and return the three estimates of SLA from the GREAT experiment.
+#  (1) leaf punches on 2016-1-29 and 2016-2-9,
+#  (2) gas exchange leaves harvested on 2016-2-11 and 2016-2-29,
+#  (3) whole-crown average SLA obtained by harvesting (total leaf area / total leaf mass)
+#  Returns a list of these three elements
+getSLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+  
+  #- get the punches
+  punches <- getPunches()
+  
+  #---
+  #- get the gas exchange leaves
+  leaf1 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160211_L1.xlsx",sep=""))
+  leaf2 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160229_L1.xlsx",sep=""))
+  leaf <- rbind(leaf1,leaf2)
+  leaf$SLA <- with(leaf,LA_cm2/(mass_g))         # in cm2 g-1
+  leaf$LMA <- with(leaf,(mass_g)/(LA_cm2/10000)) # in g m-2
+  leaf$comment <- NULL
+  names(leaf)[2] <- tolower(names(leaf)[2])
+  
+  #- merge in a "key" from the punches dataset 
+  key <- subset(punches,Date==as.Date("2016-01-29"))[,c("room","prov2","pot","Water_trt")]
+  potnumber <- unlist(strsplit(as.character(key$pot),split="-"))[2*(1:length(strsplit(as.character(key$pot),split="-")))  ]
+  potnumber2 <- sprintf("%02d",as.numeric(potnumber))
+  key$Pot <- key$pot
+  key$pot <- paste(key$prov2,potnumber2,sep="-")
+  
+  leaf3 <- merge(leaf,key,by=("pot"))
+  leaf3$prov2 <- leaf3$Pot <- NULL
+  #---
+  
+  
+  #- get the harvest dataset
+  harvest <- getHarvest()
+  harvest$SLA <- with(harvest,leafarea/leafdm)           # in cm2 g-1
+  harvest$LMA <- with(harvest,leafdm/(leafarea/10000))   # in g m-2
+  harvest <- subset(harvest,Date != as.Date("2016-01-07")) # exclude the pre-planting harvest (SLA and LMA very different!)
+  harvest2 <- merge(harvest,key,by="Pot")
+  return(list(punches,leaf3,harvest2)) # return a list of the three kinds of SLA measurements
+}
+#-----------------------------------------------------------------------------------------
+
+
+
   
 #-----------------------------------------------------------------------------------------
 #- function to read and process the Asat and AQ datasets
@@ -347,6 +400,9 @@ fitAGRvT <- function(dat){
 #-----------------------------------------------------------------------------------------
 
 
+
+
+
 #-----------------------------------------------------------------------------------------
 #- function to fit the June et al. (2004) FPB model for the temperature response of GROWTH
 #- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
@@ -496,8 +552,8 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   
   outsides <- sum(length(toolow),length(toohigh))
   total <- length(d2hdat)
-  
-  print(paste(outsides," observations of ",total," outside of allometry",sep=""))
+  percentage <- round(outsides/total*100,1)
+  print(paste(outsides," observations of ",total," outside of allometry (",percentage,"%)",sep=""))
   #----------------------------------------------------------------------------------------------------------------
   
   
@@ -615,11 +671,10 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #--------------------------------------------------------------------------------------------------------------------
   #--------------------------------------------------------------------------------------------------------------------
   #---- get the SLA data from punches. SLA increase with temperature, to a point.
-  sla <- getPunches()
-  
+  sla1 <- getPunches()
+  sla <- summaryBy(SLA+LMA~room+prov+pot+prov_trt+Water_trt,FUN=mean,keep.names=T,data=sla1)
   rgrdat <- merge(la3,sla,by=c("room","prov","pot","prov_trt","Water_trt"))
-  rgrdat$Date.x <- rgrdat$Date.y <- rgrdat$punch_no <- rgrdat$area_cm2 <- rgrdat$mass_mg <- NULL
-  
+
   
   
   

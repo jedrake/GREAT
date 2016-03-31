@@ -1,24 +1,17 @@
-library(plotBy)
-library(doBy)
-library(magicaxis)
-library(RColorBrewer)
-library(propagate)
-library(gplots)
-library(scales)
-source("R/generic_functions.R")
-source("R/GREAT_functions.R")
-
-
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #-- Growth analysis script. returnRGR() does most of the heavy data-manipulation work
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
+#- load the packages and custom functions that do all the work
+source("R/loadLibraries.R")
+
+
 #- get the data, process it for RGR.
 dat.list <- returnRGR(plotson=T)
-dat <- dat.list[[2]]
-dat.all <- dat.list[[1]]
+dat <- dat.list[[2]]     # RGR and AGR merged with canopy leaf area and SLA for the intensive growth interval only
+dat.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
 
 
 #-----------------------------------------------------------------------------------------
@@ -184,6 +177,16 @@ key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved
 dat2 <- merge(dat2,key)
 
 
+
+
+
+#-----------------------------------------------------------------------------------------
+#- so it seems that an increase in SLA with temperature contributes to increased growth
+#  at teh low end of temperature. How robust is that conclusion? Let's look at the four times
+#  we estimated SLA (punches twice, gas exchange leaves, and harvest).
+sla <- getSLA()
+
+#-----------------------------------------------------------------------------------------
 
 
 #-----------------------------------------------------------------------------------------
