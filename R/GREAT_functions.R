@@ -274,7 +274,7 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #- function to read and process the temperature response curves of respiration
 getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
-  rvt <-read.csv(paste(path,"/Share/Data/GasEx/Rdark/GREAT-Rdark-compiled-20160211-L1.csv",sep=""))
+  rvt <-read.csv(paste(path,"/Share/Data/GasEx/Rdark/GHS39_GREAT_MAIN_GX_Rdark-compiled_20160211_L1.csv",sep=""))
   names(rvt)[1:2] <- tolower(names(rvt)[1:2])
   rvt$prov <- as.factor(substr(rvt$pot,start=1,stop=1))
   rvt$room <- as.factor(rvt$room)
@@ -289,10 +289,24 @@ getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   #- average across sub-replicate logs
   rvt2 <- summaryBy(.~room+pot+prov+prov_trt+Water_trt+TleafFac,data=rvt,FUN=mean,keep.names=T)
+  rvt2$Pot <- as.factor(paste(toupper(substr(as.character(rvt2$pot),start=1,stop=1)),substr(as.character(rvt2$pot),start=2,stop=5),sep=""))
   
   #- got them all? We're missing the fourth temperature for bw-26.
   xtabs(~pot,data=rvt2)
-  return(rvt2)
+  
+  #- merge in the leaf mass data
+  leaf1 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160211_L1.xlsx",sep=""))
+  leaf2 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160229_L1.xlsx",sep=""))
+  leaf <- rbind(leaf1,leaf2)
+  leaf$Pot <- as.factor(leaf$Pot)
+  leaf$comment <- NULL
+  
+  rvt3 <- merge(rvt2,leaf,by="Pot")
+  rvt3$pot <- NULL
+  
+  #- calculate mass-specific leaf respiration rates
+  rvt3$Rmass <- with(rvt3,Rarea*LA_cm2/mass_g/10000*1000) #- convert umol Co2 m-2 s-1 to nmol CO2 g-1 s-1
+  return(rvt3)
 }
 #-----------------------------------------------------------------------------------------
 
@@ -364,7 +378,7 @@ fitAvT <- function(dat){
 #- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
 #-   and [2] a dataframe with the predictions and 95% confidence intervals.
 fitRvT <- function(dat){
-  try(R_Topt <- nls(Rarea~  Rref*Q10^((Tleaf-22.5)/10),data=dat,start=list(Rref=10,Q10=2)))
+  try(R_Topt <- nls(Rmass~  Rref*Q10^((Tleaf-22.5)/10),data=dat,start=list(Rref=10,Q10=2)))
   R_Topt2 <- summary(R_Topt)
   results <- R_Topt2$coefficients[1:4]
   names(results)[1:4] <- c("Rref","Q10","Rref.se","Q10.se")

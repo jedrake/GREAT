@@ -10,30 +10,17 @@ rvt <- getRvT()
 
 
 #-------------------------------------------------------
-#- Plot RAW data
+#- plot area based rates
 
-#- plot each light level's temperature response
+#- Plot RAW data
 windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
-plotBy(Rarea~CTleaf|pot,data=rvt,las=1,type="o",xlim=c(10,35),ylim=c(0,2),legend=F,pch=16,
+plotBy(Rarea~CTleaf|Pot,data=rvt,las=1,type="o",xlim=c(10,35),ylim=c(0,2),legend=F,pch=16,
        axes=F,xlab="",ylab="",col=palette()[rvt$prov])
 magaxis(side=1:4,labels=c(0,1,0,1),las=1)
 title(main="Raw data",line=-1)
 
-title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
-title(ylab=expression(R[dark]~(mu*mol~m^-2~s^-1)),outer=T,cex.lab=2)
-#-------------------------------------------------------
-
-
-
-
-
-
-#-------------------------------------------------------
 #- plot TREATMENT MEANS
-
-rvt.m <- summaryBy(Rarea+Tleaf+CTleaf~TleafFac+prov,data=rvt,FUN=c(mean,standard.error),na.rm=T)
-
-#- plot temperature response
+rvt.m <- summaryBy(Rarea+Rmass+Tleaf+CTleaf~TleafFac+prov,data=rvt,FUN=c(mean,standard.error),na.rm=T)
 plotBy(Rarea.mean~CTleaf.mean|prov,data=rvt.m,las=1,xlim=c(10,35),ylim=c(0,2),legend=F,pch=16,
        axes=F)
 magaxis(side=1:4,labels=c(0,1,0,1),las=1)
@@ -46,6 +33,42 @@ title(main="Provenance means",line=-1)
 magaxis(side=1,labels=c(1),las=1)
 title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
 title(ylab=expression(R[dark]~(mu*mol~m^-2~s^-1)),outer=T,cex.lab=2)
+legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
+#-------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------
+#- plot mass based rates
+
+#- Plot RAW data
+windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
+plotBy(Rmass~CTleaf|Pot,data=rvt,las=1,type="o",xlim=c(10,35),ylim=c(0,35),legend=F,pch=16,
+       axes=F,xlab="",ylab="",col=palette()[rvt$prov])
+magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+title(main="Raw data",line=-1)
+
+#- plot TREATMENT MEANS
+rvt.m <- summaryBy(Rarea+Rmass+Tleaf+CTleaf~TleafFac+prov,data=rvt,FUN=c(mean,standard.error),na.rm=T)
+plotBy(Rmass.mean~CTleaf.mean|prov,data=rvt.m,las=1,xlim=c(10,35),ylim=c(0,35),legend=F,pch=16,
+       axes=F)
+magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+adderrorbars(x=rvt.m$CTleaf.mean,y=rvt.m$Rmass.mean,SE=rvt.m$Rmass.standard.error,direction="updown")
+adderrorbars(x=rvt.m$CTleaf.mean,y=rvt.m$Rmass.mean,SE=rvt.m$CTleaf.standard.error,direction="leftright")
+plotBy(Rmass.mean~CTleaf.mean|prov,data=rvt.m,las=1,legend=F,pch=16,
+       axes=F,add=T,cex=1.5)
+title(main="Provenance means",line=-1)
+
+magaxis(side=1,labels=c(1),las=1)
+title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
+title(ylab=expression(R[dark]~(nmol~g^-1~s^-1)),outer=T,cex.lab=2)
 legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
 #-------------------------------------------------------
 
@@ -72,7 +95,7 @@ RvTfits <- data.frame(do.call(rbind,
 
 windows(30,50);par(mfrow=c(2,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
 #- plot Rref (at 22.5 degC)
-barplot2(height=RvTfits$Rref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,1),las=1,
+barplot2(height=RvTfits$Rref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,20),las=1,
          ylab=expression(R[ref]~(mu*mol~m^-2~s^-1)),
          ci.l=RvTfits$Rref-RvTfits$Rref.se,ci.u=RvTfits$Rref+RvTfits$Rref.se)
 
@@ -80,7 +103,7 @@ barplot2(height=RvTfits$Rref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,1),las=
 barplot2(height=RvTfits$Q10,names.arg=c("A","B","C"),plot.ci=T,las=1,ylim=c(0,2.5),
          ylab=expression(Q[10]),
          ci.l=RvTfits$Q10-RvTfits$Q10.se,ci.u=RvTfits$Q10+RvTfits$Q10.se)
-dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/RleafvT_area_fits.pdf")
+dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/RleafvT_mass_fits.pdf")
 
 
 #- pull out the predictions and confidence intervals for plotting
@@ -91,8 +114,8 @@ toplot$prov <- c(rep("A",51),rep("B",51),rep("C",51))
 windows(30,30);par(mar=c(5,7,1,1))
 COL=palette()[1:3]
 
-plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,1.75),lwd=3,cex.lab=2,
-       ylab=expression(R[dark]~(mu*mol~m^-2~s^-1)),
+plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=2,
+       ylab=expression(R[dark]~(nmol~g^-1~s^-1)),
        xlab=expression(T[leaf]~(degree*C)))
 as <- subset(toplot,prov=="A")
 bs <- subset(toplot,prov=="B")
@@ -104,12 +127,12 @@ polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5, rev(cs$Sim.2.5)), col
 legend("topleft",c("A","B","C"),fill=COL,cex=2,title="Provenance")
 
 #- add TREATMENT MEANS
-rvt.m <- summaryBy(Rarea+Tleaf~TleafFac+prov,data=rvt,FUN=c(mean,standard.error))
+rvt.m <- summaryBy(Rarea+Rmass+Tleaf~TleafFac+prov,data=rvt,FUN=c(mean,standard.error))
 plotmeans <- rvt.m
-plotBy(Rarea.mean~Tleaf.mean|prov,data=plotmeans,add=T,pch=16,cex=2,legend=F,
-       panel.first=(adderrorbars(x=plotmeans$Tleaf.mean,y=plotmeans$Rarea.mean,
-                                 SE=plotmeans$Rarea.standard.error,direction="updown")))
-dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/RleafvT_predictions_area.pdf")
+plotBy(Rmass.mean~Tleaf.mean|prov,data=plotmeans,add=T,pch=16,cex=2,legend=F,
+       panel.first=(adderrorbars(x=plotmeans$Tleaf.mean,y=plotmeans$Rmass.mean,
+                                 SE=plotmeans$Rmass.standard.error,direction="updown")))
+dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/RleafvT_predictions_mass.pdf")
 
 #-------------------------------------------------------
 #-------------------------------------------------------
