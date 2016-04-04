@@ -1,6 +1,8 @@
 
 #- load the packages and custom functions that do all the work
 source("R/loadLibraries.R")
+palette(rev(brewer.pal(6,"Spectral")))
+
 
 
 #-------------------------------------------------------------------------------------
@@ -95,17 +97,55 @@ plotBy(TotMass.mean~Time|room,data=d.m,type="p",ylab=expression(Mass~(g)),pch=15
 
 
 #- plot the complex evolution of growth over time
-windows(50,60);par(mfrow=c(3,1),mar=c(0,6,0,0),oma=c(2,2,2,2),las=1,cex=1.1,cex.lab=1.5)
-plotBy(M.mean~times|room,data=rates.m,type="o",ylab=expression(Mass~(g)),pch=15,
+windows(50,60);par(mfrow=c(3,1),mar=c(0,5,0,1),oma=c(5,2,2,2),las=1,cex=1.1,cex.lab=1.5)
+plotBy(M.mean~times|room,data=rates.m,type="o",ylab=expression(Mass~(g)),pch=16,cex=0,lwd=4,axes=F,
        panel.first=adderrorbars(x=rates.m$times,y=rates.m$M.mean,SE=rates.m$M.standard.error,direction="updown"))
-plotBy(AGR.mean~times|room,data=rates.m,type="o",ylab=expression(AGR~(g~d^-1)),pch=15,legend=F,
+magaxis(side=c(1,2,4),labels=c(0,1,1),frame.plot=T)
+plotBy(TotMass.mean~Time|room,data=d.m,type="p",ylab=expression(Mass~(g)),pch=16,add=T,cex=1.5,
+       panel.first=adderrorbars(x=d.m$Time,y=d.m$TotMass.mean,SE=d.m$TotMass.standard.error,direction="updown"))
+plotBy(AGR.mean~times|room,data=rates.m,type="o",ylab=expression(AGR~(g~d^-1)),pch=16,legend=F,cex=0,lwd=4,axes=F,
        panel.first=adderrorbars(x=rates.m$times,y=rates.m$AGR.mean,SE=rates.m$AGR.standard.error,direction="updown"))
-plotBy(RGR.mean~times|room,data=rates.m,type="o",ylab=expression(RGR~(g~g^-1~d^-1)),pch=15,legend=F,ylim=c(0,0.2),
+magaxis(side=c(1,2,4),labels=c(0,1,1),frame.plot=T)
+plotBy(RGR.mean~times|room,data=rates.m,type="o",ylab=expression(RGR~(g~g^-1~d^-1)),pch=16,legend=F,cex=0,lwd=4,axes=F,
+       ylim=c(0,0.2),
        panel.first=adderrorbars(x=rates.m$times,y=rates.m$RGR.mean,SE=rates.m$RGR.standard.error,direction="updown"))
+magaxis(side=c(1,2,4),labels=c(1,1,1),frame.plot=T)
+title(xlab="Time (days)",outer=T,adj=0.6)
+dev.copy2pdf(file="output/Growth_analysis_2ndorderpoly.pdf")
+
 #-------------------------------------------------------------------------------------
 
 
 
+
+
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make 3-d plot of mass, time, and temperature.
+library(rgl)
+library(akima)
+rates.m$room <- as.numeric(rates.m$room)
+
+#- make an interpolated matrix with colors for plotting
+s <- interp(x=rates.m$room,y=rates.m$times,z=rates.m$M.mean)
+colorlut <- terrain.colors(zlen) # height color lookup table
+zlim <- range(s$z)
+zlen <- zlim[2] - zlim[1] + 1
+colors <- colorlut[ s$z - zlim[1] + 1 ] # assign colors to heights for each point
+
+#- plot
+plot3d(x=rates.m$room,y=rates.m$times,z=rates.m$M.mean,axes=F,
+       xlab="",ylab="",zlab="",aspect=c(0.8,0.8,1))
+rgl.viewpoint(  zoom = 1.3 )
+surface3d(x=s$x,y=s$y,z=s$z,color=colors,back="lines")
+axes3d( edges=c("y--", "z+"))
+axis3d(edge='x--',at =c(1,2,3,4,5,6),
+       labels =c("18","21.5","25","28.5","32","35.5"))
+box3d()
+rgl.snapshot(filename="output/Mass_3d.png",fmt="png")
+#-------------------------------------------------------------------------------------
 
 
 
