@@ -38,6 +38,9 @@ output.log_lin <- function(X, Y, params, times,Code){
 
 
 
+
+
+
 #-------------------------------------------------------------------------------------
 #- get the data, process it for log-polynomial fitting of total mass over time.
 dat.list <- returnRGR(plotson=F)
@@ -59,6 +62,9 @@ d2$Code <- d2$pot
 
 #-------------------------------------------------------------------------------------
 #- fit log-polynomial growth model to each plant one at a time, extract parameters, and analyze them.
+#  Creates a pdf of plots for each plant
+
+pdf(file="output/Growth_poly_allplants.pdf", paper = "a4", width = 14/2.54, height = 14/2.54)
 growth.l <- split(d2,d2$Code)
 loglinfits <- output <- data.out <- list()
 for(i in 1:length(growth.l)){
@@ -73,7 +79,15 @@ for(i in 1:length(growth.l)){
   data.out[[i]]$Code <- output[[i]]$Code <- tofit$Code[1]
   data.out[[i]]$Water_trt <-output[[i]]$Water_trt <- tofit$Water_trt[1]
   data.out[[i]]$room <- output[[i]]$room <-tofit$room[1]
+  
+  #- make plot (growing pdf)
+  plot(observed~time,data=data.out[[i]],cex=1.5,ylab="Total mass (g)",xlab="Time (days)",ylim=c(0,20))
+  lines(M~times,data=output[[i]])
+  mtext(text=tofit$Code[1],side=3,line=-1)
+  legend("topleft",paste("r2 = ",round(summary(loglinfits[[i]])$r.squared,digits=3)),bty="n")
+  
 }
+dev.off() # close pdf
 #- put rates dataframe together. This has the timecourse of mass, AGR, and RGR for each plant
 rates.df <-do.call(rbind,output)
 data.df <- do.call(rbind,data.out)
@@ -86,14 +100,6 @@ params$Code <- unique(rates.df$Code) # add the code variable to the parameter es
 #-------------------------------------------------------------------------------------
 #- average across rooms
 rates.m <- summaryBy(M+AGR+RGR~times+room,data=subset(rates.df,Water_trt=="wet"),FUN=c(mean,standard.error))
-
-#- overlay predicted and measured mass values. Does the model work? Yes it works pretty good.
-windows(60,60);par(mfrow=c(1,1),mar=c(6,7,0,0),oma=c(0,0,0,0),las=1,cex=1.1,cex.lab=1.5)
-plotBy(M.mean~times|room,data=rates.m,type="o",ylab=expression(Mass~(g)),pch=1,cex=1,lwd=2,
-       panel.first=adderrorbars(x=rates.m$times,y=rates.m$M.mean,SE=rates.m$M.standard.error,direction="updown"))
-d.m <- summaryBy(TotMass~Time+room,data=subset(d2,Water_trt=="wet"),FUN=c(mean,standard.error),na.rm=T)
-plotBy(TotMass.mean~Time|room,data=d.m,type="p",ylab=expression(Mass~(g)),pch=15,add=T,cex=2.5,
-       panel.first=adderrorbars(x=d.m$Time,y=d.m$TotMass.mean,SE=d.m$TotMass.standard.error,direction="updown"))
 
 
 #- plot the complex evolution of growth over time
