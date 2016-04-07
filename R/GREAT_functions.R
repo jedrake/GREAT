@@ -723,7 +723,47 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   rgrdat$canopy2 <- rgrdat$date <- rgrdat$d1 <- rgrdat$d2 <- rgrdat$Comment <- rgrdat$leaf_no <- NULL
   
   return(list(hddata2,rgrdat))
-  #--------------------------------------------------------------------------------------------------------------------
-  #--------------------------------------------------------------------------------------------------------------------
+
+
   
 }
+#--------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+#--------------------------------------------------------------------------------------------------------------------
+#-- function to interpret 2nd order log-polynomial curve fits
+#--------------------------------------------------------------------------------------------------------------------
+output.log_lin <- function(X, Y, params, times,Code){
+  a <- params[1]; b <- params[2]; c <- params[3]
+  #fitted <- (M0^(1-beta)   + r  * X *(1-beta))^(1/(1-beta))
+  fitted <- exp(a + b*X + c*X^2)
+  resid  <- Y - fitted
+  data <- data.frame(time=X,observed = Y, fitted = fitted, resid = resid)
+  #eq   <- bquote(paste((.(round(r * (1-beta), 3))*t)^.(round(1/(1-beta), 2))))
+  eq <- bquote(a+bx+cx^2)
+  mss  <- sum((fitted - mean(fitted))^2)
+  rss  <- sum(resid^2)
+  R2   <- mss/(mss + rss)
+  rmse <- sqrt(rss)
+  N <- length(X)
+  logLik <- -N * (log(2 * pi) + 1 - log(N) + log(sum(resid^2)))/2
+  AIC  <- -2 * logLik  + 2 * 3 # three parameters
+  summary <- c(R2 = R2, AIC = AIC, RMSE = rmse)
+  temp <- a + b*X + c*X^2 # fix from here down
+  rates = data.frame(
+    times = times,
+    M    =  exp(a+b*times+c*times^2))                  # from Hunt- Plant Growth Curves
+  rates$AGR  =  with(rates,M*(b+2*c*times))            # from Hunt- Plant Growth Curves
+  rates$RGR <- rates$AGR/rates$M
+  rates$Code <- Code
+  out <- list(params = params[-4], summary = summary, equation = eq, data = data, rates = rates)
+  return(out)
+}
+#--------------------------------------------------------------------------------------------------------------------
+
+

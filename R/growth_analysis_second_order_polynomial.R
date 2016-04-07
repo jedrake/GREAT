@@ -1,41 +1,8 @@
 
+#-------------------------------------------------------------------------------------
 #- load the packages and custom functions that do all the work
 source("R/loadLibraries.R")
-palette(rev(brewer.pal(6,"Spectral")))
-
-
-
 #-------------------------------------------------------------------------------------
-#-- function to interpret 2nd order log-polynomial curve fits
-output.log_lin <- function(X, Y, params, times,Code){
-  a <- params[1]; b <- params[2]; c <- params[3]
-  #fitted <- (M0^(1-beta)   + r  * X *(1-beta))^(1/(1-beta))
-  fitted <- exp(a + b*X + c*X^2)
-  resid  <- Y - fitted
-  data <- data.frame(time=X,observed = Y, fitted = fitted, resid = resid)
-  #eq   <- bquote(paste((.(round(r * (1-beta), 3))*t)^.(round(1/(1-beta), 2))))
-  eq <- bquote(a+bx+cx^2)
-  mss  <- sum((fitted - mean(fitted))^2)
-  rss  <- sum(resid^2)
-  R2   <- mss/(mss + rss)
-  rmse <- sqrt(rss)
-  N <- length(X)
-  logLik <- -N * (log(2 * pi) + 1 - log(N) + log(sum(resid^2)))/2
-  AIC  <- -2 * logLik  + 2 * 3 # three parameters
-  summary <- c(R2 = R2, AIC = AIC, RMSE = rmse)
-  temp <- a + b*X + c*X^2 # fix from here down
-  rates = data.frame(
-    times = times,
-    M    =  exp(a+b*times+c*times^2))                  # from Hunt- Plant Growth Curves
-  rates$AGR  =  with(rates,M*(b+2*c*times))            # from Hunt- Plant Growth Curves
-  rates$RGR <- rates$AGR/rates$M
-  rates$Code <- Code
-  out <- list(params = params[-4], summary = summary, equation = eq, data = data, rates = rates)
-  return(out)
-}
-#-------------------------------------------------------------------------------------
-
-
 
 
 
@@ -53,7 +20,6 @@ d.l <- summaryBy(TotMass~pot,data=subset(d,is.na(TotMass)==F),FUN=length)
 keeps <- droplevels(subset(d.l,TotMass.length>=5))
 d2 <- droplevels(subset(d,pot %in% keeps$pot))
 d2$Code <- d2$pot
-
 #-------------------------------------------------------------------------------------
 
 
@@ -100,10 +66,13 @@ params$Code <- unique(rates.df$Code) # add the code variable to the parameter es
 #-------------------------------------------------------------------------------------
 #- average across rooms
 rates.m <- summaryBy(M+AGR+RGR~times+room,data=subset(rates.df,Water_trt=="wet"),FUN=c(mean,standard.error))
+d.m <- summaryBy(TotMass~Time+room,data=subset(d2,Water_trt=="wet"),FUN=c(mean,standard.error))
 
 
 #- plot the complex evolution of growth over time
 windows(50,60);par(mfrow=c(3,1),mar=c(0,5,0,1),oma=c(5,2,2,2),las=1,cex=1.1,cex.lab=1.5)
+palette(rev(brewer.pal(6,"Spectral")))
+
 plotBy(M.mean~times|room,data=rates.m,type="o",ylab=expression(Mass~(g)),pch=16,cex=0,lwd=4,axes=F,
        panel.first=adderrorbars(x=rates.m$times,y=rates.m$M.mean,SE=rates.m$M.standard.error,direction="updown"))
 magaxis(side=c(1,2,4),labels=c(0,1,1),frame.plot=T)
@@ -136,9 +105,9 @@ rates.m$room <- as.numeric(rates.m$room)
 
 #- make an interpolated matrix with colors for plotting
 s <- interp(x=rates.m$room,y=rates.m$times,z=rates.m$M.mean)
-colorlut <- terrain.colors(zlen) # height color lookup table
 zlim <- range(s$z)
 zlen <- zlim[2] - zlim[1] + 1
+colorlut <- terrain.colors(zlen) # height color lookup table
 colors <- colorlut[ s$z - zlim[1] + 1 ] # assign colors to heights for each point
 
 #- plot
@@ -157,3 +126,97 @@ rgl.snapshot(filename="output/Mass_3d.png",fmt="png")
 
 
 
+
+
+
+
+
+#-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
+#- an alternative approach, using generalizied linear models (GAMs)
+
+
+#- load libraries from script
+source("R/fitGAM/derivSimulCI.R")
+source("R/fitGAM/plotCIdate.R")
+source("R/fitGAM/smoothplot.R")
+
+# for GAM
+library(mgcv)
+
+
+#-------------------------------------------------------------------------------------
+#- fit gam model to each plant one at a time, predict the derivatives
+growth.l <- split(d2,d2$Code)
+pdf(file="output/Growth_GAM_allplants.pdf", paper = "a4", width = 14/2.54, height = 14/2.54)
+
+log3fits <- output <- data.out <- list()
+kgam=5
+gamfits <- list()
+for(i in 1:length(growth.l)){
+  tofit <- growth.l[[i]]
+  tofit$lnTotMass <- log(tofit$TotMass)
+  
+  #- fit the gam
+  g <- gam(lnTotMass ~ s(Time, k=kgam), data=tofit)
+  
+  #- plot fit
+  smoothplot(Time, lnTotMass, data=tofit, kgam=kgam)
+  title(main=tofit$Code[1])
+  
+  #- create a vector of "dates" on which to estimate the derivative 
+  dates <- seq(min(tofit$Time), max(tofit$Time), by=1)
+  
+  #- extract the derivative 
+  fd <- derivSimulCI(g, samples = 10000, n=length(dates))
+  dydt <- fd[[1]]$deriv[,1]
+  
+  #- put derivatives into a list of dataframes
+  gamfits[[i]] <- data.frame(Code=tofit$Code[1],Time=dates,dydt=dydt)
+  
+  #- get the predicted mass
+  newDF <- data.frame(Time=dates) ## needs to be a data frame for predict
+  X0 <- exp(predict(g, newDF))    ## exp() needed to convert from ln(mass) to mass
+  
+  #- put mass into the dataframe
+  gamfits[[i]]$predMass <- X0
+}
+dev.off() # close pdf
+
+#- merge dataframes, combine with treatment key
+gamfits.df <- do.call(rbind,gamfits)
+key <- unique(subset(d2,select=c("Code","room","prov","Water_trt")))
+gamfits2 <- merge(gamfits.df,key,by=c("Code"),all.x=T)
+gamfits2$AGR <- gamfits2$dydt*gamfits2$predMass
+names(gamfits2)[3] <- "RGR"
+#-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- average across rooms
+gamfits2.m <- summaryBy(predMass+AGR+RGR~Time+room,data=subset(gamfits2,Water_trt=="wet"),FUN=c(mean,standard.error))
+d.m <- summaryBy(TotMass~Time+room,data=subset(d2,Water_trt=="wet"),FUN=c(mean,standard.error))
+
+
+#- plot the complex evolution of growth over time
+windows(50,60);par(mfrow=c(3,1),mar=c(0,5,0,1),oma=c(5,2,2,2),las=1,cex=1.1,cex.lab=1.5)
+palette(rev(brewer.pal(6,"Spectral")))
+
+plotBy(predMass.mean~Time|room,data=gamfits2.m,type="o",ylab=expression(Mass~(g)),pch=16,cex=0,lwd=4,axes=F,
+       panel.first=adderrorbars(x=gamfits2.m$Time,y=gamfits2.m$predMass.mean,SE=gamfits2.m$predMass.standard.error,direction="updown"))
+magaxis(side=c(1,2,4),labels=c(0,1,1),frame.plot=T)
+plotBy(TotMass.mean~Time|room,data=d.m,type="p",ylab=expression(Mass~(g)),pch=16,add=T,cex=1.5,
+       panel.first=adderrorbars(x=d.m$Time,y=d.m$TotMass.mean,SE=d.m$TotMass.standard.error,direction="updown"))
+plotBy(AGR.mean~Time|room,data=gamfits2.m,type="o",ylab=expression(AGR~(g~d^-1)),pch=16,legend=F,cex=0,lwd=4,axes=F,
+       panel.first=adderrorbars(x=gamfits2.m$Time,y=gamfits2.m$AGR.mean,SE=gamfits2.m$AGR.standard.error,direction="updown"))
+magaxis(side=c(1,2,4),labels=c(0,1,1),frame.plot=T)
+plotBy(RGR.mean~Time|room,data=gamfits2.m,type="o",ylab=expression(RGR~(g~g^-1~d^-1)),pch=16,legend=F,cex=0,lwd=4,axes=F,
+       ylim=c(0,0.2),
+       panel.first=adderrorbars(x=gamfits2.m$Time,y=gamfits2.m$RGR.mean,SE=gamfits2.m$RGR.standard.error,direction="updown"))
+magaxis(side=c(1,2,4),labels=c(1,1,1),frame.plot=T)
+title(xlab="Time (days)",outer=T,adj=0.6)
+dev.copy2pdf(file="output/Growth_analysis_GAM.pdf")
+
+#-------------------------------------------------------------------------------------
