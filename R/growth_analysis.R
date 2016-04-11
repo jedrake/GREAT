@@ -350,10 +350,13 @@ dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/RGRvT_predictions.p
 
 
 
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
-#- Biomass fractions
+#- prepare biomass
 dat <- getHarvest()
 size <- getSize()
 
@@ -368,22 +371,22 @@ dat2$LMF <- with(dat2,leafdm/totdm)
 dat2$SMF <- with(dat2,stemdm/totdm)
 dat2$RMF <- with(dat2,rootdm/totdm)
 
-#- plot
-windows(40,60);par(mfrow=c(3,1),mar=c(5,7,1,1),cex.lab=2,cex.axis=1.3,las=1)
-plotBy(LMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
-       legend=F,xlab="log(Total mass, g)",ylab="Leaf mass fraction")
-legend("bottom",legend=1:6,col=rev(brewer.pal(6,"RdYlGn")),pch=15,cex=1.5,ncol=6)
-plotBy(SMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
-       legend=F,xlab="log(Total mass, g)",ylab="Stem mass fraction")
-plotBy(RMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
-       legend=F,xlab="log(Total mass, g)",ylab="Root mass fraction")
-
-#- plot total final biomass
-dat2.m <- summaryBy(leafdm+stemdm+rootdm+totdm~room+prov,data=subset(dat2,Water_trt=="wet"),FUN=c(mean,standard.error),keep.names=F)
-windows();par(cex.lab=1.5)
-plotBy(totdm.mean~as.numeric(room)|prov,data=dat2.m,pch=16,cex=2,ylim=c(0,12),xlab="Room",ylab="Total dry mass (g)",
-       panel.first=adderrorbars(x=as.numeric(dat2.m$room),y=dat2.m$totdm.mean,SE=dat2.m$totdm.standard.error,direction="updown"))
-
+# #- plot
+# windows(40,60);par(mfrow=c(3,1),mar=c(5,7,1,1),cex.lab=2,cex.axis=1.3,las=1)
+# plotBy(LMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
+#        legend=F,xlab="log(Total mass, g)",ylab="Leaf mass fraction")
+# legend("bottom",legend=1:6,col=rev(brewer.pal(6,"RdYlGn")),pch=15,cex=1.5,ncol=6)
+# plotBy(SMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
+#        legend=F,xlab="log(Total mass, g)",ylab="Stem mass fraction")
+# plotBy(RMF~logtotdm|room,data=subset(dat2,Water_trt=="wet"),pch=15,cex=1.5,ylim=c(0,1),col=rev(brewer.pal(6,"RdYlGn")),
+#        legend=F,xlab="log(Total mass, g)",ylab="Root mass fraction")
+# 
+# #- plot total final biomass
+# dat2.m <- summaryBy(leafdm+stemdm+rootdm+totdm~room+prov,data=subset(dat2,Water_trt=="wet"),FUN=c(mean,standard.error),keep.names=F)
+# windows();par(cex.lab=1.5)
+# plotBy(totdm.mean~as.numeric(room)|prov,data=dat2.m,pch=16,cex=2,ylim=c(0,12),xlab="Room",ylab="Total dry mass (g)",
+#        panel.first=adderrorbars(x=as.numeric(dat2.m$room),y=dat2.m$totdm.mean,SE=dat2.m$totdm.standard.error,direction="updown"))
+# 
 
 
 
@@ -399,42 +402,42 @@ tofit <- merge(tofit,key,by="room")
 
 tofit.l <- split(tofit,tofit$prov)
 
-#- fit all the curves
+#- fit all the curves for final mass
 MASSvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=5,Topt=30,theta=5),namey="totdm",namex="Tair",lengthPredict=20)
 
 
 #- pull out the parameter means and SE's for plotting
 MASSvTfits <- data.frame(do.call(rbind,
-                                list(MASSvTfits.l[[1]][[1]],MASSvTfits.l[[2]][[1]],MASSvTfits.l[[3]][[1]])))
+                                 list(MASSvTfits.l[[1]][[1]],MASSvTfits.l[[2]][[1]],MASSvTfits.l[[3]][[1]])))
 
-windows(30,60);par(mfrow=c(3,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
-#- plot final mass at Topt
-barplot2(height=MASSvTfits$totdmref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,12),las=1,
-         ylab=expression(Final~mass~(g~d^-1)),
-         ci.l=MASSvTfits$totdmref-MASSvTfits$totdmref.se,ci.u=MASSvTfits$totdmref+MASSvTfits$totdmref.se)
-
-#- plot Topt
-barplot2(height=MASSvTfits$Topt,names.arg=c("A","B","C"),plot.ci=T,las=1,ylim=c(0,30),
-         ylab=expression(T[opt]~(degree*C)),
-         ci.l=MASSvTfits$Topt-MASSvTfits$Topt.se,ci.u=MASSvTfits$Topt+MASSvTfits$Topt.se)
-#- plot Theta
-barplot2(height=MASSvTfits$theta,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,15),las=1,
-         ylab=expression(Omega~(degree*C)),
-         ci.l=MASSvTfits$theta-MASSvTfits$theta.se,ci.u=MASSvTfits$theta+MASSvTfits$theta.se)
-title(xlab="Provenance",outer=T,cex.lab=2,adj=0.6)
-dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AGRvTfits.pdf")
+# windows(30,60);par(mfrow=c(3,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
+# #- plot final mass at Topt
+# barplot2(height=MASSvTfits$totdmref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,12),las=1,
+#          ylab=expression(Final~mass~(g)),
+#          ci.l=MASSvTfits$totdmref-MASSvTfits$totdmref.se,ci.u=MASSvTfits$totdmref+MASSvTfits$totdmref.se)
+# 
+# #- plot Topt
+# barplot2(height=MASSvTfits$Topt,names.arg=c("A","B","C"),plot.ci=T,las=1,ylim=c(0,30),
+#          ylab=expression(T[opt]~(degree*C)),
+#          ci.l=MASSvTfits$Topt-MASSvTfits$Topt.se,ci.u=MASSvTfits$Topt+MASSvTfits$Topt.se)
+# #- plot Theta
+# barplot2(height=MASSvTfits$theta,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,15),las=1,
+#          ylab=expression(Omega~(degree*C)),
+#          ci.l=MASSvTfits$theta-MASSvTfits$theta.se,ci.u=MASSvTfits$theta+MASSvTfits$theta.se)
+# title(xlab="Provenance",outer=T,cex.lab=2,adj=0.6)
+# dev.copy2pdf(file="output/totmassvTfits.pdf")
 
 
 #- pull out the predictions and confidence intervals for plotting
 toplot <- data.frame(do.call(rbind,
-                             list(AGRvTfits.l[[1]][[2]],AGRvTfits.l[[2]][[2]],AGRvTfits.l[[3]][[2]])))
-toplot$prov <- c(rep("A",51),rep("B",51),rep("C",51))
+                             list(MASSvTfits.l[[1]][[2]],MASSvTfits.l[[2]][[2]],MASSvTfits.l[[3]][[2]])))
+toplot$prov <- c(rep("A",nrow(toplot)/3),rep("B",nrow(toplot)/3),rep("C",nrow(toplot)/3))
 
 windows(30,30);par(mar=c(5,7,1,1))
 COL=palette()[1:3]
 
-plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,0.5),lwd=3,cex.lab=2,
-       ylab=expression(AGR~(g~d^-1)),
+plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,12),lwd=3,cex.lab=2,
+       ylab=expression(Final~mass~(g)),
        xlab=expression(T[air]~(degree*C)))
 as <- subset(toplot,prov=="A")
 bs <- subset(toplot,prov=="B")
@@ -446,11 +449,11 @@ polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5., rev(cs$Sim.2.5.)), c
 legend("topleft",c("A","B","C"),fill=COL,cex=2,title="Provenance")
 
 #- add TREATMENT MEANS
-plotBy(AGR.mean~Tair|prov,data=dat2,add=T,pch=16,cex=2,legend=F,
-       panel.first=(adderrorbars(x=dat2$Tair,y=dat2$AGR.mean,
-                                 SE=dat2$AGR.standard.error,direction="updown")))
-dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AGRvT_predictions.pdf")
-#-----------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------
+dat3 <- summaryBy(totdm+Tair~room+prov,FUN=c(mean,standard.error),data=subset(tofit,Water_trt=="wet"),na.rm=T)
+
+plotBy(totdm.mean~Tair.mean|prov,data=dat3,add=T,pch=16,cex=2,legend=F,
+       panel.first=(adderrorbars(x=dat3$Tair.mean,y=dat3$totdm.mean,
+                                 SE=dat3$totdm.standard.error,direction="updown")))
+dev.copy2pdf(file="output/Final_massvT_predictions.pdf")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------

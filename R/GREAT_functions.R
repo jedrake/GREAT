@@ -161,11 +161,11 @@ getSLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   #- read in the first set of measurements
-  aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ-compiled-20160202-20160203-L1.csv",sep=""))
+  aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GHS39_GREAT_MAIN_GX_AQ-compiled_20160202-20160203_L1.csv",sep=""))
   aq1$campaign = 1
   
   #- read in the second set (prov B only!)
-  aq2 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GREAT-AQ2-compiled-20160225-20160226-L1.csv",sep=""))
+  aq2 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GHS39_GREAT_MAIN_GX_AQ2-compiled_20160225-20160226_L1.csv",sep=""))
   aq2$campaign = 2
 
   aq <- rbind(aq1,aq2)
