@@ -396,51 +396,6 @@ fitRvT <- function(dat){
 
 
 
-#-----------------------------------------------------------------------------------------
-#- function to fit the June et al. (2004) FPB model for the temperature response of GROWTH
-#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
-#-   and [2] a dataframe with the predictions and 95% confidence intervals.
-fitAGRvT <- function(dat){
-  try(G_Topt <- nls(AGR.mean~ AGRref*exp(-1*((Tair-Topt)/theta)^2),data=dat,start=list(AGRref=0.5,Topt=30,theta=5)))
-  G_Topt2 <- summary(G_Topt)
-  results <- G_Topt2$coefficients[1:6]
-  names(results)[1:6] <- c("AGRref","Topt","theta","AGRref.se","Topt.se","theta.se")
-  
-  TT <- seq(min(dat$Tair),max(dat$Tair),length=51)
-  predicts <- predictNLS(G_Topt, newdata=data.frame(Tair = TT),interval="confidence",level=0.95)
-  predicts.df <- data.frame(predicts$summary)
-  predicts.df$Tleaf <- TT
-  
-  return(list(results,predicts.df))
-}
-#-----------------------------------------------------------------------------------------
-
-
-
-
-
-#-----------------------------------------------------------------------------------------
-#- function to fit the June et al. (2004) FPB model for the temperature response of GROWTH
-#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
-#-   and [2] a dataframe with the predictions and 95% confidence intervals.
-fitRGRvT <- function(dat){
-  try(G_Topt <- nls(RGR.mean~ RGRref*exp(-1*((Tair-Topt)/theta)^2),data=dat,start=list(RGRref=0.15,Topt=25,theta=20)))
-  G_Topt2 <- summary(G_Topt)
-  results <- G_Topt2$coefficients[1:6]
-  names(results)[1:6] <- c("RGRref","Topt","theta","RGRref.se","Topt.se","theta.se")
-  
-  TT <- seq(min(dat$Tair),max(dat$Tair),length=51)
-  predicts <- predictNLS(G_Topt, newdata=data.frame(Tair = TT),interval="confidence",level=0.95)
-  predicts.df <- data.frame(predicts$summary)
-  predicts.df$Tleaf <- TT
-  
-  return(list(results,predicts.df))
-}
-#-----------------------------------------------------------------------------------------
-
-
-
-
 
 
 
@@ -451,16 +406,16 @@ fitRGRvT <- function(dat){
 #- function to fit the June et al. (2004) FPB model for the temperature response of GROWTH
 #- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
 #-   and [2] a dataframe with the predictions and 95% confidence intervals.
-fitJuneT <- function(dat,namex,namey,start=list(Rref=2,Topt=20,theta=20)){
+fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=51,start=list(Rref=2,Topt=20,theta=20)){
   dat$Yvar <- dat[[namey]]
   dat$Xvar <- dat[[namex]]
   
-  try(G_Topt <- nls(Yvar~ Rref*exp(-1*((Xvar-Topt)/theta)^2),data=dat,start=list(Rref=0.15,Topt=25,theta=20)))
+  try(G_Topt <- nls(Yvar~ Rref*exp(-1*((Xvar-Topt)/theta)^2),data=dat,start=start))
   G_Topt2 <- summary(G_Topt)
   results <- G_Topt2$coefficients[1:6]
   names(results)[1:6] <- c(paste(namey,"ref",sep=""),"Topt","theta",paste(namey,"ref.se",sep=""),"Topt.se","theta.se")
    
-  TT <- seq(min(dat$Xvar),max(dat$Xvar),length=51)
+  TT <- seq(min(dat$Xvar),max(dat$Xvar),length=lengthPredict)
   predicts <- predictNLS(G_Topt, newdata=data.frame(Xvar = TT),interval="confidence",level=0.95)
   predicts.df <- data.frame(predicts$summary)
   predicts.df$Tleaf <- TT
@@ -576,11 +531,22 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   #----------------------------------------------------------------------------------------------------------------
   #- exploratory plotting
   if (plotson==T){
-    plotBy(logtotdm~logd2h|prov,data=dat,pch=15)
+    palette(rev(brewer.pal(6,"Spectral")))
+    
+    windows(12,12);par(mar=c(6,6,1,1),cex.axis=1.2,cex.lab=2)
+    plotBy(logtotdm~logd2h|prov,data=dat,pch=16,xlab="",ylab="",axes=F,legend=F)
+    legend(x=-1.2,y=1.1,legend=c("Cold-edge","Central","Warm-edge"),col=c(palette()[1],palette()[3],palette()[2]),
+            title="Provenance",pch=16,cex=1.5,bg="white")
     coefs <- coef(lm1)
     xval <- seq(min(dat$logd2h),max(dat$logd2h),length=101)
     preds <- coefs[1]+xval*coefs[2]+xval^2*coefs[3]
     lines(preds~xval)
+    magaxis(side=1:4,labels=c(1,1,0,0),las=1)
+    title(xlab=expression(Plant~size~(d^2*h~";"~cm^3)),
+          ylab=expression(Total~mass~(g)))
+    
+    dev.copy2pdf(file="output/allometry.pdf")
+  
   }
   #----------------------------------------------------------------------------------------------------------------
   
@@ -722,7 +688,11 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #- get rid of some unwanted variabels to make things simpler
   rgrdat$canopy2 <- rgrdat$date <- rgrdat$d1 <- rgrdat$d2 <- rgrdat$Comment <- rgrdat$leaf_no <- NULL
   
-  return(list(hddata2,rgrdat))
+  key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
+  rgrdat2 <- merge(rgrdat,key,by="room")
+  hddata3 <- merge(hddata2,key,by="room")
+  
+  return(list(hddata3,rgrdat2))
 
 
   

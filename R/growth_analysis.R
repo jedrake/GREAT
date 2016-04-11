@@ -16,25 +16,23 @@ dat.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
 
 #-----------------------------------------------------------------------------------------
 #- plot mean AGR and RGR over time in 3-d manner
+dat.all$Time <- unname(as.numeric(dat.all$Date-min(dat.all$Date-7))) # calculate "Time" in days
 
-dat.m <- summaryBy(AGR+RGR+totmass~Date+Water_trt+room+prov,data=dat.all,FUN=mean,keep.names=T,na.rm=T)
+dat.m <- summaryBy(AGR+RGR+totmass+Tair~Date+Time+Water_trt+room+prov,data=dat.all,FUN=mean,keep.names=T,na.rm=T)
 
 library(rgl)
 palette(rev(brewer.pal(6,"Spectral")))
-plot3d(x=subset(dat.m,Water_trt=="wet")$room,y=subset(dat.m,Water_trt=="wet")$Date,
-       z=subset(dat.m,Water_trt=="wet")$AGR,
-       col="black",#col=palette()[as.factor(subset(dat.m,Water_trt=="wet")$prov)],
-       xlab="Room",ylab="Date",zlab="AGR",size=15)
-
-plot3d(x=subset(dat.m,Water_trt=="wet")$room,y=subset(dat.m,Water_trt=="wet")$Date,
-       z=subset(dat.m,Water_trt=="wet")$RGR,type="p",
-       col="black",#col=palette()[as.factor(subset(dat.m,Water_trt=="wet")$prov)],
-       xlab="Room",ylab="Date",zlab="RGR",size=15)
-
-plot3d(x=subset(dat.m,Water_trt=="wet")$room,y=subset(dat.m,Water_trt=="wet")$Date,
-       z=subset(dat.m,Water_trt=="wet")$totmass,type="p",
+plot3d(x=subset(dat.m,Water_trt=="wet")$Tair,y=subset(dat.m,Water_trt=="wet")$Time,
+       z=subset(dat.m,Water_trt=="wet")$totmass,type="h",ylim=c(0,69),zlim=c(1,17),
        col=palette()[as.factor(subset(dat.m,Water_trt=="wet")$prov)],
-       xlab="Room",ylab="Date",zlab="totmass",size=15)
+       xlab="",ylab="",zlab="",size=15)
+plot3d(x=subset(dat.m,Water_trt=="wet")$Tair,y=subset(dat.m,Water_trt=="wet")$Time,
+       z=subset(dat.m,Water_trt=="wet")$totmass,type="p",add=T,
+       col=palette()[as.factor(subset(dat.m,Water_trt=="wet")$prov)],
+       xlab="",ylab="",zlab="",size=15)
+rgl.snapshot(filename="output/Mass_3d_provenances.png",fmt="png")
+
+
 
 #- plot again in 2d, with panels
 dat.m <- summaryBy(AGR+RGR+totmass~Date+Water_trt+room+prov,data=dat.all,FUN=mean,keep.names=T,na.rm=T)
@@ -42,94 +40,6 @@ dat.m$logtotmass <- log10(dat.m$totmass)
 
 dat.m.l <- split(dat.m,dat.m$Date)
 palette(rev(brewer.pal(3,"Set2")))
-
-#- plot AGR
-windows(30,60);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(7,7,1,2))
-for(i in 2:length(dat.m.l)){
-  toplot <- subset(dat.m.l[[i]],Water_trt=="wet")
-  
-  plotBy(AGR~as.numeric(room)|prov,data=toplot,pch=16,cex=2,ylim=c(0,max(toplot$AGR)+0.01),legend=F)
-  if(i==2) legend("topleft",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3])
-}
-title(xlab=expression(Room),outer=T,cex.lab=2)
-title(ylab=expression(AGR~(g~d^-1)),outer=T,cex.lab=2,adj=0.5)
-#dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/NAR_LMF_SLA.pdf")
-
-#- plot RGR
-windows(30,60);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(7,7,1,2))
-for(i in 2:length(dat.m.l)){
-  toplot <- subset(dat.m.l[[i]],Water_trt=="wet")
-  
-  plotBy(RGR~as.numeric(room)|prov,data=toplot,pch=16,cex=2,ylim=c(0,max(toplot$RGR)+0.01),legend=F)
-  if(i==2) legend("topleft",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3])
-}
-title(xlab=expression(Room),outer=T,cex.lab=2)
-title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,cex.lab=2,adj=0.5)
-
-
-
-
-
-
-#-----------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------
-#- plot totalmass over time, as Belinda requested
-dat.m.l2 <- split(dat.m,dat.m$room)
-
-
-#- plot linear-scale
-windows(40,70);par(mfrow=c(6,1),mar=c(0,0,0,0),oma=c(7,7,1,2),las=1)
-for(i in 1:length(dat.m.l2)){
-  toplot <- subset(dat.m.l2[[i]],Water_trt=="wet")
-  
-  plotBy(totmass~Date|prov,data=toplot,pch=16,cex=2,ylim=c(0,15),legend=F)
-  if(i==1) legend("topright",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3],ncol=3)
-  legend("topleft",legend=paste("Room",i,sep=" "),bty="n",cex=2)
-  axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=F,tck=0.05,las=2,cex.axis=1.5)
-  
-}
-title(xlab=Date),outer=T,cex.lab=2)
-title(ylab=expression(Total~mass~(g)),outer=T,cex.lab=2,adj=0.5)
-axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=T,tck=0.05,las=2,cex.axis=1.5)
-
-#- plot log-scale
-windows(40,70);par(mfrow=c(6,1),mar=c(0,0,0,0),oma=c(7,7,1,2),las=1)
-for(i in 1:length(dat.m.l2)){
-  toplot <- subset(dat.m.l2[[i]],Water_trt=="wet")
-  
-  plotBy(logtotmass~Date|prov,data=toplot,pch=16,cex=2,ylim=c(-1,1.5),legend=F)
-  if(i==1) legend("bottomright",legend=LETTERS[1:3],pch=16,cex=1.5,col=palette()[1:3],ncol=3)
-  legend("topleft",legend=paste("Room",i,sep=" "),bty="n",cex=2)
-  axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=F,tck=0.05,las=2,cex.axis=1.5)
-  
-}
-title(xlab=Date),outer=T,cex.lab=2)
-title(ylab=expression(log[10](Total~mass~(g))),outer=T,cex.lab=2,adj=0.5)
-axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.m$Date),by="week"),labels=T,tck=0.05,las=2,cex.axis=1.5)
-#-----------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-#-----------------------------------------------------------------------------------------
-windows(20,30);par(mfrow=c(3,1))
-plotBy(NAR~RGR|room,data=dat,log="xy",pch=16)
-plotBy(SLA~RGR|room,data=dat,log="xy",legend=F,pch=16)
-plotBy(LMF~RGR|room,data=dat,log="xy",legend=F,pch=16)
-
-
-library(rgl)
-palette(rev(brewer.pal(6,"Spectral")))
-plot3d(x=subset(dat,Water_trt=="wet")$canopy,y=subset(dat,Water_trt=="wet")$NAR,
-       z=subset(dat,Water_trt=="wet")$RGR,
-       col=palette()[as.numeric(subset(dat,Water_trt=="wet")$room)],
-       xlab="Canopy (cm2)",ylab="NAR",zlab="AGR",size=10)
-
-
 
 
 
@@ -309,6 +219,7 @@ tofit.l <- split(tofit,tofit$prov)
 
 #- fit all the curves
 AGRvTfits.l <- lapply(tofit.l,FUN=fitAGRvT)
+AGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.5,Topt=30,theta=5),namey="AGR.mean",namex="Tair",lengthPredict=20)
 
 
 #- pull out the parameter means and SE's for plotting
@@ -317,9 +228,9 @@ AGRvTfits <- data.frame(do.call(rbind,
 
 windows(30,60);par(mfrow=c(3,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
 #- plot Asat at Topt
-barplot2(height=AGRvTfits$AGRref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,0.5),las=1,
+barplot2(height=AGRvTfits$AGR.meanref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,0.5),las=1,
          ylab=expression(AGR~(g~d^-1)),
-         ci.l=AGRvTfits$AGRref-AGRvTfits$AGRref.se,ci.u=AGRvTfits$AGRref+AGRvTfits$AGRref.se)
+         ci.l=AGRvTfits$AGR.meanref-AGRvTfits$AGR.meanref.se,ci.u=AGRvTfits$AGR.meanref+AGRvTfits$AGR.meanref.se)
 
 #- plot Topt
 barplot2(height=AGRvTfits$Topt,names.arg=c("A","B","C"),plot.ci=T,las=1,ylim=c(0,30),
@@ -381,7 +292,7 @@ tofit <- dat2
 tofit.l <- split(tofit,tofit$prov)
 
 #- fit all the curves
-RGRvTfits.l <- lapply(tofit.l,FUN=fitRGRvT)
+RGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.15,Topt=25,theta=20),namey="RGR.mean",namex="Tair",lengthPredict=20)
 
 
 #- pull out the parameter means and SE's for plotting
@@ -390,9 +301,9 @@ RGRvTfits <- data.frame(do.call(rbind,
 
 windows(30,60);par(mfrow=c(3,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
 #- plot Asat at Topt
-barplot2(height=RGRvTfits$RGRref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,0.15),las=1,
+barplot2(height=RGRvTfits$RGR.meanref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,0.15),las=1,
          ylab=expression(RGR~(g~g^-1~d^-1)),
-         ci.l=RGRvTfits$RGRref-RGRvTfits$RGRref.se,ci.u=RGRvTfits$RGRref+RGRvTfits$RGRref.se)
+         ci.l=RGRvTfits$RGR.meanref-RGRvTfits$RGR.meanref.se,ci.u=RGRvTfits$RGR.meanref+RGRvTfits$RGR.meanref.se)
 
 #- plot Topt
 barplot2(height=RGRvTfits$Topt,names.arg=c("A","B","C"),plot.ci=T,las=1,ylim=c(0,30),
@@ -475,5 +386,71 @@ plotBy(totdm.mean~as.numeric(room)|prov,data=dat2.m,pch=16,cex=2,ylim=c(0,12),xl
 
 
 
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- fit final mass v T to estimate Topts
+tofit <- subset(dat2,Water_trt == "wet")
+
+
+#- merge in room temperature key
+key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
+tofit <- merge(tofit,key,by="room")
+
+tofit.l <- split(tofit,tofit$prov)
+
+#- fit all the curves
+MASSvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=5,Topt=30,theta=5),namey="totdm",namex="Tair",lengthPredict=20)
+
+
+#- pull out the parameter means and SE's for plotting
+MASSvTfits <- data.frame(do.call(rbind,
+                                list(MASSvTfits.l[[1]][[1]],MASSvTfits.l[[2]][[1]],MASSvTfits.l[[3]][[1]])))
+
+windows(30,60);par(mfrow=c(3,1),mar=c(2,6,1,0),oma=c(5,1,1,2),cex.lab=2)
+#- plot final mass at Topt
+barplot2(height=MASSvTfits$totdmref,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,12),las=1,
+         ylab=expression(Final~mass~(g~d^-1)),
+         ci.l=MASSvTfits$totdmref-MASSvTfits$totdmref.se,ci.u=MASSvTfits$totdmref+MASSvTfits$totdmref.se)
+
+#- plot Topt
+barplot2(height=MASSvTfits$Topt,names.arg=c("A","B","C"),plot.ci=T,las=1,ylim=c(0,30),
+         ylab=expression(T[opt]~(degree*C)),
+         ci.l=MASSvTfits$Topt-MASSvTfits$Topt.se,ci.u=MASSvTfits$Topt+MASSvTfits$Topt.se)
+#- plot Theta
+barplot2(height=MASSvTfits$theta,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,15),las=1,
+         ylab=expression(Omega~(degree*C)),
+         ci.l=MASSvTfits$theta-MASSvTfits$theta.se,ci.u=MASSvTfits$theta+MASSvTfits$theta.se)
+title(xlab="Provenance",outer=T,cex.lab=2,adj=0.6)
+dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AGRvTfits.pdf")
+
+
+#- pull out the predictions and confidence intervals for plotting
+toplot <- data.frame(do.call(rbind,
+                             list(AGRvTfits.l[[1]][[2]],AGRvTfits.l[[2]][[2]],AGRvTfits.l[[3]][[2]])))
+toplot$prov <- c(rep("A",51),rep("B",51),rep("C",51))
+
+windows(30,30);par(mar=c(5,7,1,1))
+COL=palette()[1:3]
+
+plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,0.5),lwd=3,cex.lab=2,
+       ylab=expression(AGR~(g~d^-1)),
+       xlab=expression(T[air]~(degree*C)))
+as <- subset(toplot,prov=="A")
+bs <- subset(toplot,prov=="B")
+cs <- subset(toplot,prov=="C")
+
+polygon(x = c(as$Tleaf, rev(as$Tleaf)), y = c(as$Sim.97.5., rev(as$Sim.2.5.)), col = alpha(COL[1],0.5), border = NA)
+polygon(x = c(bs$Tleaf, rev(bs$Tleaf)), y = c(bs$Sim.97.5., rev(bs$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
+polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5., rev(cs$Sim.2.5.)), col = alpha(COL[3],0.5), border = NA)
+legend("topleft",c("A","B","C"),fill=COL,cex=2,title="Provenance")
+
+#- add TREATMENT MEANS
+plotBy(AGR.mean~Tair|prov,data=dat2,add=T,pch=16,cex=2,legend=F,
+       panel.first=(adderrorbars(x=dat2$Tair,y=dat2$AGR.mean,
+                                 SE=dat2$AGR.standard.error,direction="updown")))
+dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AGRvT_predictions.pdf")
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------

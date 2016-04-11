@@ -5,6 +5,11 @@ library(plotBy)
 #r <- require(HIEv)
 #if(!r)stop("Install the HIEv R package from bitbucket.org/remkoduursma/hiev")
 
+
+
+
+
+#---------------------------------------------------------------------
 #- function to load a package, and install it if necessary
 Library <- function(pkg, ...){
   
@@ -19,6 +24,14 @@ Library <- function(pkg, ...){
   }
   
 }
+#---------------------------------------------------------------------
+
+
+
+
+
+#---------------------------------------------------------------------
+#- load all the libraries (and install them if needed)
 Library(doBy)
 Library(magicaxis)
 Library(RColorBrewer)
@@ -26,6 +39,15 @@ Library(propagate)
 Library(gplots)
 Library(scales)
 Library(readxl)
+#---------------------------------------------------------------------
+
+
+
+
+
+#---------------------------------------------------------------------
+#- load the custom functions that do most of the heavy lifting
+
 source("R/generic_functions.R")
 source("R/GREAT_functions.R")
-
+#---------------------------------------------------------------------
