@@ -1,0 +1,65 @@
+#-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
+#- Central analysis script for the GREAT local adaptation manuscript.
+#  The idea is to keep this script nice and tidy, but reproducibly make all of the 
+#  figures for the manuscript.
+#-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- load the packages and custom functions that do all the work
+source("R/loadLibraries.R")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make figure 1. Temperature response of final mass, Photosynthesis, and Rdark
+# This takes a little while to fit all the temperature response curves
+source("R/plot_figure1.R")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make figure 2. Growth analysis of the intensive interval
+# This takes a little while to fit all the temperature response curves
+source("R/growth_analysis_interval.R")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make figure 3. RGR decompostion of the growth interval
+source("R/plot_RGR_decomposition.R")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make figure 4. Three dimensional plot of A-Q curves.
+source("R/plot_AQ_3d.R")
+
+#- rotate the rgl plot to your liking, then run the following code.
+#  Import the image into powerpoint and add axis labels etc.
+rgl.snapshot(filename="output/Aq_3d_provenances.png",fmt="png")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make figure 5. The direct short-term temperature response curves.
+#  This takes a little while to fit all the temperature response curves
+source("R/photo_AvT.R")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make Table 1. Temperature response parameters for lots of things
+#  This takes a little while to fit all the temperature response curves
+#  Exports the table as "output/Table1.csv"
+source("R/make_table_Topt.R")
+#-------------------------------------------------------------------------------------
