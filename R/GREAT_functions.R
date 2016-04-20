@@ -421,17 +421,14 @@ fitRvT <- function(dat){
   results <- R_Topt2$coefficients[1:4]
   names(results)[1:4] <- c("Rref","Q10","Rref.se","Q10.se")
   
-  confinterval <- confint(R_Topt)
   
   #- merge 95% CI into results dataframe
-  confinterval <- confint(R_Topt)
+  confinterval <- confint2(R_Topt)
   CI1 <- (sprintf("%.1f",round(unname(confinterval[1,]),1)))
   CI1a <- paste(CI1[1],CI1[2],sep="-")
   CI2 <- (sprintf("%.1f",round(unname(confinterval[2,]),1)))
   CI2a <- paste(CI2[1],CI2[2],sep="-")
-  CI3 <- (sprintf("%.1f",round(unname(confinterval[3,]),1)))
-  CI3a <- paste(CI3[1],CI3[2],sep="-")
-  confinterval2 <- c(CI1a,CI2a,CI3a)
+  confinterval2 <- c(CI1a,CI2a)
   
   TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
   predicts <- predictNLS(R_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)

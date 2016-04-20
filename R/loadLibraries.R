@@ -44,6 +44,8 @@ Library(mapdata)
 Library(rgeos)
 Library(sp)
 Library(raster)
+Library(nlstools)
+Library(rgl)
 #---------------------------------------------------------------------
 
 

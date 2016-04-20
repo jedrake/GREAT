@@ -66,7 +66,7 @@ tofit_lowQ <- subset(avt, LightFac==1)
 tofit.l_lowQ <- split(tofit_lowQ,tofit_lowQ$location)
 
 
-#--- actually fit all teh T-response curves
+#--- actually fit all the T-response curves
 #- fit final mass
 MASSvTfits.l <- lapply(massdata.l,FUN=fitJuneT,start=list(Rref=5,Topt=30,theta=5),namey="totdm",namex="Tair",lengthPredict=20)
 
@@ -82,7 +82,7 @@ AvTfits.list.longterm <- lapply(tofit.tofit.longterm.l,FUN=fitAvT)
 #- fit Tresponse curves at high PAR
 AvTfits.list.st <- lapply(tofit.AvT.l,FUN=fitAvT)
 
-#- fit Tresposne curves at low PAR
+#- fit Tresponse curves at low PAR
 AvTfits.list2.st <- lapply(tofit.l_lowQ,FUN=fitJuneT,start=list(Rref=6,Topt=12,theta=15),namey="Photo",namex="Tleaf",lengthPredict=20)
 #-----------------------------------------------------------------------------------------
 

@@ -1,9 +1,3 @@
-library(plotBy)
-library(doBy)
-library(magicaxis)
-library(rgl)
-source("R/generic_functions.R")
-source("R/GREAT_functions.R")
 
 #- get the AvT data
 avt <- getAvT()
@@ -122,8 +116,8 @@ highQ$location <- factor(highQ$location,levels=c("Cold-edge","Central","Warm-edg
 tofit_lowQ <- subset(avt, LightFac==1)
 tofit.l_lowQ <- split(tofit_lowQ,tofit_lowQ$prov)
 
-#- fit all the curves
-AvTfits.list2.st <- lapply(tofit.l_lowQ,FUN=fitAvT)
+#- fit Tresponse curves at low PAR
+AvTfits.list2.st <- lapply(tofit.l_lowQ,FUN=fitJuneT,start=list(Rref=6,Topt=12,theta=15),namey="Photo",namex="Tleaf",lengthPredict=20)
 
 
 #- pull out the parameter means and SE's for plotting
@@ -157,8 +151,7 @@ xlims <- c(12,40)
 #-------
 #- plot Asat
 plotBy(Sim.Mean~Tleaf|location,data=highQ,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=1.5,col=COL,
-       
-       ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),
+       ylab="",axes=F,
        xlab="")
 as <- subset(highQ,prov=="A")
 bs <- subset(highQ,prov=="B")
@@ -170,6 +163,8 @@ polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5, rev(cs$Sim.2.5)), col
 legend("bottomright",levels(highQ$location),fill=COL,cex=1,title="Provenance")
 legend("bottomleft","PPFD = 1500",bty="n")
 legend("topright",letters[1],bty="n")
+magaxis(side=1:4,labels=c(1,1,0,0),frame.plot=T,las=1)
+title(ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)))
 
 #- add TREATMENT MEANS
 aq.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+Water_trt+prov+location,data=avt,FUN=c(mean,standard.error))
@@ -184,14 +179,17 @@ plotBy(Photo.mean~Tleaf.mean|location,data=plotmeans,add=T,pch=16,cex=2,legend=F
 #-------
 #- plot A at low Q
 plotBy(Sim.Mean~Tleaf|location,data=lowQ,legend=F,type="l",las=1,ylim=c(0,8),lwd=3,cex.lab=1.5,col=COL,
-       ylab=expression(A[net]~(mu*mol~m^-2~s^-1)),xlab="")
+       axes=F,ylab="",
+       xlab="")
+
 as2 <- subset(lowQ,prov=="A")
 bs2 <- subset(lowQ,prov=="B")
 cs2 <- subset(lowQ,prov=="C")
 title(xlab=expression(T[leaf]~(degree*C)),outer=T,adj=0.6,line=2)
 legend("bottomleft","PPFD = 100",bty="n")
 legend("topright",letters[2],bty="n")
-
+magaxis(side=1:4,labels=c(1,1,0,0),frame.plot=T,las=1)
+title(ylab=expression(A[net]~(mu*mol~m^-2~s^-1)))
 
 polygon(x = c(as2$Tleaf, rev(as2$Tleaf)), y = c(as2$Sim.97.5, rev(as2$Sim.2.5)), col = alpha(COL[1],0.5), border = NA)
 polygon(x = c(bs2$Tleaf, rev(bs2$Tleaf)), y = c(bs2$Sim.97.5, rev(bs2$Sim.2.5)), col = alpha(COL[2],0.5), border = NA)
