@@ -5,10 +5,6 @@
 #-----------------------------------------------------------------------------------------
 
 
-#- load the packages and custom functions that do all the work
-source("R/loadLibraries.R")
-
-
 #- get the data, process it for RGR.
 dat.list <- returnRGR(plotson=F)
 dat <- dat.list[[2]]     # RGR and AGR merged with canopy leaf area and SLA for the intensive growth interval only
