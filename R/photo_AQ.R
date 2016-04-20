@@ -7,7 +7,7 @@ library(propagate)
 library(scales)
 source("R/generic_functions.R")
 source("R/GREAT_functions.R")
-
+source("R/loadLibraries.R")
 #- get the AQ data
 aq <- getAQ()
 
@@ -36,10 +36,43 @@ legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
 
 
 #-------------------------------------------------------
-#- plot TREATMENT MEANS
-aq.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+prov,data=subset(aq,campaign==1),FUN=c(mean,standard.error))
+#- plot TREATMENT MEANS in 3d
+aq.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+prov+location,data=subset(aq,campaign==1 & Water_trt=="wet"),FUN=c(mean,standard.error))
 
-plot3d(x=aq.m$Tleaf.mean,y=aq.m$PARi.mean,z=aq.m$Photo.mean,col=palette()[aq.m$prov],size=15)
+palette(rev(brewer.pal(6,"Spectral")))
+
+COL=palette()[c(1,2,6)]
+plot3d(x=aq.m$Tleaf.mean,y=aq.m$PARi.mean,z=aq.m$Photo.mean,col=COL[as.numeric(aq.m$location)],size=15,type="p",xlab="",ylab="",zlab="",
+       xlim=c(15,40),ylim=c(0,1600),zlim=c(1,30))
+
+aq.l <- split(aq.m,paste(aq.m$prov,aq.m$TleafFac,sep="-"))
+for(i in 1:length(aq.l)){
+  plot3d(x=aq.l[[i]]$Tleaf.mean,y=aq.l[[i]]$PARi.mean,z=aq.l[[i]]$Photo.mean,col=COL[aq.l[[i]]$location],size=15,type="l",add=T)
+  
+}
+aq.l2 <- split(aq.m,paste(aq.m$prov,aq.m$LightFac,sep="-"))
+for(i in 1:length(aq.l2)){
+  plot3d(x=aq.l2[[i]]$Tleaf.mean,y=aq.l2[[i]]$PARi.mean,z=aq.l2[[i]]$Photo.mean,col=COL[aq.l2[[i]]$location],size=15,type="l",add=T)
+  
+}
+rgl.snapshot(filename="output/Aq_3d_provenances.png",fmt="png")
+#-------------------------------------------------------
+
+
+
+
+
+#- create surface for prov A
+library(akima)
+as <- subset(aq.m,prov=="A")
+surf_a <- interp(x=as$Tleaf.mean,y=as$PARi.mean,z=as$Photo.mean)
+bs <- subset(aq.m,prov=="B")
+surf_b <- interp(x=bs$Tleaf.mean,y=bs$PARi.mean,z=bs$Photo.mean)
+
+surface3d(x=surf_a$x,y=surf_a$y,z=surf_a$z,col=COL[1])
+surface3d(x=surf_b$x,y=surf_b$y,z=surf_b$z,col=COL[2])
+
+
 #- plot each light level's temperature response
 windows(30,60);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
 aq.m.l <- split(aq.m,aq.m$LightFac)

@@ -15,6 +15,8 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   #- find the most recent file
   files <-  list.files(paste(path,"/Share/Data/Height&Diam",sep=""),pattern="HEIGHT&DIAMETER",full.names=T)
   files2 <- files[grep(".csv",files)] # only get the .csv files
+  files2 <- files2[nchar(files2)==109]# only get files with a filename of 109 characters (ignores the eary file)
+  
   dates <- c()
   for (i in 1:length(files2)){
     dates[i] <- as.numeric(substr(files2[i],start=100,stop=102)) # gets the month and date as a single number
@@ -41,9 +43,17 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   hddata$Water_trt[grep("Bd",hddata$pot)] <- "dry"
   hddata$Water_trt <- factor(hddata$Water_trt,levels=c("wet","dry"))
   
+  #- work out the air temperature and new provenance keys
+  key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
+  hddata2 <- merge(hddata,key,by="room")
+  
+  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+                                                                   levels=c("Cold-edge","Central","Warm-edge")))
+  hddata3 <- merge(hddata2,key2,by="prov")
+  
 
   
-  return(hddata)
+  return(hddata3)
 }
 #-----------------------------------------------------------------------------------------
 
@@ -194,8 +204,13 @@ getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   #- assign the temperature levels
   aq$TleafFac <- cut(aq$Tleaf,breaks=c(15,22,26,29,34,37,45),labels=1:6)
   
+  #- merge in the location factor
+  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+                                                                   levels=c("Cold-edge","Central","Warm-edge")))
+  aq2 <- merge(aq,key2,by="prov")
+  
   #- average across replicate logs
-  aq.means <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac+campaign,data=aq,FUN=mean,keep.names=T)
+  aq.means <- summaryBy(.~room+pot+Unit+prov+prov_trt+location+Water_trt+LightFac+TleafFac+campaign,data=aq2,FUN=mean,keep.names=T)
   return(aq.means)
 }
 #-----------------------------------------------------------------------------------------
@@ -241,7 +256,7 @@ getVWC_AQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #- function to read and process the temperature response curves of photosynthesis
 getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
-  avt <-read.csv(paste(path,"/Share/Data/GasEx/AvT/GREAT-AvT-compiled-20160205-L1.csv",sep=""))
+  avt <-read.csv(paste(path,"/Share/Data/GasEx/AvT/GHS39_GREAT_MAIN_GX_AvT-compiled_20160205_L1.csv",sep=""))
   names(avt)[1:2] <- tolower(names(avt)[1:2])
   avt$prov <- as.factor(substr(avt$pot,start=1,stop=1))
   avt$room <- as.factor(avt$room)
@@ -259,7 +274,11 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   #- assign the temperature levels
   avt$TleafFac <- cut(avt$Tleaf,breaks=c(15,22,26,29,34,37,45),labels=1:6)
   
-  avt2 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=avt,FUN=mean,keep.names=T)
+  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+                                                                   levels=c("Cold-edge","Central","Warm-edge")))
+  avt2 <- merge(avt,key2,by="prov")
+  
+  avt3 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=avt2,FUN=mean,keep.names=T)
   return(avt2)
 }
 #-----------------------------------------------------------------------------------------
@@ -306,7 +325,14 @@ getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   #- calculate mass-specific leaf respiration rates
   rvt3$Rmass <- with(rvt3,Rarea*LA_cm2/mass_g/10000*1000) #- convert umol Co2 m-2 s-1 to nmol CO2 g-1 s-1
-  return(rvt3)
+  
+  #- merge in the location factor
+  key2 <- data.frame(prov=as.factor(letters[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+                                                                   levels=c("Cold-edge","Central","Warm-edge")))
+  
+  rvt4 <- merge(rvt3,key2,by="prov")
+  
+  return(rvt4)
 }
 #-----------------------------------------------------------------------------------------
 
@@ -360,12 +386,24 @@ fitAvT <- function(dat){
   results <- A_Topt2$coefficients[1:6]
   names(results)[1:6] <- c("Aref","Topt","theta","Aref.se","Topt.se","theta.se")
   
+  #- merge 95% CI into results dataframe
+  confinterval <- confint(A_Topt)
+  CI1 <- (sprintf("%.2f",round(unname(confinterval[1,]),2)))
+  CI1a <- paste(CI1[1],CI1[2],sep="-")
+  CI2 <- (sprintf("%.2f",round(unname(confinterval[2,]),2)))
+  CI2a <- paste(CI2[1],CI2[2],sep="-")
+  CI3 <- (sprintf("%.2f",round(unname(confinterval[3,]),2)))
+  CI3a <- paste(CI3[1],CI3[2],sep="-")
+  confinterval2 <- c(CI1a,CI2a,CI3a)
+  
+  
+  
   TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
   predicts <- predictNLS(A_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)
   predicts.df <- data.frame(predicts$summary)
   predicts.df$Tleaf <- TT
   
-  return(list(results,predicts.df))
+  return(list(results,predicts.df,confinterval2))
 }
 #-----------------------------------------------------------------------------------------
 
@@ -378,17 +416,29 @@ fitAvT <- function(dat){
 #- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
 #-   and [2] a dataframe with the predictions and 95% confidence intervals.
 fitRvT <- function(dat){
-  try(R_Topt <- nls(Rmass~  Rref*Q10^((Tleaf-22.5)/10),data=dat,start=list(Rref=10,Q10=2)))
+  try(R_Topt <- nls(Rmass~  Rref*Q10^((Tleaf-22)/10),data=dat,start=list(Rref=10,Q10=2)))
   R_Topt2 <- summary(R_Topt)
   results <- R_Topt2$coefficients[1:4]
   names(results)[1:4] <- c("Rref","Q10","Rref.se","Q10.se")
+  
+  confinterval <- confint(R_Topt)
+  
+  #- merge 95% CI into results dataframe
+  confinterval <- confint(R_Topt)
+  CI1 <- (sprintf("%.1f",round(unname(confinterval[1,]),1)))
+  CI1a <- paste(CI1[1],CI1[2],sep="-")
+  CI2 <- (sprintf("%.1f",round(unname(confinterval[2,]),1)))
+  CI2a <- paste(CI2[1],CI2[2],sep="-")
+  CI3 <- (sprintf("%.1f",round(unname(confinterval[3,]),1)))
+  CI3a <- paste(CI3[1],CI3[2],sep="-")
+  confinterval2 <- c(CI1a,CI2a,CI3a)
   
   TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
   predicts <- predictNLS(R_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)
   predicts.df <- data.frame(predicts$summary)
   predicts.df$Tleaf <- TT
   
-  return(list(results,predicts.df))
+  return(list(results,predicts.df,confinterval2))
 }
 #-----------------------------------------------------------------------------------------
 
@@ -415,12 +465,22 @@ fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=51,start=list(Rref=2,To
   results <- G_Topt2$coefficients[1:6]
   names(results)[1:6] <- c(paste(namey,"ref",sep=""),"Topt","theta",paste(namey,"ref.se",sep=""),"Topt.se","theta.se")
    
+  #- merge 95% CI into results dataframe
+  try(confinterval <- confint2(G_Topt))
+  CI1 <- (sprintf("%.2f",round(unname(confinterval[1,]),2)))
+  CI1a <- paste(CI1[1],CI1[2],sep="-")
+  CI2 <- (sprintf("%.2f",round(unname(confinterval[2,]),2)))
+  CI2a <- paste(CI2[1],CI2[2],sep="-")
+  CI3 <- (sprintf("%.2f",round(unname(confinterval[3,]),2)))
+  CI3a <- paste(CI3[1],CI3[2],sep="-")
+  confinterval2 <- c(CI1a,CI2a,CI3a)
+  
   TT <- seq(min(dat$Xvar),max(dat$Xvar),length=lengthPredict)
   predicts <- predictNLS(G_Topt, newdata=data.frame(Xvar = TT),interval="confidence",level=0.95)
   predicts.df <- data.frame(predicts$summary)
   predicts.df$Tleaf <- TT
   
-  return(list(results,predicts.df))
+  return(list(results,predicts.df,confinterval2))
 }
 #-----------------------------------------------------------------------------------------
 
@@ -494,7 +554,12 @@ getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   #- log transform (base 10!)
   dat$logd2h <- log10(dat$d2h)
   dat$logtotdm <- log10(dat$totdm)
-  return(dat)
+  
+  
+  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+                                                                   levels=c("Cold-edge","Central","Warm-edge")))
+  dat2 <- merge(dat,key2,by="prov")
+  return(dat2)
 }
 #----------------------------------------------------------------------------------------------------------------
 
@@ -532,18 +597,18 @@ returnMassFromAllom <- function(d2hdat,plotson=T){
   #- exploratory plotting
   if (plotson==T){
     palette(rev(brewer.pal(6,"Spectral")))
-    
+    COL=palette()[c(1,2,6)]
     windows(12,12);par(mar=c(6,6,1,1),cex.axis=1.2,cex.lab=2)
-    plotBy(logtotdm~logd2h|prov,data=dat,pch=16,xlab="",ylab="",axes=F,legend=F)
-    legend(x=-1.2,y=1.1,legend=c("Cold-edge","Central","Warm-edge"),col=c(palette()[1],palette()[3],palette()[2]),
+    plotBy(logtotdm~logd2h|location,data=dat,pch=16,xlab="",ylab="",axes=F,legend=F,col=COL)
+    legend(x=-1.2,y=1.1,legend=c("Cold-edge","Central","Warm-edge"),col=COL,
             title="Provenance",pch=16,cex=1.5,bg="white")
     coefs <- coef(lm1)
     xval <- seq(min(dat$logd2h),max(dat$logd2h),length=101)
     preds <- coefs[1]+xval*coefs[2]+xval^2*coefs[3]
     lines(preds~xval)
     magaxis(side=1:4,labels=c(1,1,0,0),las=1)
-    title(xlab=expression(Plant~size~(d^2*h~";"~cm^3)),
-          ylab=expression(Total~mass~(g)))
+    title(xlab=expression(log[10]~(Plant~size~";"~d^2*h~";"~cm^3)),
+          ylab=expression(log[10]~(Total~mass~";"~g)))
     
     dev.copy2pdf(file="output/allometry.pdf")
   
@@ -688,11 +753,16 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #- get rid of some unwanted variabels to make things simpler
   rgrdat$canopy2 <- rgrdat$date <- rgrdat$d1 <- rgrdat$d2 <- rgrdat$Comment <- rgrdat$leaf_no <- NULL
   
+  
+  #- work out the air temperature and new provenance keys
   key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
-  rgrdat2 <- merge(rgrdat,key,by="room")
   hddata3 <- merge(hddata2,key,by="room")
   
-  return(list(hddata3,rgrdat2))
+  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+                                                                   levels=c("Cold-edge","Central","Warm-edge")))
+  hddata4 <- merge(hddata3,key2,by="prov")
+  
+  return(list(hddata2,rgrdat))
 
 
   
@@ -737,3 +807,59 @@ output.log_lin <- function(X, Y, params, times,Code){
 #--------------------------------------------------------------------------------------------------------------------
 
 
+
+
+
+#--------------------------------------------------------------------------------------------------------------------
+#- Function to plot map of Australia with circles showing points with measured provenances
+#--------------------------------------------------------------------------------------------------------------------
+plotAussie <- function(export=T){
+  
+  #read in provenance locations
+  all.loc <- read.csv("./data/prov_locations_meanT2.csv")
+  Eute.loc <- subset(all.loc,sp=="t")
+  Eute.loc2 <- subset(Eute.loc,seedlot %in% c(17770,18589,20352))
+  
+  #- ala data?
+  Eute.all <- read.csv("./data/Eute spatial and climate.csv")
+  Eute.all2 <- data.frame(Eute.all$Latitude...processed,Eute.all$Longitude...processed)
+  names(Eute.all2) <- c("lat","long")
+  Eute.all2 <- subset(Eute.all2,long>139&lat< -10.5)
+  coordinates(Eute.all2) <- c("long","lat") #make Eute.all2 into a spatial points dataframe
+  projection(Eute.all2) <- CRS('+proj=longlat') #give it a projection (from http://cran.at.r-project.org/web/packages/dismo/vignettes/sdm.pdf)
+  
+  # circles with a radius of 50 km
+  
+  #x <- circles(Eute.all2, d=50000, lonlat=TRUE) #create circles around each point with a radius of 50km. This takes a long time
+  #save(x,file="./output/Eutecircles")
+  load(file="./output/Eutecircles")
+  pol <- gUnaryUnion(x@polygons) #"dissolve" the circles into each other
+  
+  
+  
+  
+  #Tereticornis
+  #create and export map with seed locations
+  windows(20,40);par(oma=c(5,5,1,1))
+  map("worldHires", regions="australia", bg="white", fill=F, xlim=c(141.5, 155), ylim=c(-40, -10),mar=c(1,0,1,0),myboarder=0) 
+  plot(pol,add=T,col="grey") #plot the joined circles\
+  axis(2,line=1,at=c(-45,-35,-25,-15,0),cex.axis=1)
+  axis(1,line=1,at=c(140,145,150,155),cex.axis=1)
+  title(ylab=expression(Latitude~(degree)),outer=T,cex.lab=1.5)
+  title(xlab=expression(Longitude~(degree)),outer=T,cex.lab=1.5)
+  
+  #clip to the sea boarder
+  outline <- map("worldHires", regions="Australia", exact=TRUE, plot=FALSE) # returns a list of x/y coords
+  xrange <- range(outline$x, na.rm=TRUE) # get bounding box
+  yrange <- range(outline$y, na.rm=TRUE)
+  xbox <- xrange + c(-2, 2)
+  ybox <- yrange + c(-2, 2)
+  subset <- !is.na(outline$x)
+  polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
+           c(outline$y[subset], NA, rep(ybox, each=2)),
+           col="white", rule="evenodd")
+  points(x=Eute.loc$long,y=Eute.loc$lat,pch=21,col="black",bg="white",lwd=1.9,cex=2.5)
+  points(x=Eute.loc2$long,y=Eute.loc2$lat,pch=21,col="black",bg="black",lwd=1.9,cex=2.5) # overly black points for the three provs studied
+  if(export==T) dev.copy2pdf(file="output/FigS2_prov_map.pdf")
+}
+#--------------------------------------------------------------------------------------------------------------------

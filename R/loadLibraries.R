@@ -39,6 +39,11 @@ Library(propagate)
 Library(gplots)
 Library(scales)
 Library(readxl)
+Library(maps)
+Library(mapdata)
+Library(rgeos)
+Library(sp)
+Library(raster)
 #---------------------------------------------------------------------
 
 

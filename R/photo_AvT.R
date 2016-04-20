@@ -8,63 +8,66 @@ source("R/GREAT_functions.R")
 #- get the AvT data
 avt <- getAvT()
 
+# 
+# #-------------------------------------------------------
+# #- Plot RAW data
+# 
+# #- plot each light level's temperature response
+# windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
+# avt.l <- split(avt,avt$LightFac)
+# ylims <- list(c(-2,8),c(2,35))
+# for(i in 1:length(avt.l)){
+#   toplot <- avt.l[[i]]
+#   plotBy(Photo~Tleaf|prov,data=subset(toplot,Water_trt=="wet"),las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
+#          axes=F)
+#   legend("topright",paste("PAR = ",round(mean(toplot$PARi),0)),bty="n")
+#   magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+#   abline(h=0,lty=2)
+#   
+# }
+# magaxis(side=1,labels=c(1),las=1)
+# title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
+# title(ylab=expression(Photo~(mu*mol~m^-2~s^-1)),outer=T,cex.lab=2)
+# legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
+# #-------------------------------------------------------
+# 
+# 
+# 
+# 
+# 
+# 
+# #-------------------------------------------------------
+# #- plot TREATMENT MEANS
+# 
+# avt.m <- summaryBy(Photo+Cond+Tleaf+PARi~TleafFac+LightFac+prov,data=avt,FUN=c(mean,standard.error))
+# 
+# #- plot each light level's temperature response
+# windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
+# avt.m.l <- split(avt.m,avt.m$LightFac)
+# ylims <- list(c(0,8),c(10,35))
+# for(i in 1:length(avt.l)){
+#   toplot <- avt.m.l[[i]]
+#   plotBy(Photo.mean~Tleaf.mean|prov,data=toplot,las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
+#          axes=F)
+#   legend("topright",paste("PAR = ",round(mean(toplot$PARi.mean),0)),bty="n")
+#   magaxis(side=1:4,labels=c(0,1,0,1),las=1)
+#   adderrorbars(x=toplot$Tleaf.mean,y=toplot$Photo.mean,SE=toplot$Photo.standard.error,direction="updown")
+#   adderrorbars(x=toplot$Tleaf.mean,y=toplot$Photo.mean,SE=toplot$Tleaf.standard.error,direction="leftright")
+#   plotBy(Photo.mean~Tleaf.mean|prov,data=toplot,las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
+#          axes=F,add=T)
+# }
+# magaxis(side=1,labels=c(1),las=1)
+# title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
+# title(ylab=expression(Photo~(mu*mol~m^-2~s^-1)),outer=T,cex.lab=2)
+# legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
+# #-------------------------------------------------------
+
+
 
 #-------------------------------------------------------
-#- Plot RAW data
-
-#- plot each light level's temperature response
-windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
-avt.l <- split(avt,avt$LightFac)
-ylims <- list(c(-2,8),c(2,35))
-for(i in 1:length(avt.l)){
-  toplot <- avt.l[[i]]
-  plotBy(Photo~Tleaf|prov,data=subset(toplot,Water_trt=="wet"),las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
-         axes=F)
-  legend("topright",paste("PAR = ",round(mean(toplot$PARi),0)),bty="n")
-  magaxis(side=1:4,labels=c(0,1,0,1),las=1)
-  abline(h=0,lty=2)
-  
-}
-magaxis(side=1,labels=c(1),las=1)
-title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
-title(ylab=expression(Photo~(mu*mol~m^-2~s^-1)),outer=T,cex.lab=2)
-legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
+# Did prov A have different stomatal parameters on that day?
+summaryBy(Photo+Cond+Ci~prov,data=subset(avt,LightFac==4),FUN=c(mean,sd))
 #-------------------------------------------------------
-
-
-
-
-
-
-#-------------------------------------------------------
-#- plot TREATMENT MEANS
-
-avt.m <- summaryBy(Photo+Cond+Tleaf+PARi~TleafFac+LightFac+prov,data=avt,FUN=c(mean,standard.error))
-
-#- plot each light level's temperature response
-windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
-avt.m.l <- split(avt.m,avt.m$LightFac)
-ylims <- list(c(0,8),c(10,35))
-for(i in 1:length(avt.l)){
-  toplot <- avt.m.l[[i]]
-  plotBy(Photo.mean~Tleaf.mean|prov,data=toplot,las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
-         axes=F)
-  legend("topright",paste("PAR = ",round(mean(toplot$PARi.mean),0)),bty="n")
-  magaxis(side=1:4,labels=c(0,1,0,1),las=1)
-  adderrorbars(x=toplot$Tleaf.mean,y=toplot$Photo.mean,SE=toplot$Photo.standard.error,direction="updown")
-  adderrorbars(x=toplot$Tleaf.mean,y=toplot$Photo.mean,SE=toplot$Tleaf.standard.error,direction="leftright")
-  plotBy(Photo.mean~Tleaf.mean|prov,data=toplot,las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
-         axes=F,add=T)
-}
-magaxis(side=1,labels=c(1),las=1)
-title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
-title(ylab=expression(Photo~(mu*mol~m^-2~s^-1)),outer=T,cex.lab=2)
-legend("bottomleft",c("A","B","C"),col=palette()[1:3],pch=16,ncol=3,bg="white")
-#-------------------------------------------------------
-
-
-
-
 
 
 
@@ -105,36 +108,112 @@ dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AvTshorttermfits.pd
 
 
 #- pull out the predictions and confidence intervals for plotting
-toplot <- data.frame(do.call(rbind,
+highQ <- data.frame(do.call(rbind,
                              list(AvTfits.list.st[[1]][[2]],AvTfits.list.st[[2]][[2]],AvTfits.list.st[[3]][[2]])))
-toplot$prov <- c(rep("A",51),rep("B",51),rep("C",51))
+highQ$prov <- c(rep("A",nrow(highQ)/3),rep("B",nrow(highQ)/3),rep("C",nrow(highQ)/3))
+highQ$location <- c(rep("Cold-edge",nrow(highQ)/3),rep("Warm-edge",nrow(highQ)/3),rep("Central",nrow(highQ)/3))
+highQ$location <- factor(highQ$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-windows(30,30);par(mar=c(5,7,1,1))
-COL=palette()[1:3]
 
-plotBy(Sim.Mean~Tleaf|prov,data=toplot,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=2,
+
+
+
+#--- fit the observations at low PAR
+tofit_lowQ <- subset(avt, LightFac==1)
+tofit.l_lowQ <- split(tofit_lowQ,tofit_lowQ$prov)
+
+#- fit all the curves
+AvTfits.list2.st <- lapply(tofit.l_lowQ,FUN=fitAvT)
+
+
+#- pull out the parameter means and SE's for plotting
+AvTfits_lowQ <- data.frame(do.call(rbind,
+                              list(AvTfits.list2.st[[1]][[1]],AvTfits.list2.st[[2]][[1]],AvTfits.list2.st[[3]][[1]])))
+#- pull out the predictions and confidence intervals for plotting
+lowQ <- data.frame(do.call(rbind,
+                            list(AvTfits.list2.st[[1]][[2]],AvTfits.list2.st[[2]][[2]],AvTfits.list2.st[[3]][[2]])))
+lowQ$prov <- c(rep("A",nrow(lowQ)/3),rep("B",nrow(lowQ)/3),rep("C",nrow(lowQ)/3))
+lowQ$location <- c(rep("Cold-edge",nrow(lowQ)/3),rep("Warm-edge",nrow(lowQ)/3),rep("Central",nrow(lowQ)/3))
+lowQ$location <- factor(lowQ$location,levels=c("Cold-edge","Central","Warm-edge"))  
+#-------------------------------------------------------
+#-------------------------------------------------------
+
+
+
+
+
+
+
+
+#-------------------------------------------------------
+#-------------------------------------------------------
+#- set up the plot, with both light levels
+windows(40,50);par(mar=c(3,7,1,1),mfrow=c(2,1),cex.lab=2,cex.axis=1.2,oma=c(4,0,0,0))
+palette(rev(brewer.pal(6,"Spectral")))
+
+COL=palette()[c(1,2,6)]
+xlims <- c(12,40)
+
+#-------
+#- plot Asat
+plotBy(Sim.Mean~Tleaf|location,data=highQ,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=1.5,col=COL,
+       
        ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),
-       xlab=expression(T[leaf]~(degree*C)))
-as <- subset(toplot,prov=="A")
-bs <- subset(toplot,prov=="B")
-cs <- subset(toplot,prov=="C")
+       xlab="")
+as <- subset(highQ,prov=="A")
+bs <- subset(highQ,prov=="B")
+cs <- subset(highQ,prov=="C")
 
 polygon(x = c(as$Tleaf, rev(as$Tleaf)), y = c(as$Sim.97.5, rev(as$Sim.2.5)), col = alpha(COL[1],0.5), border = NA)
 polygon(x = c(bs$Tleaf, rev(bs$Tleaf)), y = c(bs$Sim.97.5, rev(bs$Sim.2.5)), col = alpha(COL[2],0.5), border = NA)
 polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5, rev(cs$Sim.2.5)), col = alpha(COL[3],0.5), border = NA)
-legend("bottomleft",c("A","B","C"),fill=COL,cex=2,title="Provenance")
-title(main="Short-term data, predictions and 95% CI")
+legend("bottomright",levels(highQ$location),fill=COL,cex=1,title="Provenance")
+legend("bottomleft","PPFD = 1500",bty="n")
+legend("topright",letters[1],bty="n")
 
 #- add TREATMENT MEANS
-aq.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+Water_trt+prov,data=avt,FUN=c(mean,standard.error))
+aq.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+Water_trt+prov+location,data=avt,FUN=c(mean,standard.error))
 plotmeans <- subset(aq.m,LightFac==4 & Water_trt=="wet")
-plotBy(Photo.mean~Tleaf.mean|prov,data=plotmeans,add=T,pch=16,cex=2,legend=F,
+plotBy(Photo.mean~Tleaf.mean|location,data=plotmeans,add=T,pch=16,cex=2,legend=F,col=COL,
        panel.first=(adderrorbars(x=plotmeans$Tleaf.mean,y=plotmeans$Photo.mean,
                                  SE=plotmeans$Photo.standard.error,direction="updown")))
-dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AvTshortterm_predictions.pdf")
+#-------
 
+
+
+#-------
+#- plot A at low Q
+plotBy(Sim.Mean~Tleaf|location,data=lowQ,legend=F,type="l",las=1,ylim=c(0,8),lwd=3,cex.lab=1.5,col=COL,
+       ylab=expression(A[net]~(mu*mol~m^-2~s^-1)),xlab="")
+as2 <- subset(lowQ,prov=="A")
+bs2 <- subset(lowQ,prov=="B")
+cs2 <- subset(lowQ,prov=="C")
+title(xlab=expression(T[leaf]~(degree*C)),outer=T,adj=0.6,line=2)
+legend("bottomleft","PPFD = 100",bty="n")
+legend("topright",letters[2],bty="n")
+
+
+polygon(x = c(as2$Tleaf, rev(as2$Tleaf)), y = c(as2$Sim.97.5, rev(as2$Sim.2.5)), col = alpha(COL[1],0.5), border = NA)
+polygon(x = c(bs2$Tleaf, rev(bs2$Tleaf)), y = c(bs2$Sim.97.5, rev(bs2$Sim.2.5)), col = alpha(COL[2],0.5), border = NA)
+polygon(x = c(cs2$Tleaf, rev(cs2$Tleaf)), y = c(cs2$Sim.97.5, rev(cs2$Sim.2.5)), col = alpha(COL[3],0.5), border = NA)
+
+#- add TREATMENT MEANS
+plotmeans2 <- subset(aq.m,LightFac==1 & Water_trt=="wet")
+plotBy(Photo.mean~Tleaf.mean|location,data=plotmeans2,add=T,pch=16,cex=2,legend=F,col=COL,
+       panel.first=(adderrorbars(x=plotmeans$Tleaf.mean,y=plotmeans$Photo.mean,
+                                 SE=plotmeans$Photo.standard.error,direction="updown")))
+dev.copy2pdf(file="output/Asat_Anet_CIs.pdf")
 #-------------------------------------------------------
 #-------------------------------------------------------
+
+
+
+
+
+
+
+
+
 
 
 
