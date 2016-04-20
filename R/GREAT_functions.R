@@ -810,7 +810,7 @@ output.log_lin <- function(X, Y, params, times,Code){
 #--------------------------------------------------------------------------------------------------------------------
 #- Function to plot map of Australia with circles showing points with measured provenances
 #--------------------------------------------------------------------------------------------------------------------
-plotAussie <- function(export=T){
+plotAussie <- function(export=F){
   
   #read in provenance locations
   all.loc <- read.csv("./data/prov_locations_meanT2.csv")
