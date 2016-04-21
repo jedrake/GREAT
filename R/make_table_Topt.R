@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #-- This script makes a table of all of the temperature response parameters
-#   AGR, RGR, Asat-growth, Asat-short-term, Anet-lowT, Rdark, etc.
+#   AGR, RGR, Asat-growth, Asat-short-term, Anet-lowT, etc.
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
@@ -146,27 +146,6 @@ AvTfits_longterm <- cbind(AvTfits_longterm,AvTfits_longtermQCI)
 
 #-----------------------------------------------------------------------------------------
 
-
-#-----------------------------------------------------------------------------------------
-#function to take vectors of "location", a response variable, and it's error term, and return a
-#  bit of a table
-mktable <- function(location,yvar,se,nchar1=1,nchar2=1,type="CI"){
-  text1 <- ifelse(nchar1==1,"%.1f","%.2f")
-  text2 <- ifelse(nchar2==1,"%.1f","%.2f")
-  
-  if(type == "SE"){
-      vec <- paste(sprintf(text1,round(yvar,nchar1))," (",sprintf(text2,round(se,nchar2)),")",sep="")
-      #names(vec) <- location
-  }
-  
-  if(type == "CI"){
-    vec <- paste(sprintf(text1,round(yvar,nchar1))," (",se,")",sep="")
-    #names(vec) <- location
-  }
-  
-  return(vec)
-}
-#-----------------------------------------------------------------------------------------
 
 
 

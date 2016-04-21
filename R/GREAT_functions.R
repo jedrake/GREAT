@@ -415,23 +415,29 @@ fitAvT <- function(dat){
 #- function to fit a Q10 model of respiration
 #- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
 #-   and [2] a dataframe with the predictions and 95% confidence intervals.
-fitRvT <- function(dat){
-  try(R_Topt <- nls(Rmass~  Rref*Q10^((Tleaf-22)/10),data=dat,start=list(Rref=10,Q10=2)))
+fitRvT <- function(dat,namex=Tleaf,namey=Rmass,lengthPredict=20,start=list(Rref=10,Q10=2)){
+  
+  dat$Yvar <- dat[[namey]]
+  dat$Xvar <- dat[[namex]]
+  
+  try(R_Topt <- nls(Yvar~  Rref*Q10^((Xvar-22)/10),data=dat,start=start))
   R_Topt2 <- summary(R_Topt)
   results <- R_Topt2$coefficients[1:4]
-  names(results)[1:4] <- c("Rref","Q10","Rref.se","Q10.se")
+  
+  
+  names(results)[1:4] <- c(paste(namey,"ref",sep=""),"Q10",paste(namey,"ref.se",sep=""),"Q10.se")
   
   
   #- merge 95% CI into results dataframe
   confinterval <- confint2(R_Topt)
-  CI1 <- (sprintf("%.1f",round(unname(confinterval[1,]),1)))
+  CI1 <- (sprintf("%.2f",round(unname(confinterval[1,]),2)))
   CI1a <- paste(CI1[1],CI1[2],sep="-")
-  CI2 <- (sprintf("%.1f",round(unname(confinterval[2,]),1)))
+  CI2 <- (sprintf("%.2f",round(unname(confinterval[2,]),2)))
   CI2a <- paste(CI2[1],CI2[2],sep="-")
   confinterval2 <- c(CI1a,CI2a)
   
-  TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=51)
-  predicts <- predictNLS(R_Topt, newdata=data.frame(Tleaf = TT),interval="confidence",level=0.95)
+  TT <- seq(min(dat$Tleaf),max(dat$Tleaf),length=lengthPredict)
+  predicts <- predictNLS(R_Topt, newdata=data.frame(Xvar = TT),interval="confidence",level=0.95)
   predicts.df <- data.frame(predicts$summary)
   predicts.df$Tleaf <- TT
   
@@ -860,3 +866,29 @@ plotAussie <- function(export=F){
   if(export==T) dev.copy2pdf(file="output/FigS2_prov_map.pdf")
 }
 #--------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#function to take vectors of "location", a response variable, and it's error term, and return a
+#  bit of a table
+mktable <- function(location,yvar,se,nchar1=1,nchar2=1,type="CI"){
+  text1 <- ifelse(nchar1==1,"%.1f","%.2f")
+  text2 <- ifelse(nchar2==1,"%.1f","%.2f")
+  
+  if(type == "SE"){
+    vec <- paste(sprintf(text1,round(yvar,nchar1))," (",sprintf(text2,round(se,nchar2)),")",sep="")
+    #names(vec) <- location
+  }
+  
+  if(type == "CI"){
+    vec <- paste(sprintf(text1,round(yvar,nchar1))," (",se,")",sep="")
+    #names(vec) <- location
+  }
+  
+  return(vec)
+}
+#-----------------------------------------------------------------------------------------

@@ -67,7 +67,21 @@ source("R/make_table_Topt.R")
 
 
 #-------------------------------------------------------------------------------------
+#- Make Table 2. Temperature response parameters for Rmass and Rarea
+#  Exports the table as "output/Table2_Rmass_Rmarea.csv"
+source("R/make_table_Rdark_Tresponses.R")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
 #- Make Figure S1. Map of provenances
 plotAussie(export=F)
 #-------------------------------------------------------------------------------------
 
+
+
+#-------------------------------------------------------------------------------------
+#- Make Figure S2. Allometry of d2h relative to total plant mass
+returnMassFromAllom(d2hdat=25,plotson=T)
+#-------------------------------------------------------------------------------------
