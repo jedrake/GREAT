@@ -16,6 +16,13 @@ source("R/loadLibraries.R")
 
 
 #-------------------------------------------------------------------------------------
+#- Make a simple conceptual model figure (one curve or different curves)
+source("R/plotConceptualFig.R")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
 #- Make figure 1. Temperature response of final mass, Photosynthesis, and Rdark
 # This takes a little while to fit all the temperature response curves
 source("R/plot_figure1.R")
