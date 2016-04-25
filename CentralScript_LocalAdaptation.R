@@ -89,6 +89,14 @@ plotAussie(export=F)
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure S2. Allometry of d2h relative to total plant mass
-returnMassFromAllom(d2hdat=25,plotson=T)
+#- Make Figure S2. Allometry of d2h relative to total plant mass.
+returnMassFromAllom(d2hdat=25,plotson=T,droughtdat=F)
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- Check the estimation of total crown leaf area (48 plants were harvested on the day
+#   following the leaf counts and average leaf size measurements)
+checkLeafAreaEst()
 #-------------------------------------------------------------------------------------

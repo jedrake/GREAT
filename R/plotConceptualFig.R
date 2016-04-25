@@ -8,9 +8,9 @@ predJune <- function(Tleaf=10,Topt=20,Jref=1,omega=5){
 
 #- plot three curves
 Tleaf <- seq(15,40,length=101)
-a <- predJune(Tleaf=Tleaf,Topt=20,Jref=1,omega=5)
+a <- predJune(Tleaf=Tleaf,Topt=20,Jref=0.8,omega=5)
 b <- predJune(Tleaf=Tleaf,Topt=25,Jref=1,omega=5)
-c <- predJune(Tleaf=Tleaf,Topt=30,Jref=1,omega=5)
+c <- predJune(Tleaf=Tleaf,Topt=30,Jref=0.8,omega=5)
 
 
 #- plot common curves
@@ -24,7 +24,7 @@ COL=palette()[c(1,2,6)]
 linewidth=3
 
 windows(35,20);par(mfrow=c(1,2),mar=c(4,4,1,1),oma=c(4,4,0,0))
-plot(a~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",axes=F)
+plot(a~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",axes=F,ylim=c(0,1))
 lines(b~Tleaf,type="l",col=COL[2],lwd=linewidth,xlab="",ylab="",axes=F)
 lines(c~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",axes=F)
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.5)

@@ -554,6 +554,13 @@ getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   #- total leaf area was recorded incorrectly for C-33. It should be 1079, not 107.9 cm2. 
   dat[which(dat$Pot=="C-33"),"leafarea"] <- 1079
   
+  
+  #- add a variable for water limitaiton treatment
+  dat$Water_trt <- "wet"
+  dat$Water_trt[grep("Bd",dat$Pot)] <- "dry"
+  dat$Water_trt <- factor(dat$Water_trt,levels=c("wet","dry"))
+  
+  
   #- log transform (base 10!)
   dat$logd2h <- log10(dat$d2h)
   dat$logtotdm <- log10(dat$totdm)
@@ -571,11 +578,15 @@ getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 #- function to return an estimated mass based on tree size (d2h). Takes a vector of d2h (cm3), returns
 #-  a vector of estimated total mass (g). Can later be expanded to include other predictors (provenance, etc),
-#-  and other predictors (total leaf area, for example).
-returnMassFromAllom <- function(d2hdat,plotson=T){
+#-  and other predictors (total leaf area, for example). Set droughtdat to F to exclude the water-limited provs
+returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
   
   #- get the harvest data
   dat <- getHarvest()
+  
+  if (droughtdat==F) {
+    dat <- subset(dat,Water_trt=="wet")
+  }
   
   #----------------------------------------------------------------------------------------------------------------
   #- model the allometry, return predicted mass for the vector of d2h values
@@ -892,3 +903,46 @@ mktable <- function(location,yvar,se,nchar1=1,nchar2=1,type="CI"){
   return(vec)
 }
 #-----------------------------------------------------------------------------------------
+
+
+
+
+#-------------------------------------------------------------------------------------
+#- compare the estimates of total canopy leaf area from destructive harvests
+#    with the estimates from the leaf number and size measurements.
+checkLeafAreaEst <- function(){
+  size <- getHarvest()
+  size2 <-subset(size,Date %in% as.Date(c("2016-01-29","2016-02-10")))
+  size2$Date2 <- as.Date("2016-01-01")
+  size2$Date2[which(size2$Date==as.Date("2016-01-29"))] <- as.Date("2016-01-28")
+  size2$Date2[which(size2$Date==as.Date("2016-02-10"))] <- as.Date("2016-02-09")
+  
+  #------
+  #- process the total plant leaf area data
+  la <- getLA()
+  
+  #- calculate total plant leaf area. This method uses a different average leaf size for each plant
+  la$canopy <- with(la,leaf_no*lf_area)
+  
+  
+  #- calculate total plant leaf area using a room and date-specific mean value
+  leaf_size <- summaryBy(lf_area~room+lf_size+Date,data=la,FUN=mean,keep.names=F,na.rm=T)
+  
+  la2.1 <- merge(la,leaf_size,by=c("room","lf_size","Date"))
+  la2.1$canopy2 <- with(la2.1,leaf_no*lf_area.mean)
+  
+  la2 <- summaryBy(canopy+canopy2~room+pot+prov+prov_trt+Date+Water_trt,data=la2.1,FUN=sum,keep.names=T)
+  #------
+  
+  
+  dat <- merge(la2[,c("room","prov","pot","Date","Water_trt","canopy","canopy2")],
+               size2[,c("Pot","leafarea","totdm","Date2")],
+               by.x=c("pot","Date"),by.y=c("Pot","Date2"))
+  plot(leafarea~canopy,data=dat,
+       xlab="Canopy leaf area; estimated (cm2)",ylab="Canopy leaf area; destructively measured (cm2)")
+  abline(0,1)
+  lm1 <- lm(leafarea~canopy,data=dat)
+  summary(lm1)
+  abline(lm1,lty=2)
+}
+#-------------------------------------------------------------------------------------
