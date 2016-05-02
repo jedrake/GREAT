@@ -16,22 +16,22 @@ source("R/loadLibraries.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make a simple conceptual model figure (one curve or different curves)
+#- Make figure 1. A simple conceptual model figure (one curve or different curves)
 source("R/plotConceptualFig.R")
 #-------------------------------------------------------------------------------------
 
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 1. Temperature response of final mass, Photosynthesis, and Rdark
+#- Make figure 2. Temperature response of final mass, Photosynthesis, and Rdark
 # This takes a little while to fit all the temperature response curves
-source("R/plot_figure1.R")
+source("R/plot_figure2.R")
 #-------------------------------------------------------------------------------------
 
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 2. Growth analysis of the intensive interval
+#- Make figure 3. Growth analysis of the intensive interval
 # This takes a little while to fit all the temperature response curves
 source("R/growth_analysis_interval.R")
 #-------------------------------------------------------------------------------------
@@ -39,14 +39,14 @@ source("R/growth_analysis_interval.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 3. RGR decompostion of the growth interval
+#- Make figure 4. RGR decompostion of the growth interval
 source("R/plot_RGR_decomposition.R")
 #-------------------------------------------------------------------------------------
 
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 4. Three dimensional plot of A-Q curves.
+#- Make three dimensional plot of A-Q curves.
 source("R/plot_AQ_3d.R")
 
 #- rotate the rgl plot to your liking, then run the following code.
