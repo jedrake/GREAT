@@ -41,6 +41,15 @@ dat.fast.all <- do.call(rbind,dat)
 
 #- subset to rooms 3-8 and after Jan 8th 2016.
 dat.fast <- subset(dat.fast.all,DateTime > as.POSIXct("2016-1-8 00:00:00") & bay %in% 3:8)
+dat.fast$Date <- as.Date(dat.fast$DateTime)
+dat.fast$bay <- factor(dat.fast$bay)
+
+#- NA fill the PAR sensors in BAYS other than 3, 4, or 5 prior to 4 Feb 2016.
+toNAfill <- which(dat.fast$DateTime < as.POSIXct("2016-02-05 00:00:00",tz="UTC") & dat.fast$bay %in% 6:8)
+dat.fast$PAR[toNAfill] <- NA
+dat.fast$PAR_Avg[toNAfill] <- NA
+
+dat.fast <- dat.fast[,c("Date","DateTime","bay","BattV_Min","Tair_Avg","RH_Avg","PAR_Avg")]
 
 #- calculate VPD
 dat.fast$VPD_Avg <- RHtoVPD(RH=dat.fast$RH_Avg,TdegC=dat.fast$Tair_Avg)
@@ -81,6 +90,9 @@ lookup$room[which(lookup$bay==8)] <- ifelse(lookup$Date[which(lookup$bay==8)] < 
 dat.fast.hr <- merge(dat.fast.hr,lookup,by=c("Date","bay"))
 dat.fast.hr$room <- factor(dat.fast.hr$room)
 dat.fast.hr <- dat.fast.hr[!(dat.fast.hr$Date %in% c(as.Date("2016-1-20"),as.Date("2016-1-21"))),] #- remove dates of rotation
+dat.fast.hr <- dat.fast.hr[with(dat.fast.hr,order(DateTime_hr,room)),]
+
+
 #-----------------------------------------------------------------------------------------
 
 
@@ -93,36 +105,60 @@ plot(VPD~Tair,data=dat.fast.growth)
 #-----------------------------------------------------------------------------------------
 
 
+#-----------------------------------------------------------------------------------------
+#- plot PAR on the day of the A~T curves (Feb 5)
+toplot <- subset(dat.fast.hr,Date>=as.Date("2016-02-04") & Date <= as.Date("2016-02-06"))
+plotBy(PAR~DateTime_hr|bay,data=toplot,type="l",col=rev(brewer.pal(6,"Spectral")))
+
+#-----------------------------------------------------------------------------------------
+
 
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- create daily averages
 dat.fast.day <- dplyr::summarize(group_by(dat.fast.hr,Date,room),
+                                PARsum = sum(PAR),
+                                PARmax = max(PAR,na.rm=T),
                                 Tair=mean(Tair,na.rm=T),
                                 RH=mean(RH,na.rm=T),
                                 VPD=mean(VPD,na.rm=T))
 dat.fast.day <- as.data.frame(dat.fast.day)
 dat.fast.day <- subset(dat.fast.day,Date>as.Date("2016-01-07") & Date < as.Date("2016-03-02"))
+dat.fast.day$PARsum_mol <- dat.fast.day$PARsum*60*60*1e-6
 
 
-windows(50,70);par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(6,7,1,4),las=1,cex.axis=1.7)
 
-plotBy(Tair~Date|room,type="o",col=rev(brewer.pal(6,"RdYlGn")),data=dat.fast.day,legend=F)
+#- set up the palette
+COL <- rev(brewer.pal(6,"Spectral"))
+
+windows(80,80);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(9,11,1,4),las=1,cex.axis=1.7)
+
+plotBy(Tair~Date|room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
-axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="month"),labels=T,tck=0.05)
+legend("topright",letters[1],bty="n",cex=1.2)
 
-plotBy(RH~Date|room,type="o",col=rev(brewer.pal(6,"RdYlGn")),data=dat.fast.day,legend=F)
+plotBy(RH~Date|room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
-axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="month"),labels=T,tck=0.05)
+legend("topright",letters[2],bty="n",cex=1.2)
 
-plotBy(VPD~Date|room,type="o",col=rev(brewer.pal(6,"RdYlGn")),data=dat.fast.day,legend=F)
+plotBy(VPD~Date|room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
-axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="month"),labels=T,tck=0.05)
+legend("topright",letters[3],bty="n",cex=1.2)
 
-title(ylab=expression(T[air]~(degree*C)),outer=T,adj=0.9,line=3,cex.lab=2)
-title(ylab=expression(RH~("%")),outer=T,adj=0.5,line=3,cex.lab=2)
-title(ylab=expression(VPD~(kPa)),outer=T,adj=0.1,line=3,cex.lab=2)
+plotBy(PAR~DateTime_hr|room,type="l",col=COL,data=dat.fast.hr,legend=F,lwd=2,axes=F,ylim=c(0,2000))
+axis.POSIXct(side=1,at=seq.POSIXt(from=as.POSIXct("2016-01-01"),to=max(dat.fast.hr$DateTime_hr),by="week"),labels=F)
+axis(2);box()
+axis.POSIXct(side=1,at=seq.POSIXt(from=as.POSIXct("2016-01-01"),to=max(dat.fast.hr$DateTime_hr),by="week"),labels=T,
+             las=2,format="%b-%d")
+legend("topright",letters[4],bty="n",cex=1.2)
+
+title(ylab=expression(T[air]~(degree*C)),outer=T,adj=0.95,line=5,cex.lab=2)
+title(ylab=expression(RH~("%")),outer=T,adj=0.65,line=5,cex.lab=2)
+title(ylab=expression(VPD~(kPa)),outer=T,adj=0.35,line=5,cex.lab=2)
+title(ylab=expression(atop(PPFD,
+                           ~(mu*mol~m^-2~s^-1))),outer=T,adj=0,line=5,cex.lab=2)
+dev.copy2pdf(file="output/GREAT_met.pdf")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
