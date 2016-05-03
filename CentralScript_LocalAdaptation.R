@@ -39,7 +39,7 @@ source("R/growth_analysis_interval.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 4. RGR decompostion of the growth interval
+#- Make figure 4. RGR decomposition of the growth interval
 source("R/plot_RGR_decomposition.R")
 #-------------------------------------------------------------------------------------
 

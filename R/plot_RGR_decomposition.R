@@ -29,8 +29,8 @@ dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+Tair~room+prov+location,FUN=c(mean,sta
 
 #-----------------------------------------------------------------------------------------
 #- T-response of SLA
-
-dat.l <- split(dat,dat$location)
+dat.wet <- subset(dat,Water_trt=="wet")
+dat.l <- split(dat.wet,dat.wet$location)
 
 #- fit all the curves
 SLAfits.l <- lapply(dat.l,FUN=fitJuneT,namex="Tair",namey="SLA",lengthPredict=51,start=list(Rref=450,Topt=30,theta=20))
@@ -102,7 +102,7 @@ plotBy(LMF.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),t
 predline(LMFfits.l[[1]],col=alpha(COL[1],0.5))
 predline(LMFfits.l[[2]],col=alpha(COL[2],0.5))
 predline(LMFfits.l[[3]],col=alpha(COL[3],0.5))
-plotBy(LMF.mean~Tair.mean|prov,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,cex=2,
+plotBy(LMF.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,cex=2,
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair.mean,y=dat2$LMF.mean,SE=dat2$LMF.standard.error,direction="updown"))
 

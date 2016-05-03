@@ -92,10 +92,10 @@ getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf punch datasets
 getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
-  dat1 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160129_L1.csv",sep=""))
+  dat1 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_PUNCHES_20160129_L1.csv",sep=""))
   dat1$Date <- as.Date("2016-1-29")
   
-  dat2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_PUNCHES_LEAFAREA_20160209_L1.csv",sep=""))
+  dat2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_PUNCHES_20160209_L1.csv",sep=""))
   dat2$Date <- as.Date("2016-2-9")
   
   dat <- rbind(dat1,dat2)

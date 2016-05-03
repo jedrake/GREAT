@@ -26,7 +26,7 @@ size <- getSize()
 size2 <- unique(size[,c("pot","room","Water_trt","location","Tair")])
 
 #- merge pot ids and harvest. Note the pre-treatment plants get excluded here
-dat2 <- merge(size2,dat,by.x=c("pot","location"),by.y=c("Pot","location"))
+dat2 <- merge(size2,dat,by.x=c("pot","location","Water_trt"),by.y=c("Pot","location","Water_trt"))
 massdata <- subset(dat2,Water_trt == "wet")
 massdata.l <- split(massdata,massdata$location)
 
@@ -58,8 +58,7 @@ rvt <- getRvT()
 rvt.l <- split(rvt,rvt$location)
 
 #- fit all the curves
-RvTfits.list.st <- lapply(rvt.l,FUN=fitRvT)
-
+RvTfits.list.st <- lapply(rvt.l,FUN=fitRvT,namex="Tleaf",namey="Rmass")
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
