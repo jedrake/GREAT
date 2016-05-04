@@ -30,6 +30,9 @@ source("R/plot_figure2.R")
 
 
 
+#####- the code called below needs to be edited to reflect the changed
+#      file  and variable names (HIEv prep)
+
 #-------------------------------------------------------------------------------------
 #- Make figure 3. Growth analysis of the intensive interval
 # This takes a little while to fit all the temperature response curves
@@ -60,6 +63,13 @@ rgl.snapshot(filename="output/Aq_3d_provenances.png",fmt="png")
 #- Make figure 5. The direct short-term temperature response curves.
 #  This takes a little while to fit all the temperature response curves
 source("R/photo_AvT.R")
+#-------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make figures 6 and 7. The respiration across tissue components measured at the end.
+source("R/R_components_harvest.R")
 #-------------------------------------------------------------------------------------
 
 

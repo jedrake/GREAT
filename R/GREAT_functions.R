@@ -13,15 +13,15 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   #- work out the path
   
   #- find the most recent file
-  files <-  list.files(paste(path,"/Share/Data/Height&Diam",sep=""),pattern="HEIGHT&DIAMETER",full.names=T)
+  files <-  list.files(paste(path,"/Share/Data/Height&Diam",sep=""),pattern="HEIGHTDIAMETER",full.names=T)
   files2 <- files[grep("20160108-20160229_L2.csv",files)] # only get the level 2 .csv file
   #files2 <- files2[nchar(files2)==109]# only get files with a filename of 109 characters (ignores the eary file)
   
-  dates <- c()
-  for (i in 1:length(files2)){
-    dates[i] <- as.numeric(substr(files2[i],start=100,stop=102)) # gets the month and date as a single number
-  }
-  
+  # dates <- c()
+  # for (i in 1:length(files2)){
+  #   dates[i] <- as.numeric(substr(files2[i],start=100,stop=102)) # gets the month and date as a single number
+  # }
+  # 
   #- read data, plot size over time
   hddata <- read.csv(files2)
   hddata$prov_trt <- as.factor(paste(hddata$Prov,hddata$Room,sep="-"))
