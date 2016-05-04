@@ -45,7 +45,7 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
-  hddata3 <- merge(hddata,key2,by="Prov")
+  hddata3 <- merge(hddata2,key2,by="Prov")
   
 
   
@@ -247,14 +247,12 @@ getVWC_AQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #- function to read and process the temperature response curves of photosynthesis
 getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
-  avt <-read.csv(paste(path,"/Share/Data/GasEx/AvT/GHS39_GREAT_MAIN_GX_AvT-compiled_20160205_L1.csv",sep=""))
-  names(avt)[1:2] <- tolower(names(avt)[1:2])
-  avt$prov <- as.factor(substr(avt$pot,start=1,stop=1))
-  avt$room <- as.factor(avt$room)
-  avt$prov_trt <- as.factor(paste(avt$prov,avt$room,sep="-"))
+  avt <-read.csv(paste(path,"/Share/Data/GasEx/AvT/GHS39_GREAT_MAIN_GX-AVT_20160205_L2.csv",sep=""))
+  avt$Room <- as.factor(avt$Room)
+  avt$prov_trt <- as.factor(paste(avt$Prov,avt$Room,sep="-"))
   
   #- assign drought treatments
-  avt$Water_trt <- "wet"
+  avt$W_treatment <- factor(avt$W_treatment,levels=c("w","d"))
   
   #- assign light levels to a factor variable
   avt$LightFac <- NA
@@ -265,11 +263,11 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   #- assign the temperature levels
   avt$TleafFac <- cut(avt$Tleaf,breaks=c(15,22,26,29,34,37,45),labels=1:6)
   
-  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+  key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
-  avt2 <- merge(avt,key2,by="prov")
+  avt2 <- merge(avt,key2,by="Prov")
   
-  avt3 <- summaryBy(.~room+pot+Unit+prov+prov_trt+Water_trt+LightFac+TleafFac,data=avt2,FUN=mean,keep.names=T)
+  avt3 <- summaryBy(.~Room+Code+Unit+Prov+prov_trt+W_treatment+LightFac+TleafFac,data=avt2,FUN=mean,keep.names=T)
   return(avt2)
 }
 #-----------------------------------------------------------------------------------------
@@ -284,7 +282,7 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #- function to read and process the temperature response curves of respiration
 getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
-  rvt <-read.csv(paste(path,"/Share/Data/GasEx/Rdark/GHS39_GREAT_MAIN_GX_RDARK_20160211_L2.csv",sep=""))
+  rvt <-read.csv(paste(path,"/Share/Data/GasEx/Rdark/GHS39_GREAT_MAIN_GX-RDARK_20160211_L2.csv",sep=""))
   #rvt$prov <- as.factor(substr(rvt$pot,start=1,stop=1))
   #rvt$room <- as.factor(rvt$room)
   rvt$prov_trt <- as.factor(paste(rvt$Prov,rvt$Room,sep="-"))
@@ -763,7 +761,7 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #- work out the air temperature and new provenance keys
   key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
   hddata3 <- merge(hddata2,key,by="Room")
-  rgrdat2 <- merge(rgrdat,key,by="Room")
+  rgrdat2 <- merge(rgrdat,key,by=c("Room","Tair"))
   
   
   

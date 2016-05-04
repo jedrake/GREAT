@@ -30,9 +30,6 @@ source("R/plot_figure2.R")
 
 
 
-#####- the code called below needs to be edited to reflect the changed
-#      file  and variable names (HIEv prep)
-
 #-------------------------------------------------------------------------------------
 #- Make figure 3. Growth analysis of the intensive interval
 # This takes a little while to fit all the temperature response curves

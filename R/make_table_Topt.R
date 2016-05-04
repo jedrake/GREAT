@@ -22,11 +22,11 @@ dat <- getHarvest()
 size <- getSize()
 
 #- pull out just the unique pot and room numbers from teh size dataframe
-size2 <- unique(size[,c("pot","room","Water_trt","location","Tair")])
+size2 <- unique(size[,c("Code","Room","W_treatment","location","Tair")])
 
 #- merge pot ids and harvest. Note the pre-treatment plants get excluded here
-dat2 <- merge(size2,dat,by.x=c("pot","location"),by.y=c("Pot","location"))
-massdata <- subset(dat2,Water_trt == "wet")
+dat2 <- merge(size2,dat,by=c("Code","location","W_treatment"))
+massdata <- subset(dat2,W_treatment == "w")
 
 #- get the data, process it for RGR.
 dat.list <- returnRGR(plotson=F)
@@ -50,11 +50,11 @@ aq <- getAQ()
 massdata.l <- split(massdata,massdata$location)
 
 #- AGR and RGR v T to estimate Topts
-tofit <- subset(RGRdat,Water_trt=="wet")
+tofit <- subset(RGRdat,W_treatment=="w")
 tofit.l <- split(tofit,tofit$location)
 
 #- AvT to estimate Topts (long-termdata)
-tofit.longterm <- subset(aq,campaign==1 & LightFac==4 & Water_trt=="wet")
+tofit.longterm <- subset(aq,campaign==1 & LightFac==4 & W_treatment=="w")
 tofit.tofit.longterm.l <- split(tofit.longterm,tofit.longterm$location)
 
 #- AvT to estimate Topts at high incident par
@@ -64,6 +64,7 @@ tofit.AvT.l <- split(tofit.AvT,tofit.AvT$location)
 #- Avt at low PAR
 tofit_lowQ <- subset(avt, LightFac==1)
 tofit.l_lowQ <- split(tofit_lowQ,tofit_lowQ$location)
+
 
 
 #--- actually fit all the T-response curves
