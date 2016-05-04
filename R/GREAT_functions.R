@@ -45,7 +45,7 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
-  hddata3 <- merge(hddata2,key2,by="Prov")
+  hddata3 <- merge(hddata,key2,by="Prov")
   
 
   
@@ -61,22 +61,19 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #- function to read and process the leaf number and leaf size datasets
 getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
-  la <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160128_L1.csv",sep=""))
+  la <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160128_L2.csv",sep=""))
   la$Date <- as.Date("2016-1-28")
   
-  la2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160209_L1.csv",sep=""))
+  la2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160209_L2.csv",sep=""))
   la2$Date <- as.Date("2016-2-09")
   
   la <- rbind(la,la2)
   
-  la$prov <- as.factor(substr(la$pot,start=1,stop=1))
-  la$room <- as.factor(la$room)
-  la$prov_trt <- as.factor(paste(la$prov,la$room,sep="-"))
+  la$Room <- as.factor(la$Room)
+  la$prov_trt <- as.factor(paste(la$Prov,la$Room,sep="-"))
   
   #- assign drought treatments
-  la$Water_trt <- "wet"
-  la$Water_trt[grep("Bd",la$pot)] <- "dry"
-  la$Water_trt <- factor(la$Water_trt,levels=c("wet","dry"))
+  la$W_treatment <- factor(la$W_treatment,levels=c("w","d"))
   
   return(la)
 }
@@ -88,26 +85,24 @@ getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf punch datasets
 getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
-  dat1 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_PUNCHES_20160129_L1.csv",sep=""))
+  dat1 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_PUNCHES_20160129_L2.csv",sep=""))
   dat1$Date <- as.Date("2016-1-29")
   
-  dat2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_PUNCHES_20160209_L1.csv",sep=""))
+  dat2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_PUNCHES_20160209_L2.csv",sep=""))
   dat2$Date <- as.Date("2016-2-9")
   
   dat <- rbind(dat1,dat2)
   
-  dat$SLA <- with(dat,area_cm2/(mass_mg/1000))         # in cm2 g-1
-  dat$LMA <- with(dat,(mass_mg/1000)/(area_cm2/10000)) # in g m-2
+  dat$SLA <- with(dat,Puncharea/(Punchmass/1000))         # in cm2 g-1
+  dat$LMA <- with(dat,(Punchmass/1000)/(Puncharea/10000)) # in g m-2
   
-  dat$prov2 <- dat$prov
-  dat$prov <- as.factor(substr(dat$pot,start=1,stop=1)) # overwrite "prov" to be A, B, or C. No Bw or Bd allowed.
-  dat$room <- as.factor(dat$room)
-  dat$prov_trt <- as.factor(paste(dat$prov,dat$room,sep="-"))
+  #dat$prov2 <- dat$prov
+  #dat$prov <- as.factor(substr(dat$pot,start=1,stop=1)) # overwrite "prov" to be A, B, or C. No Bw or Bd allowed.
+  dat$Room <- as.factor(dat$Room)
+  dat$prov_trt <- as.factor(paste(dat$Prov,dat$Room,sep="-"))
   
   #- assign drought treatments
-  dat$Water_trt <- "wet"
-  dat$Water_trt[grep("Bd",dat$pot)] <- "dry"
-  dat$Water_trt <- factor(dat$Water_trt,levels=c("wet","dry"))
+  dat$W_treatment <- factor(dat$W_treatment,levels=c("w","d"))
   return(dat)
 }  
 #-----------------------------------------------------------------------------------------  
@@ -585,7 +580,7 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
   dat <- getHarvest()
   
   if (droughtdat==F) {
-    dat <- subset(dat,Water_trt=="wet")
+    dat <- subset(dat,W_treatment=="w")
   }
   
   #----------------------------------------------------------------------------------------------------------------
@@ -644,16 +639,16 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #- get the size data, estimate mass
   
   hddata <- getSize(path=path) # specify path to "GREAT" share folder on HIE-Data2. Defaults to W://WORKING_DATA/GHS39/GREAT
-  hddata$totmass <- returnMassFromAllom(d2hdat=hddata$d2h,plotson=plotson) #- predict mass from d2h allometry
+  hddata$totmass <- returnMassFromAllom(d2hdat=hddata$d2h,plotson=plotson,droughtdat = F) #- predict mass from d2h allometry
   #-----------------------------------------------------------------------------------------
   
   
   
   #-----------------------------------------------------------------------------------------
   #- calculate RGR and AGR based on the estimated total mass
-  hddata <- hddata[with(hddata,order(pot,Date)),]
+  hddata <- hddata[with(hddata,order(Code,Date)),]
   
-  hddata.l <- split(hddata,hddata$pot)
+  hddata.l <- split(hddata,hddata$Code)
   for(i in 1:length(hddata.l)){
     crap <- hddata.l[[i]]
     hddata.l[[i]]$RGR <- c(NA,diff(log(hddata.l[[i]]$totmass)))/c(NA,diff(hddata.l[[i]]$Date)) # g g-1 day-1
@@ -676,42 +671,39 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   la <- getLA()
   
   #- calculate total plant leaf area. This method uses a different average leaf size for each plant
-  la$canopy <- with(la,leaf_no*lf_area)
+  la$canopy <- with(la,Leafno*Leafarea)
   
   
   #----------------------------------------------------------------------------------------------------
   #- calculate total plant leaf area using a room and date-specific mean value
-  leaf_size <- summaryBy(lf_area~room+lf_size+Date,data=la,FUN=mean,keep.names=F,na.rm=T)
+  leaf_size <- summaryBy(Leafarea~Room+Leafsize+Date,data=la,FUN=mean,keep.names=F,na.rm=T)
+  la2.1 <- merge(la,leaf_size,by=c("Room","Leafsize","Date"))
+  la2.1$canopy2 <- with(la2.1,Leafno*Leafarea.mean)
   
-  
-
-  
-  la2.1 <- merge(la,leaf_size,by=c("room","lf_size","Date"))
-  la2.1$canopy2 <- with(la2.1,leaf_no*lf_area.mean)
   
   #-- average leaf size is temperature dependent, but not provenance dependent
   if(plotson==T){
     windows(40,50);par(mfrow=c(3,1),cex.lab=1.7,mar=c(7,7,2,1))
-    boxplot(leaf_no~lf_size+room,data=subset(la,Water_trt=="wet" & Date==as.Date("2016-01-28")),las=2,ylab="Leaf number (n)",col=c("grey","red"))
+    boxplot(Leafno~Leafsize+Room,data=subset(la,W_treatment=="w" & Date==as.Date("2016-01-28")),las=2,ylab="Leaf number (n)",col=c("grey","red"))
     legend("topleft",c("small","large"),fill=c("grey","red"))
-    boxplot(lf_area~lf_size+room,data=subset(la,Water_trt=="wet"& Date==as.Date("2016-01-28")),las=2,ylab="Average leaf size (cm2)",col=c("grey","red"))
-    boxplot(canopy~prov+room,data=subset(la,Water_trt=="wet"& Date==as.Date("2016-01-28")),las=2,ylim=c(0,1000),ylab="Total canopy size (cm2)",col=c("blue","orange","forestgreen"))
+    boxplot(Leafarea~Leafsize+Room,data=subset(la,W_treatment=="w"& Date==as.Date("2016-01-28")),las=2,ylab="Average leaf size (cm2)",col=c("grey","red"))
+    boxplot(canopy~Prov+Room,data=subset(la,W_treatment=="w" & Date==as.Date("2016-01-28")),las=2,ylim=c(0,1000),ylab="Total canopy size (cm2)",col=c("blue","orange","forestgreen"))
     legend("topleft",c("A","B","C"),fill=c("blue","orange","forestgreen"))
     
   }
   
-  la2 <- summaryBy(canopy+canopy2~room+pot+prov+prov_trt+Date+Water_trt,data=la2.1,FUN=sum,keep.names=T)
+  la2 <- summaryBy(canopy+canopy2~Room+Code+Prov+prov_trt+Date+W_treatment,data=la2.1,FUN=sum,keep.names=T)
   
   #- merge in total plant leaf number
-  leaf_no <-summaryBy(leaf_no~pot,data=la,FUN=sum,keep.names=T)
-  la2 <- merge(la2,leaf_no,by="pot")
+  leaf_no <-summaryBy(Leafno~Code,data=la,FUN=sum,keep.names=T)
+  la2 <- merge(la2,leaf_no,by="Code")
   
   #- average the leaf area data across the two dates, which bracket the RGR growth interval
-  la.m <- summaryBy(canopy+canopy2+leaf_no~room+pot+prov+prov_trt+Water_trt,data=la2,FUN=mean,keep.names=T)
+  la.m <- summaryBy(canopy+canopy2+Leafno~Room+Code+Prov+prov_trt+W_treatment,data=la2,FUN=mean,keep.names=T)
   
   
   #- merge total plant leaf area with tree size from the interval measurements
-  la3 <- merge(la.m,subset(rgrinterval,Date %in% as.Date(c("2016-1-28","2016-02-08"))),by=c("room","prov","prov_trt","pot","Water_trt"))
+  la3 <- merge(la.m,subset(rgrinterval,Date %in% as.Date(c("2016-1-28","2016-02-08"))),by=c("Room","Prov","prov_trt","Code","W_treatment"))
   la3 <- la3[complete.cases(la3),]
   la3$logLA <- with(la3,log10(canopy))
   la3$logd2h <- with(la3,log10(d2h))
@@ -733,8 +725,8 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #--------------------------------------------------------------------------------------------------------------------
   #---- get the SLA data from punches. SLA increase with temperature, to a point.
   sla1 <- getPunches()
-  sla <- summaryBy(SLA+LMA~room+prov+pot+prov_trt+Water_trt,FUN=mean,keep.names=T,data=sla1)
-  rgrdat <- merge(la3,sla,by=c("room","prov","pot","prov_trt","Water_trt"))
+  sla <- summaryBy(SLA+LMA~Room+Prov+Code+prov_trt+W_treatment,FUN=mean,keep.names=T,data=sla1)
+  rgrdat <- merge(la3,sla,by=c("Room","Prov","Code","prov_trt","W_treatment"))
 
   
   
@@ -759,24 +751,27 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   #- plot interrelationships
   if(plotson==T){
     windows()
-    pairs(subset(rgrdat,Water_trt=="wet")[,c("RGR","AGR","LAR","LMF","NAR","canopy","SLA","logmass","room")],
-          col=rev(brewer.pal(6,"RdYlGn"))[subset(rgrdat,Water_trt=="wet")$room])
+    pairs(subset(rgrdat,W_treatment=="w")[,c("RGR","AGR","LAR","LMF","NAR","canopy","SLA","logmass","Room")],
+          col=rev(brewer.pal(6,"RdYlGn"))[subset(rgrdat,W_treatment=="w")$Room])
   }
   
   
   #- get rid of some unwanted variabels to make things simpler
-  rgrdat$canopy2 <- rgrdat$date <- rgrdat$d1 <- rgrdat$d2 <- rgrdat$Comment <- rgrdat$leaf_no <- NULL
+  rgrdat$canopy2 <- rgrdat$Date <- rgrdat$D1 <- rgrdat$D2 <- rgrdat$Comment <- rgrdat$Leafno <- NULL
   
   
   #- work out the air temperature and new provenance keys
-  key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
-  hddata3 <- merge(hddata2,key,by="room")
+  key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
+  hddata3 <- merge(hddata2,key,by="Room")
+  rgrdat2 <- merge(rgrdat,key,by="Room")
   
-  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+  
+  
+  key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
-  hddata4 <- merge(hddata3,key2,by="prov")
+  hddata4 <- merge(hddata3,key2,by=c("Prov","location"))
   
-  return(list(hddata2,rgrdat))
+  return(list(hddata4,rgrdat2))
 
 
   

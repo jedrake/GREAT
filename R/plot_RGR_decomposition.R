@@ -4,7 +4,6 @@
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
-source("R/gamplotfunctions.R")
 
 #- get the data, process it for RGR.
 dat.list <- returnRGR(plotson=F)
@@ -16,7 +15,7 @@ dat.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
 
 #-----------------------------------------------------------------------------------------
 #- average across provenances, ignore the dry data, and plot temperature response curves
-dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+Tair~room+prov+location,FUN=c(mean,standard.error),data=subset(dat,Water_trt=="wet"),na.rm=T)
+dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+Tair~Room+Prov+location,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
 #-----------------------------------------------------------------------------------------
 
 
@@ -29,7 +28,7 @@ dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+Tair~room+prov+location,FUN=c(mean,sta
 
 #-----------------------------------------------------------------------------------------
 #- T-response of SLA
-dat.wet <- subset(dat,Water_trt=="wet")
+dat.wet <- subset(dat,W_treatment=="w")
 dat.l <- split(dat.wet,dat.wet$location)
 
 #- fit all the curves

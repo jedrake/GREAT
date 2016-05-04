@@ -58,4 +58,6 @@ Library(rgl)
 
 source("R/generic_functions.R")
 source("R/GREAT_functions.R")
+source("R/gamplotfunctions.R")
+
 #---------------------------------------------------------------------

@@ -27,7 +27,7 @@ dat.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
 
 #-----------------------------------------------------------------------------------------
 #- fit AGR and RGR v T to estimate Topts
-tofit <- subset(dat,Water_trt=="wet")
+tofit <- subset(dat,W_treatment=="w")
 tofit.l <- split(tofit,tofit$location)
 
 #- fit AGR and RGR T response curves
@@ -41,7 +41,7 @@ RGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.15,Topt=25,theta=20
 
 #-----------------------------------------------------------------------------------------
 #- average across provenances, ignore the dry data
-dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy~room,FUN=c(mean,standard.error),data=subset(dat,Water_trt=="wet"),na.rm=T)
+dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy~Room,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
 #-----------------------------------------------------------------------------------------
 
 
@@ -57,7 +57,7 @@ windows(60,50);par(mfrow=c(2,3),mar=c(1,4,1,1),oma=c(9,7,1,1))
 palette(rev(brewer.pal(6,"Spectral")))
 ptsize <- 1.5
 COL <- palette()[c(1,2,6)]
-dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~room+Tair+location,FUN=c(mean,standard.error),data=subset(dat,Water_trt=="wet"),na.rm=T)
+dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~Room+Tair+location,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
 
 
 #--- plot AGR vs. T (panel 1)
@@ -93,10 +93,10 @@ legend("topleft",letters[1],bty="n",cex=1.8)
 
 #------------
 #--- plot the second panel and third panels (AGR vs. leaf area and total mass)
-dat3 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~Tair,FUN=c(mean,standard.error),data=subset(dat,Water_trt=="wet"),na.rm=T)
+dat3 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~Tair,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
 
 #- AGR vs. canopy leaf area
-plotBy(AGR~canopy|Tair,data=subset(dat,Water_trt=="wet"),col=rev(brewer.pal(6,"Spectral")),pch=16,ylim=c(0,0.5),
+plotBy(AGR~canopy|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,ylim=c(0,0.5),
        xlab="",ylab="",cex.lab=2,legend=F,axes=F)
 adderrorbars(x=dat3$canopy.mean,y=dat3$AGR.mean,SE=dat3$AGR.standard.error,direction="updown")
 adderrorbars(x=dat3$canopy.mean,y=dat3$AGR.mean,SE=dat3$canopy.standard.error,direction="leftright")
@@ -108,7 +108,7 @@ legend("topleft",letters[3],bty="n",cex=1.8)
 
 
 #- AGR vs. mass
-plotBy(AGR~totmass|Tair,data=subset(dat,Water_trt=="wet"),col=rev(brewer.pal(6,"Spectral")),pch=16,legend=F,
+plotBy(AGR~totmass|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,legend=F,
        xlim=c(0,9),
        xlab="",ylab="",axes=F)
 adderrorbars(x=dat3$totmass.mean,y=dat3$AGR.mean,SE=dat3$AGR.standard.error,direction="updown")
@@ -131,7 +131,7 @@ RGRplot$prov <- c(rep("A",nrow(RGRplot)/3),rep("B",nrow(RGRplot)/3),rep("C",nrow
 RGRplot$location <- c(rep("Cold-edge",nrow(RGRplot)/3),rep("Warm-edge",nrow(RGRplot)/3),rep("Central",nrow(RGRplot)/3))
 RGRplot$location <- factor(RGRplot$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-plotBy(Sim.Mean~Tleaf|prov,data=RGRplot,legend=F,type="l",las=1,ylim=c(0,0.17),lwd=3,cex.lab=2,col=COL,
+plotBy(Sim.Mean~Tleaf|location,data=RGRplot,legend=F,type="l",las=1,ylim=c(0,0.17),lwd=3,cex.lab=2,col=COL,
        ylab="",axes=F,
        xlab="")
 as.rgr <- subset(RGRplot,prov=="A")
@@ -157,7 +157,7 @@ legend("topleft",letters[2],bty="n",cex=1.8)
 #--- plot the fifth panel and sixth panels (RGR vs. leaf area and total mass)
 
 #- RGR vs. canopy leaf area
-plotBy(RGR~canopy|Tair,data=subset(dat,Water_trt=="wet"),col=rev(brewer.pal(6,"Spectral")),pch=16,
+plotBy(RGR~canopy|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,
        xlab="",ylab="",cex.lab=2,axes=F,ylim=c(0,0.17),legend=F,
        legendwhere="bottomright")
 adderrorbars(x=dat3$canopy.mean,y=dat3$RGR.mean,SE=dat3$RGR.standard.error,direction="updown")
@@ -169,7 +169,7 @@ axis(side=1,at=c(0,500,1000,1500),labels=T,tick=F,cex.axis=2,las=2)
 legend("topleft",letters[4],bty="n",cex=1.8)
 
 #- RGR vs. mass
-plotBy(RGR~totmass|Tair,data=subset(dat,Water_trt=="wet"),col=rev(brewer.pal(6,"Spectral")),pch=16,legend=F,ylim=c(0,0.17),
+plotBy(RGR~totmass|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,legend=F,ylim=c(0,0.17),
        xlim=c(0,9),
        xlab="",ylab="",cex.lab=2,axes=F)
 adderrorbars(x=dat3$totmass.mean,y=dat3$RGR.mean,SE=dat3$RGR.standard.error,direction="updown")
