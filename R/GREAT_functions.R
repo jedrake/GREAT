@@ -915,22 +915,22 @@ checkLeafAreaEst <- function(){
   la <- getLA()
   
   #- calculate total plant leaf area. This method uses a different average leaf size for each plant
-  la$canopy <- with(la,leaf_no*lf_area)
+  la$canopy <- with(la,Leafno*Leafarea)
   
   
   #- calculate total plant leaf area using a room and date-specific mean value
-  leaf_size <- summaryBy(lf_area~room+lf_size+Date,data=la,FUN=mean,keep.names=F,na.rm=T)
+  leaf_size <- summaryBy(Leafarea~Room+Leafsize+Date,data=la,FUN=mean,keep.names=F,na.rm=T)
   
-  la2.1 <- merge(la,leaf_size,by=c("room","lf_size","Date"))
-  la2.1$canopy2 <- with(la2.1,leaf_no*lf_area.mean)
+  la2.1 <- merge(la,leaf_size,by=c("Room","Leafsize","Date"))
+  la2.1$canopy2 <- with(la2.1,Leafno*Leafarea.mean)
   
-  la2 <- summaryBy(canopy+canopy2~room+pot+prov+prov_trt+Date+Water_trt,data=la2.1,FUN=sum,keep.names=T)
+  la2 <- summaryBy(canopy+canopy2~Room+Code+Prov+prov_trt+Date+W_treatment,data=la2.1,FUN=sum,keep.names=T)
   #------
   
   
-  dat <- merge(la2[,c("room","prov","pot","Date","Water_trt","canopy","canopy2")],
-               size2[,c("Pot","leafarea","totdm","Date2")],
-               by.x=c("pot","Date"),by.y=c("Pot","Date2"))
+  dat <- merge(la2[,c("Room","Prov","Code","Date","W_treatment","canopy","canopy2")],
+               size2[,c("Code","leafarea","totdm","Date2")],
+               by.x=c("Code","Date"),by.y=c("Code","Date2"))
   plot(leafarea~canopy,data=dat,
        xlab="Canopy leaf area; estimated (cm2)",ylab="Canopy leaf area; destructively measured (cm2)")
   abline(0,1)
