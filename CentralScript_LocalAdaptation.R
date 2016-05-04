@@ -59,7 +59,8 @@ rgl.snapshot(filename="output/Aq_3d_provenances.png",fmt="png")
 #-------------------------------------------------------------------------------------
 #- Make figure 5. The direct short-term temperature response curves.
 #  This takes a little while to fit all the temperature response curves
-source("R/photo_AvT.R")
+source("R/photo_AvT.R")      # area-based
+#source("R/photo_AvT_mass.R") # mass-based
 #-------------------------------------------------------------------------------------
 
 
