@@ -14,8 +14,8 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   #- find the most recent file
   files <-  list.files(paste(path,"/Share/Data/Height&Diam",sep=""),pattern="HEIGHT&DIAMETER",full.names=T)
-  files2 <- files[grep(".csv",files)] # only get the .csv files
-  files2 <- files2[nchar(files2)==109]# only get files with a filename of 109 characters (ignores the eary file)
+  files2 <- files[grep("20160108-20160229_L2.csv",files)] # only get the level 2 .csv file
+  #files2 <- files2[nchar(files2)==109]# only get files with a filename of 109 characters (ignores the eary file)
   
   dates <- c()
   for (i in 1:length(files2)){
@@ -23,33 +23,29 @@ getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   }
   
   #- read data, plot size over time
-  hddata <- read.csv(files2[which.max(dates)])
-  hddata$prov <- as.factor(substr(hddata$pot,start=1,stop=1))
-  hddata$room <- as.factor(hddata$room)
-  hddata$prov_trt <- as.factor(paste(hddata$prov,hddata$room,sep="-"))
-  hddata$Date <- as.Date(hddata$date,format="%d/%m/%Y")
+  hddata <- read.csv(files2)
+  hddata$prov_trt <- as.factor(paste(hddata$Prov,hddata$Room,sep="-"))
+  hddata$Date <- as.Date(hddata$Date)
   
   
   #- Bd-78 was mistakenly recorded on 2016-01-28 
-  hddata[which(hddata$pot=="Bd-78" & hddata$Date==as.Date("2016-01-28")),"d1"] <- 2.68
-  hddata[which(hddata$pot=="Bd-78" & hddata$Date==as.Date("2016-01-28")),"d2"] <- 2.75
+  hddata[which(hddata$Code=="Bd-78" & hddata$Date==as.Date("2016-01-28")),"D1"] <- 2.68
+  hddata[which(hddata$Code=="Bd-78" & hddata$Date==as.Date("2016-01-28")),"D2"] <- 2.75
   
-  hddata$diam <- with(hddata,((d1+d2)/2))
-  hddata$d2h <- with(hddata,(diam/10)^2*h) #cm^3
+  hddata$diam <- with(hddata,((D1+D2)/2))
+  hddata$d2h <- with(hddata,(diam/10)^2*Height) #cm^3
 
   
   #- assign drought treatments
-  hddata$Water_trt <- "wet"
-  hddata$Water_trt[grep("Bd",hddata$pot)] <- "dry"
-  hddata$Water_trt <- factor(hddata$Water_trt,levels=c("wet","dry"))
+  hddata$W_treatment <- factor(hddata$W_treatment,levels=c("w","d"))
   
   #- work out the air temperature and new provenance keys
-  key <- data.frame(room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
-  hddata2 <- merge(hddata,key,by="room")
+  key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
+  hddata2 <- merge(hddata,key,by="Room")
   
-  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+  key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
-  hddata3 <- merge(hddata2,key2,by="prov")
+  hddata3 <- merge(hddata2,key2,by="Prov")
   
 
   
@@ -171,23 +167,23 @@ getSLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   #- read in the first set of measurements
-  aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GHS39_GREAT_MAIN_GX_AQ-compiled_20160202-20160203_L1.csv",sep=""))
+  aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GHS39_GREAT_MAIN_GX-AQ_20160202-20160203_L2.csv",sep=""))
   aq1$campaign = 1
   
   #- read in the second set (prov B only!)
-  aq2 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GHS39_GREAT_MAIN_GX_AQ2-compiled_20160225-20160226_L1.csv",sep=""))
+  aq2 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GHS39_GREAT_MAIN_GX-AQ_20160225-20160226_L2.csv",sep=""))
   aq2$campaign = 2
 
   aq <- rbind(aq1,aq2)
-  names(aq)[1:2] <- tolower(names(aq)[1:2])
-  aq$prov <- as.factor(substr(aq$pot,start=1,stop=1))
-  aq$room <- as.factor(aq$room)
-  aq$prov_trt <- as.factor(paste(aq$prov,aq$room,sep="-"))
+  #names(aq)[1:2] <- tolower(names(aq)[1:2])
+  #aq$prov <- as.factor(substr(aq$pot,start=1,stop=1))
+  #aq$room <- as.factor(aq$room)
+  aq$prov_trt <- as.factor(paste(aq$Prov,aq$Room,sep="-"))
 
   #- assign drought treatments
-  aq$Water_trt <- "wet"
-  aq$Water_trt[grep("Bd",aq$pot)] <- "dry"
-  aq$Water_trt <- factor(aq$Water_trt,levels=c("wet","dry"))
+  #aq$Water_trt <- "wet"
+  #aq$Water_trt[grep("Bd",aq$pot)] <- "dry"
+  aq$W_treatment <- factor(aq$W_treatment,levels=c("w","d"))
   
   #- assign light levels to a factor variable
   aq$LightFac <- NA
@@ -205,12 +201,12 @@ getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   aq$TleafFac <- cut(aq$Tleaf,breaks=c(15,22,26,29,34,37,45),labels=1:6)
   
   #- merge in the location factor
-  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+  key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
-  aq2 <- merge(aq,key2,by="prov")
+  aq2 <- merge(aq,key2,by="Prov")
   
   #- average across replicate logs
-  aq.means <- summaryBy(.~room+pot+Unit+prov+prov_trt+location+Water_trt+LightFac+TleafFac+campaign,data=aq2,FUN=mean,keep.names=T)
+  aq.means <- summaryBy(.~Room+Pot+Unit+Prov+prov_trt+location+W_treatment+LightFac+TleafFac+campaign,data=aq2,FUN=mean,keep.names=T)
   return(aq.means)
 }
 #-----------------------------------------------------------------------------------------
@@ -293,44 +289,43 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #- function to read and process the temperature response curves of respiration
 getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
-  rvt <-read.csv(paste(path,"/Share/Data/GasEx/Rdark/GHS39_GREAT_MAIN_GX_Rdark-compiled_20160211_L1.csv",sep=""))
-  names(rvt)[1:2] <- tolower(names(rvt)[1:2])
-  rvt$prov <- as.factor(substr(rvt$pot,start=1,stop=1))
-  rvt$room <- as.factor(rvt$room)
-  rvt$prov_trt <- as.factor(paste(rvt$prov,rvt$room,sep="-"))
+  rvt <-read.csv(paste(path,"/Share/Data/GasEx/Rdark/GHS39_GREAT_MAIN_GX_RDARK_20160211_L2.csv",sep=""))
+  #rvt$prov <- as.factor(substr(rvt$pot,start=1,stop=1))
+  #rvt$room <- as.factor(rvt$room)
+  rvt$prov_trt <- as.factor(paste(rvt$Prov,rvt$Room,sep="-"))
   rvt$Rarea <- rvt$Photo*-1
   
   #- assign drought treatments
-  rvt$Water_trt <- "wet"
+  rvt$W_treatment <- factor(rvt$W_treatment,levels=c("w","d"))
   
   #- assign the temperature levels
   rvt$TleafFac <- cut(rvt$Tleaf,breaks=c(10,15,20,25,27.5,35),labels=1:5)
   
   #- average across sub-replicate logs
-  rvt2 <- summaryBy(.~room+pot+prov+prov_trt+Water_trt+TleafFac,data=rvt,FUN=mean,keep.names=T)
-  rvt2$Pot <- as.factor(paste(toupper(substr(as.character(rvt2$pot),start=1,stop=1)),substr(as.character(rvt2$pot),start=2,stop=5),sep=""))
+  rvt2 <- summaryBy(.~Room+Pot+Prov+Code+prov_trt+W_treatment+TleafFac,data=rvt,FUN=mean,keep.names=T)
+  #rvt2$Pot <- as.factor(paste(toupper(substr(as.character(rvt2$pot),start=1,stop=1)),substr(as.character(rvt2$pot),start=2,stop=5),sep=""))
   
   #- got them all? We're missing the fourth temperature for bw-26.
-  xtabs(~pot,data=rvt2)
+  xtabs(~Code,data=rvt2)
   
   #- merge in the leaf mass data
   leaf1 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160211_L1.xlsx",sep=""))
   leaf2 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160229_L1.xlsx",sep=""))
   leaf <- rbind(leaf1,leaf2)
-  leaf$Pot <- as.factor(leaf$Pot)
+  leaf$Code <- as.factor(leaf$Pot)
   leaf$comment <- NULL
+  leaf <- leaf[,c("Code","Leafarea","Leafmass")]
   
-  rvt3 <- merge(rvt2,leaf,by="Pot")
-  rvt3$pot <- NULL
-  
+  rvt3 <- merge(rvt2,leaf,by=("Code"))
+
   #- calculate mass-specific leaf respiration rates
-  rvt3$Rmass <- with(rvt3,Rarea*LA_cm2/mass_g/10000*1000) #- convert umol Co2 m-2 s-1 to nmol CO2 g-1 s-1
+  rvt3$Rmass <- with(rvt3,Rarea*Leafarea/Leafmass/10000*1000) #- convert umol Co2 m-2 s-1 to nmol CO2 g-1 s-1
   
   #- merge in the location factor
-  key2 <- data.frame(prov=as.factor(letters[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+  key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
   
-  rvt4 <- merge(rvt3,key2,by="prov")
+  rvt4 <- merge(rvt3,key2,by="Prov")
   
   return(rvt4)
 }
@@ -497,38 +492,43 @@ getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
     #- read in the raw data
   files <-  list.files(paste(path,"/Share/Data/Harvests/",sep=""),pattern="GHS39_GREAT_MAIN_BIOMASS",full.names=T)
   files2 <- files[grep(".csv",files)] # only get the .csv files
+  files3 <- files2[grep("L2",files2)] # only get the level 2 files
   
   #- pull out the longer file name that has a different structure
-  longfile <- files2[which.max(nchar(files2))]
-  files3 <- files2[-which.max(nchar(files2))]
+  longfile <- files3[which.max(nchar(files3))]
+  files4 <- files3[-which.max(nchar(files3))]
   
   dates <- c()
   dat.i <- list()
-  for (i in 1:length(files3)){
-    dates[i] <- as.numeric(substr(files3[i],start=75,stop=82)) # extract the date from the file name
-    dat.i[[i]] <- read.csv(files2[i])
+  for (i in 1:length(files4)){
+    dat.i[[i]] <- read.csv(files4[i])
+    
+    if(i==1) dat.i[[i]]$W_treatment <- "w"
+    
+    dat.i[[i]] <- dat.i[[i]][,c("Prov","Pot","W_treatment","Code","Height","D1","D2","Leafarea","Leafno","Leafmass","Stemmass","Rootmass")]
+    dates[i] <- as.numeric(substr(files4[i],start=75,stop=82)) # extract the date from the file name
     dat.i[[i]]$Date <- base::as.Date(as.character(dates[i]),format="%Y%m%d")
-    names(dat.i[[i]]) <- c("Pot","h","d1","d2","leafarea","leafno","leafdm","stemdm","rootdm","Date")
+    
+    
+    names(dat.i[[i]]) <- c("Prov","Pot","W_treatment","Code","h","d1","d2","leafarea","leafno","leafdm","stemdm","rootdm","Date")
   }
   dat <- do.call(rbind,dat.i)
-  dat$prov <- as.factor(substr(dat$Pot,start=1,stop=1))
+  #dat$prov <- as.factor(substr(dat$Pot,start=1,stop=1))
   
   #- read in the longer datafile, fix up names for merging
   dat.long <- read.csv(longfile)
-  dat.long <- dat.long[,c("Code","h..cm.","d1..mm.","d2..mm.","leafno....","leafarea..cm2.",
-                          "leafsubdm","leaf_add","stemdm","rootdm","rootdm_measured")]
   dat.long$Date <- base::as.Date("2016-02-22")
   
   
   #- calculate total leaf and root dry mass
-  dat.long$leafdm <- base::rowSums(dat.long[,c("leafsubdm","leaf_add")],na.rm=T)
-  dat.long$rootdm <- base::rowSums(dat.long[,c("rootdm","rootdm_measured")],na.rm=T)
+  dat.long$leafdm <- base::rowSums(dat.long[,c("Leafmass_sub","Leafmass")],na.rm=T)
+  dat.long$rootdm <- base::rowSums(dat.long[,c("Rootmass_sub","Rootmass")],na.rm=T)
   
 
-  dat.long <- dat.long[,c("Code","h..cm.","d1..mm.","d2..mm.","leafno....","leafarea..cm2.",
-                          "leafdm","stemdm","rootdm","Date")]
-  names(dat.long) <- c("Pot","h","d1","d2","leafno","leafarea","leafdm","stemdm","rootdm","Date")
-  dat.long$prov <- as.factor(substr(dat.long$Pot,start=1,stop=1))
+  dat.long <- dat.long[,c("Prov","Pot","W_treatment","Code","Height","D1","D2","Leafarea","Leafno",
+                          "leafdm","Stemmass","rootdm","Date")]
+  names(dat.long) <- c("Prov","Pot","W_treatment","Code","h","d1","d2","leafarea","leafno","leafdm","stemdm","rootdm","Date")
+  #dat.long$prov <- as.factor(substr(dat.long$Pot,start=1,stop=1))
   
   #- these mass values are in mg. Convert to g.
   dat.long$leafdm <- dat.long$leafdm/1000
@@ -552,13 +552,13 @@ getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   dat$totdm <- base::rowSums(cbind(dat$leafdm,dat$stemdm,dat$rootdm))
   
   #- total leaf area was recorded incorrectly for C-33. It should be 1079, not 107.9 cm2. 
-  dat[which(dat$Pot=="C-33"),"leafarea"] <- 1079
+  dat[which(dat$Code=="C-33"),"leafarea"] <- 1079
   
   
   #- add a variable for water limitaiton treatment
-  dat$Water_trt <- "wet"
-  dat$Water_trt[grep("Bd",dat$Pot)] <- "dry"
-  dat$Water_trt <- factor(dat$Water_trt,levels=c("wet","dry"))
+  #dat$Water_trt <- "wet"
+  #dat$Water_trt[grep("Bd",dat$Pot)] <- "dry"
+  #dat$Water_trt <- factor(dat$Water_trt,levels=c("wet","dry"))
   
   
   #- log transform (base 10!)
@@ -566,9 +566,9 @@ getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   dat$logtotdm <- log10(dat$totdm)
   
   
-  key2 <- data.frame(prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+  key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
-  dat2 <- merge(dat,key2,by="prov")
+  dat2 <- merge(dat,key2,by="Prov")
   return(dat2)
 }
 #----------------------------------------------------------------------------------------------------------------
