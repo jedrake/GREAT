@@ -4,66 +4,8 @@
 #  (2) Estiamted tissue-specific and whole-plant respiration rates at in-situ temperatures
 #------------------------------------------------------------------------------------------------
 
-
-
-#- read in the respiration data
-path <- "W://WORKING_DATA/GHS39/GREAT"
-Rdat1 <- read.csv(paste(path,"/Share/Data/GasEx/R/GHS39_GREAT_MAIN_GX-R_20160217-20160224_L2.csv",sep=""))
-
-#- average over subreplicate logs
-Rdat2 <- summaryBy(dCO2+Photo+Cond+Ci+Trmmol+VpdL+Area~Date+Organ+Code+Unit+W_treatment,data=Rdat1,FUN=mean,keep.names=T)
-
-# #- reformat the "Pot" variable. E.g, change "A-01" to "A-1" to match the size datasets.
-# crap <- unlist(strsplit(as.character(Rdat2$Pot), "-"))
-# Rdat2$prov <- as.factor(crap[seq(1,length(crap)-1,2)])
-# Rdat2$pot <- as.factor(paste(Rdat2$prov,as.numeric(crap[seq(0,length(crap),2)]),sep="-"))
-# Rdat2$prov <- NULL #- remove the "prov" variable. It gets added later with getSize().
-# Rdat2$Pot <- NULL
-
-#------------------------------------------------------------------------------------------------
-#- merge in the harvest mass data, to calculate mass-specific respiration rates
-finalHarvest <- read.csv(paste(path,"/Share/Data/Harvests/GHS39_GREAT_MAIN_BIOMASS_20160217-20160224_L2.csv",sep=""))
-finalHarvest <- finalHarvest[,c("Code","Leafarea","Leafarea_sub","Leafmass","Leafmass_sub","Stemmass","Rootmass","Rootmass_sub")]
-finalHarvest$totalRoot <- rowSums(finalHarvest[,c("Rootmass","Rootmass_sub")],na.rm=T)
-finalHarvest$leafdm <- rowSums(finalHarvest[,c("Leafmass","Leafmass_sub")],na.rm=T)
-
-#names(finalHarvest)[2] <- "leafArea"
-
-Rdat3 <- merge(Rdat2,finalHarvest,by.x=c("Code"),by.y=c("Code"))
-
-#- calculate mass-based respiration rates
-Rdat3$Rmass <- NA
-leaves <- which(Rdat3$Organ=="leaf") #- find the indexes of the leaf measurements
-stems <- which(Rdat3$Organ=="stem") #- find the indexes of the stem measurements
-roots <- which(Rdat3$Organ=="root") #- find the indexes of the root measurements
-
-#- sort out the samples where the measured root mass was not different than the root total mass
-rootstofix <- which(is.na(Rdat3$Rootmass_sub)==T & is.na(Rdat3$Rootmass)==F)
-Rdat3$Rootmass_sub[rootstofix] <- Rdat3$Rootmass[rootstofix]  
-
-Rdat3$Rmass[leaves] <- Rdat3$Photo[leaves]*-1*Rdat3$Leafarea_sub[leaves]/10000/Rdat3$Leafmass_sub[leaves]*1000*1000 # nmol CO2 g-1 s-1
-Rdat3$Rmass[stems] <- Rdat3$Photo[stems]*-1*Rdat3$Area[stems]/10000/Rdat3$Stemmass[stems]*1000*1000 # nmol CO2 g-1 s-1
-Rdat3$Rmass[roots] <- Rdat3$Photo[roots]*-1*Rdat3$Area[roots]/10000/Rdat3$Rootmass_sub[roots]*1000*1000 # nmol CO2 g-1 s-1
-
-#------------------------------------------------------------------------------------------------
-
-
-#------------------------------------------------------------------------------------------------
-#- merge in the size data (just to get things like room numbers and drought treatments, etc)
-size <- getSize()
-size <- size[,c("Code","Room","Prov","W_treatment","location")]
-size <- unique(size)
-
-#- merge in room temperature key
-key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
-size2 <- merge(size,key)
-Rdat <- merge(Rdat3,size2,by=c("Code","W_treatment"))
-Rdat$Date <- as.Date(as.character(Rdat$Date),format="%Y%m%d")
-Rdat$Rarea <- -1*Rdat$Photo
-
-#- predict respiration at growth temperature
-Rdat$Rmass_insitu <- with(Rdat,Rmass*2^((Tair-25)/10))
-Rdat$Rarea_insitu <- with(Rdat,Rarea*2^((Tair-25)/10))
+#- get the data
+Rdat <- returnRcomponents()
 
 #- average across provenances in each room
 Rdat.m <- summaryBy(Rarea+Rmass+Rmass_insitu+Rarea_insitu~Room+Tair+Prov+W_treatment+Organ+location,data=Rdat,FUN=c(mean,standard.error),na.rm=T)
