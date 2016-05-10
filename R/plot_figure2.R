@@ -5,10 +5,6 @@
 #-----------------------------------------------------------------------------------------
 
 
-#- load the packages and custom functions that do all the work
-source("R/loadLibraries.R")
-
-
 
 
 
@@ -116,7 +112,7 @@ plotBy(totdm.mean~Tair.mean|location,data=dat3,add=T,pch=16,cex=2,legend=F,col=C
 
 #- gussy up the graph
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
-title(xlab=expression(Mean~T[air]~(degree*C)),cex.lab=3,line=4)
+title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=3,line=4)
 legend("topright",letters[1],bty="n",cex=2)
 
 

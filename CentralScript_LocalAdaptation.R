@@ -1,8 +1,8 @@
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
 #- Central analysis script for the GREAT local adaptation manuscript.
-#  The idea is to keep this script nice and tidy, but reproducibly make all of the 
-#  figures for the manuscript.
+#  The idea is to keep this script nice and tidy, but reproducibly do all the
+#  analysis and make all of the figures for the manuscript.
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
 
