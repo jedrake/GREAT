@@ -122,8 +122,8 @@ dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AvTshorttermfits_ma
 #- pull out the predictions and confidence intervals for plotting
 highQ <- data.frame(do.call(rbind,
                             list(AvTfits.list.st[[1]][[2]],AvTfits.list.st[[2]][[2]],AvTfits.list.st[[3]][[2]])))
-highQ$Prov <- c(rep("A",nrow(highQ)/3),rep("B",nrow(highQ)/3),rep("C",nrow(highQ)/3))
-highQ$location <- c(rep("Cold-edge",nrow(highQ)/3),rep("Warm-edge",nrow(highQ)/3),rep("Central",nrow(highQ)/3))
+highQ$Prov <- c(rep("A",nrow(highQ)/3),rep("C",nrow(highQ)/3),rep("B",nrow(highQ)/3))
+highQ$location <- c(rep("Cold-edge",nrow(highQ)/3),rep("Central",nrow(highQ)/3),rep("Warm-edge",nrow(highQ)/3))
 highQ$location <- factor(highQ$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
 
@@ -176,8 +176,9 @@ bs <- subset(highQ,Prov=="B")
 cs <- subset(highQ,Prov=="C")
 
 polygon(x = c(as$Tleaf, rev(as$Tleaf)), y = c(as$Sim.97.5, rev(as$Sim.2.5)), col = alpha(COL[1],0.5), border = NA)
-polygon(x = c(bs$Tleaf, rev(bs$Tleaf)), y = c(bs$Sim.97.5, rev(bs$Sim.2.5)), col = alpha(COL[2],0.5), border = NA)
-polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5, rev(cs$Sim.2.5)), col = alpha(COL[3],0.5), border = NA)
+polygon(x = c(bs$Tleaf, rev(bs$Tleaf)), y = c(bs$Sim.97.5, rev(bs$Sim.2.5)), col = alpha(COL[3],0.5), border = NA)
+polygon(x = c(cs$Tleaf, rev(cs$Tleaf)), y = c(cs$Sim.97.5, rev(cs$Sim.2.5)), col = alpha(COL[2],0.5), border = NA)
+
 legend("bottomright",levels(highQ$location),fill=COL,cex=1,title="Provenance")
 legend("bottomleft","PPFD = 1500",bty="n")
 legend("topright",letters[1],bty="n")
