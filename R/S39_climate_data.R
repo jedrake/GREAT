@@ -92,8 +92,14 @@ dat.fast.hr$room <- factor(dat.fast.hr$room)
 dat.fast.hr <- dat.fast.hr[!(dat.fast.hr$Date %in% c(as.Date("2016-1-20"),as.Date("2016-1-21"))),] #- remove dates of rotation
 dat.fast.hr <- dat.fast.hr[with(dat.fast.hr,order(DateTime_hr,room)),]
 
-
+dat.fast2 <- merge(dat.fast,lookup,by=c("Date","bay"))
+dat.fast2 <- dat.fast2[,c("Date","DateTime","bay","room","Tair_Avg","RH_Avg","PAR_Avg","VPD_Avg")]
+names(dat.fast2) <- c("Date","DateTime","Bay","Room","Tair","RH","PAR","VPD")
+write.csv(dat.fast2,file="output/GHS39_GREAT_MAIN_MET-AIR_20160107-20160302_L1.csv")
 #-----------------------------------------------------------------------------------------
+
+
+
 
 
 #-----------------------------------------------------------------------------------------
@@ -324,3 +330,37 @@ axis.Date(side=1,at=seq.Date(from=min(dat.vwc.d2$Date),to=max(dat.vwc.d2$Date),b
 
 
 
+
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- merge the TDR data from teh logger with a record of which probe was placed in each pot
+key <- read.csv("data/GHS39_GREAT_MAIN_SOIL_TDR-record_L2.csv")
+key$id <- as.numeric(key$Port)
+key$Date <- as.Date(key$Date)
+
+dat.vwc$W_treatment <- factor(ifelse(dat.vwc$Water_treatment=="wet","w","d"),levels=c("w","d"))
+
+#- fix up the first six dates (prior to room rotation)
+key1 <- subset(key,Date<as.Date("2016-01-21"))
+dat.vwc1 <- subset(dat.vwc,Date<as.Date("2016-01-21"))
+
+dat1 <- merge(dat.vwc1,key1[,c("Chamber","Code","W_treatment","id")],by.x=c("bay","id","W_treatment"),by.y=c("Chamber","id","W_treatment"))
+
+
+
+#- fix up the rest of the dates (after room rotation)
+key2 <- subset(key,Date>=as.Date("2016-01-21"))
+dat.vwc2 <- subset(dat.vwc,Date>=as.Date("2016-01-21"))
+
+dat2 <- merge(dat.vwc2,key2[,c("Chamber","Code","W_treatment","id")],by.x=c("bay","id","W_treatment"),by.y=c("Chamber","id","W_treatment"))
+
+# put the data back together
+dat3 <- rbind(dat1,dat2)
+dat4 <- dat3[,c("Date","DateTime","W_treatment","Code","room","bay","VWC")]
+names(dat4) <- c("Date","DateTime","W_treatment","Code","Room","Bay","VWC")
+write.csv(dat4,file="output/GHS39_GREAT_MET-VWC_20160114-20160302_L0.csv",row.names=F)
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------

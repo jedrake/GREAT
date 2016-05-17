@@ -8,12 +8,12 @@
 
 #-----------------------------------------------------------------------------------------
 #- function to read and return the most recent size measurements of height and diameter
-getSize <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getSize <- function(path="data"){
   
   #- work out the path
   
   #- find the most recent file
-  files <-  list.files(paste(path,"/Share/Data/Height&Diam",sep=""),pattern="HEIGHTDIAMETER",full.names=T)
+  files <-  list.files(paste(path,"",sep=""),pattern="HEIGHTDIAMETER",full.names=T)
   files2 <- files[grep("20160108-20160229_L2.csv",files)] # only get the level 2 .csv file
   #files2 <- files2[nchar(files2)==109]# only get files with a filename of 109 characters (ignores the eary file)
   
@@ -159,14 +159,14 @@ getSLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
 #-----------------------------------------------------------------------------------------
 #- function to read and process the Asat and AQ datasets
-getAQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getAQ <- function(path="data"){
   
   #- read in the first set of measurements
-  aq1 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GHS39_GREAT_MAIN_GX-AQ_20160202-20160203_L2.csv",sep=""))
+  aq1 <-read.csv(paste(path,"GHS39_GREAT_MAIN_GX-AQ_20160202-20160203_L2.csv",sep="/"))
   aq1$campaign = 1
   
   #- read in the second set (prov B only!)
-  aq2 <-read.csv(paste(path,"/Share/Data/GasEx/AQ/GHS39_GREAT_MAIN_GX-AQ_20160225-20160226_L2.csv",sep=""))
+  aq2 <-read.csv(paste(path,"GHS39_GREAT_MAIN_GX-AQ_20160225-20160226_L2.csv",sep="/"))
   aq2$campaign = 2
 
   aq <- rbind(aq1,aq2)
@@ -280,9 +280,9 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the temperature response curves of respiration
-getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getRvT <- function(path="data"){
   
-  rvt <-read.csv(paste(path,"/Share/Data/GasEx/Rdark/GHS39_GREAT_MAIN_GX-RDARK_20160211_L2.csv",sep=""))
+  rvt <-read.csv(paste(path,"GHS39_GREAT_MAIN_GX-RDARK_20160211_L3.csv",sep="/"))
   #rvt$prov <- as.factor(substr(rvt$pot,start=1,stop=1))
   #rvt$room <- as.factor(rvt$room)
   rvt$prov_trt <- as.factor(paste(rvt$Prov,rvt$Room,sep="-"))
@@ -302,11 +302,12 @@ getRvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   xtabs(~Code,data=rvt2)
   
   #- merge in the leaf mass data
-  leaf1 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160211_L1.xlsx",sep=""))
-  leaf2 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160229_L1.xlsx",sep=""))
+  leaf1 <- read.csv(file=paste(path,"GHS39_GREAT_MAIN_GX-LEAVES_20160211_L2.csv",sep="/"))
+  leaf2 <- read.csv(file=paste(path,"GHS39_GREAT_MAIN_GX-LEAVES_20160229_L2.csv",sep="/"))
+  leaf1$Comment <- NULL
   leaf <- rbind(leaf1,leaf2)
-  leaf$Code <- as.factor(leaf$Pot)
-  leaf$comment <- NULL
+  #leaf$Code <- as.factor(leaf$Pot)
+  #leaf$comment <- NULL
   leaf <- leaf[,c("Code","Leafarea","Leafmass")]
   
   rvt3 <- merge(rvt2,leaf,by=("Code"))
@@ -480,10 +481,10 @@ fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=51,start=list(Rref=2,To
 
 #-----------------------------------------------------------------------------------------
 #- function to return the harvest data as a dataframe
-getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getHarvest <- function(path="data"){
 
     #- read in the raw data
-  files <-  list.files(paste(path,"/Share/Data/Harvests/",sep=""),pattern="GHS39_GREAT_MAIN_BIOMASS",full.names=T)
+  files <-  list.files(paste(path,"",sep=""),pattern="GHS39_GREAT_MAIN_BIOMASS",full.names=T)
   files2 <- files[grep(".csv",files)] # only get the .csv files
   files3 <- files2[grep("L2",files2)] # only get the level 2 files
   
@@ -499,7 +500,7 @@ getHarvest <- function(path="W://WORKING_DATA/GHS39/GREAT"){
     if(i==1) dat.i[[i]]$W_treatment <- "w"
     
     dat.i[[i]] <- dat.i[[i]][,c("Prov","Pot","W_treatment","Code","Height","D1","D2","Leafarea","Leafno","Leafmass","Stemmass","Rootmass")]
-    dates[i] <- as.numeric(substr(files4[i],start=75,stop=82)) # extract the date from the file name
+    dates[i] <- as.numeric(substr(files4[i],start=31,stop=38)) # extract the date from the file name
     dat.i[[i]]$Date <- base::as.Date(as.character(dates[i]),format="%Y%m%d")
     
     
@@ -829,6 +830,12 @@ plotAussie <- function(export=F){
   
   #- ala data?
   Eute.all <- read.csv("./data/Eute spatial and climate.csv")
+  
+  #- remove mediana subspecies?
+  #medianas <- grep("mediana",Eute.all$Subspecies...matched)
+  #Eute.all1.5 <- Eute.all[-medianas,]
+ 
+  
   Eute.all2 <- data.frame(Eute.all$Latitude...processed,Eute.all$Longitude...processed)
   names(Eute.all2) <- c("lat","long")
   Eute.all2 <- subset(Eute.all2,long>139&lat< -10.5)

@@ -14,6 +14,13 @@ source("R/loadLibraries.R")
 #-------------------------------------------------------------------------------------
 
 
+#-------------------------------------------------------------------------------------
+#- download all of the required data from HIEv.
+setToken(tokenfile="HIEv_token.txt") #- set HIEv token. See ?setToken
+source("R/downloadData.R")
+#-------------------------------------------------------------------------------------
+
+
 
 #-------------------------------------------------------------------------------------
 #- Make figure 1. A simple conceptual model figure (one curve or different curves)
