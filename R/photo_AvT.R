@@ -98,7 +98,7 @@ barplot2(height=AvTfits$theta,names.arg=c("A","B","C"),plot.ci=T,ylim=c(0,25),la
          ylab=expression(Omega~(degree*C)),
          ci.l=AvTfits$theta-AvTfits$theta.se,ci.u=AvTfits$theta+AvTfits$theta.se)
 title(xlab="Provenance",outer=T,cex.lab=2,adj=0.6)
-dev.copy2pdf(file="W://WORKING_DATA/GHS39/GREAT/Share/Output/AvTshorttermfits.pdf")
+dev.copy2pdf(file="output/AvTshorttermfits.pdf")
 
 
 #- pull out the predictions and confidence intervals for plotting

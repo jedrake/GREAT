@@ -25,7 +25,7 @@ getSize <- function(path="data"){
   #- read data, plot size over time
   hddata <- read.csv(files2)
   hddata$prov_trt <- as.factor(paste(hddata$Prov,hddata$Room,sep="-"))
-  hddata$Date <- as.Date(hddata$Date)
+  hddata$Date <- as.Date(hddata$Date,format="%d/%m/%Y")
   
   
   #- Bd-78 was mistakenly recorded on 2016-01-28 
@@ -59,12 +59,12 @@ getSize <- function(path="data"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf number and leaf size datasets
-getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getLA <- function(path="data"){
   
-  la <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160128_L2.csv",sep=""))
+  la <-read.csv(paste(path,"GHS39_GREAT_MAIN_LEAFAREA_20160128_L2_V1.csv",sep="/"))
   la$Date <- as.Date("2016-1-28")
   
-  la2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_20160209_L2.csv",sep=""))
+  la2 <-read.csv(paste(path,"GHS39_GREAT_MAIN_LEAFAREA_20160209_L2_V1.csv",sep="/"))
   la2$Date <- as.Date("2016-2-09")
   
   la <- rbind(la,la2)
@@ -84,11 +84,11 @@ getLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf punch datasets
-getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
-  dat1 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_PUNCHES_20160129_L2.csv",sep=""))
+getPunches <- function(path="data"){
+  dat1 <-read.csv(paste(path,"GHS39_GREAT_MAIN_LEAFAREA-PUNCHES_20160129_L2.csv",sep="/"))
   dat1$Date <- as.Date("2016-1-29")
   
-  dat2 <-read.csv(paste(path,"/Share/Data/leafarea/GHS39_GREAT_MAIN_LEAFAREA_PUNCHES_20160209_L2.csv",sep=""))
+  dat2 <-read.csv(paste(path,"GHS39_GREAT_MAIN_LEAFAREA-PUNCHES_20160209_L2.csv",sep="/"))
   dat2$Date <- as.Date("2016-2-9")
   
   dat <- rbind(dat1,dat2)
@@ -115,32 +115,34 @@ getPunches <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 #  (2) gas exchange leaves harvested on 2016-2-11 and 2016-2-29,
 #  (3) whole-crown average SLA obtained by harvesting (total leaf area / total leaf mass)
 #  Returns a list of these three elements
-getSLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getSLA <- function(path="data"){
   
   #- get the punches
   punches <- getPunches()
   
   #---
   #- get the gas exchange leaves
-  leaf1 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160211_L1.xlsx",sep=""))
-  leaf2 <- read_excel(path=paste(path,"/Share/Data/GasEx/GHS39_GREAT_MAIN_BIOMASS_Gx-leaves_20160229_L1.xlsx",sep=""))
+  #- merge in the leaf mass data
+  leaf1 <- read.csv(file=paste(path,"GHS39_GREAT_MAIN_GX-LEAVES_20160211_L2.csv",sep="/"))
+  leaf2 <- read.csv(file=paste(path,"GHS39_GREAT_MAIN_GX-LEAVES_20160229_L2.csv",sep="/"))
+  leaf1$Comment <- NULL
   leaf <- rbind(leaf1,leaf2)
-  leaf$SLA <- with(leaf,LA_cm2/(mass_g))         # in cm2 g-1
-  leaf$LMA <- with(leaf,(mass_g)/(LA_cm2/10000)) # in g m-2
-  leaf$comment <- NULL
-  names(leaf)[2] <- tolower(names(leaf)[2])
   
-  #- merge in a "key" from the punches dataset 
-  key <- subset(punches,Date==as.Date("2016-01-29"))[,c("room","prov2","pot","Water_trt")]
-  potnumber <- unlist(strsplit(as.character(key$pot),split="-"))[2*(1:length(strsplit(as.character(key$pot),split="-")))  ]
-  potnumber2 <- sprintf("%02d",as.numeric(potnumber))
-  key$Pot <- key$pot
-  key$pot <- paste(key$prov2,potnumber2,sep="-")
+  leaf$SLA <- with(leaf,Leafarea/(Leafmass))         # in cm2 g-1
+  leaf$LMA <- with(leaf,(Leafmass)/(Leafarea/10000)) # in g m-2
+  #names(leaf)[2] <- tolower(names(leaf)[2])
   
-  leaf3 <- merge(leaf,key,by=("pot"))
-  leaf3$prov2 <- leaf3$Pot <- NULL
-  leaf3$Prov <- as.factor(substr(as.character(leaf3$Prov),start=1,stop=1))
-  names(leaf3)[2] <- tolower(names(leaf3)[2])
+  # #- merge in a "key" from the punches dataset 
+  # key <- subset(punches,Date==as.Date("2016-01-29"))[,c("Room","Prov","Code","W_treatment")]
+  # potnumber <- unlist(strsplit(as.character(key$pot),split="-"))[2*(1:length(strsplit(as.character(key$pot),split="-")))  ]
+  # potnumber2 <- sprintf("%02d",as.numeric(potnumber))
+  # key$Pot <- key$pot
+  # key$pot <- paste(key$prov2,potnumber2,sep="-")
+  # 
+  # leaf3 <- merge(leaf,key,by=("pot"))
+  # leaf3$prov2 <- leaf3$Pot <- NULL
+  # leaf3$Prov <- as.factor(substr(as.character(leaf3$Prov),start=1,stop=1))
+  # names(leaf3)[2] <- tolower(names(leaf3)[2])
   #---
   
   
@@ -149,8 +151,8 @@ getSLA <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   harvest$SLA <- with(harvest,leafarea/leafdm)           # in cm2 g-1
   harvest$LMA <- with(harvest,leafdm/(leafarea/10000))   # in g m-2
   harvest <- subset(harvest,Date != as.Date("2016-01-07")) # exclude the pre-planting harvest (SLA and LMA very different!)
-  harvest2 <- merge(harvest,key,by="Pot")
-  return(list(punches,leaf3,harvest2)) # return a list of the three kinds of SLA measurements
+  #harvest2 <- merge(harvest,key,by="Pot")
+  return(list(punches,leaf,harvest)) # return a list of the three kinds of SLA measurements
 }
 #-----------------------------------------------------------------------------------------
 
@@ -213,7 +215,7 @@ getAQ <- function(path="data"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read the soil moisture data
-getVWC_AQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getVWC_AQ <- function(path="data"){
   
   #- read in the data
   vwc <- read.csv(paste(path,"/Share/Data/GHS39_GREAT_MAIN_SOILVWC_hydrosense_L1.csv",sep=""))
@@ -245,9 +247,9 @@ getVWC_AQ <- function(path="W://WORKING_DATA/GHS39/GREAT"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the temperature response curves of photosynthesis
-getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+getAvT <- function(path="data"){
   
-  avt <-read.csv(paste(path,"/Share/Data/GasEx/AvT/GHS39_GREAT_MAIN_GX-AVT_20160205_L2.csv",sep=""))
+  avt <-read.csv(paste(path,"GHS39_GREAT_MAIN_GX-AVT_20160205_L2.csv",sep="/"))
   avt$Room <- as.factor(avt$Room)
   avt$prov_trt <- as.factor(paste(avt$Prov,avt$Room,sep="-"))
   
@@ -267,7 +269,7 @@ getAvT <- function(path="W://WORKING_DATA/GHS39/GREAT"){
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
   avt2 <- merge(avt,key2,by="Prov")
   
-  avt3 <- summaryBy(.~Room+Code+Unit+Prov+prov_trt+W_treatment+LightFac+TleafFac,data=avt2,FUN=mean,keep.names=T)
+  #avt3 <- summaryBy(.~Room+Code+Unit+Prov+prov_trt+W_treatment+LightFac+TleafFac,data=avt2,FUN=mean,keep.names=T)
   return(avt2)
 }
 #-----------------------------------------------------------------------------------------
@@ -632,13 +634,17 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
 #- function to caculate and return growth metrics. Returns a list of two dataframes:
 #     [1] RGR and AGR caculated for all available data.
 #     [2] RGT and AGR merged with canopy leaf area and SLA for the intensive growth interval only
-returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
+returnRGR <- function(path="data",plotson=F){
   
   #-----------------------------------------------------------------------------------------
   #- get the size data, estimate mass
   
-  hddata <- getSize(path=path) # specify path to "GREAT" share folder on HIE-Data2. Defaults to W://WORKING_DATA/GHS39/GREAT
+  hddata <- getSize(path=path) 
   hddata$totmass <- returnMassFromAllom(d2hdat=hddata$d2h,plotson=plotson,droughtdat = F) #- predict mass from d2h allometry
+  hddata <- hddata[with(hddata,order(W_treatment,Code,Date)),]
+  hddata <- hddata[complete.cases(hddata),]                  # remove missing data
+  hddata <- subset(hddata,W_treatment=="w")                  # remove drought data
+  hddata$Code <- factor(hddata$Code)
   #-----------------------------------------------------------------------------------------
   
   
@@ -649,6 +655,7 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   
   hddata.l <- split(hddata,hddata$Code)
   for(i in 1:length(hddata.l)){
+    #print(i)
     crap <- hddata.l[[i]]
     hddata.l[[i]]$RGR <- c(NA,diff(log(hddata.l[[i]]$totmass)))/c(NA,diff(hddata.l[[i]]$Date)) # g g-1 day-1
     hddata.l[[i]]$AGR <- c(NA,diff(hddata.l[[i]]$totmass))/c(NA,diff(hddata.l[[i]]$Date))      # g day-1
@@ -761,16 +768,16 @@ returnRGR <- function(path="W://WORKING_DATA/GHS39/GREAT",plotson=F){
   
   #- work out the air temperature and new provenance keys
   key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
-  hddata3 <- merge(hddata2,key,by="Room")
+  #hddata3 <- merge(hddata2,key,by="Room")
   rgrdat2 <- merge(rgrdat,key,by=c("Room","Tair"))
   
   
   
   key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
                                                                    levels=c("Cold-edge","Central","Warm-edge")))
-  hddata4 <- merge(hddata3,key2,by=c("Prov","location"))
+ # hddata4 <- merge(hddata3,key2,by=c("Prov","location"))
   
-  return(list(hddata4,rgrdat2))
+  return(list(hddata2,rgrdat2))
 
 
   
@@ -956,13 +963,15 @@ checkLeafAreaEst <- function(){
 #- Function to return the respiratory component measurements,
 #  made during the destructive harvests near the end of the experiment
 #-------------------------------------------------------------------------------------
-returnRcomponents <- function(path="W://WORKING_DATA/GHS39/GREAT"){
+returnRcomponents <- function(path="data"){
   #- read in the respiration data
-  path <- "W://WORKING_DATA/GHS39/GREAT"
-  Rdat1 <- read.csv(paste(path,"/Share/Data/GasEx/R/GHS39_GREAT_MAIN_GX-R_20160217-20160224_L2.csv",sep=""))
+  #path <- "W://WORKING_DATA/GHS39/GREAT"
+  Rdat1 <- read.csv(paste(path,"GHS39_GREAT_MAIN_GX-R_20160217-20160224_L2.csv",sep="/"))
   
   #- average over subreplicate logs
-  Rdat2 <- summaryBy(dCO2+Photo+Cond+Ci+Trmmol+VpdL+Area~Date+Organ+Code+Unit+W_treatment,data=Rdat1,FUN=mean,keep.names=T)
+  Rdat2 <- summaryBy(dCO2+Photo+Cond+Ci+Trmmol+VpdL+Area~Date+Organ+Code+Pot+Prov+Unit+W_treatment,data=Rdat1,FUN=mean,keep.names=T)
+  Rdat2$Date <- as.Date(Rdat2$Date,format="%Y-%m-%d")
+  Rdat2$Code <- paste(Rdat2$Prov,sprintf("%02d",Rdat2$Pot),sep="-")
   
   # #- reformat the "Pot" variable. E.g, change "A-01" to "A-1" to match the size datasets.
   # crap <- unlist(strsplit(as.character(Rdat2$Pot), "-"))
@@ -973,14 +982,14 @@ returnRcomponents <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   
   #----------
   #- merge in the harvest mass data, to calculate mass-specific respiration rates
-  finalHarvest <- read.csv(paste(path,"/Share/Data/Harvests/GHS39_GREAT_MAIN_BIOMASS_20160217-20160224_L2.csv",sep=""))
-  finalHarvest <- finalHarvest[,c("Code","Leafarea","Leafarea_sub","Leafmass","Leafmass_sub","Stemmass","Rootmass","Rootmass_sub")]
+  finalHarvest <- read.csv(paste(path,"GHS39_GREAT_MAIN_BIOMASS_20160217-20160224_L2.csv",sep="/"))
+  finalHarvest <- finalHarvest[,c("Code","W_treatment","Leafarea","Leafarea_sub","Leafmass","Leafmass_sub","Stemmass","Rootmass","Rootmass_sub")]
   finalHarvest$totalRoot <- rowSums(finalHarvest[,c("Rootmass","Rootmass_sub")],na.rm=T)
   finalHarvest$leafdm <- rowSums(finalHarvest[,c("Leafmass","Leafmass_sub")],na.rm=T)
   
   #names(finalHarvest)[2] <- "leafArea"
   
-  Rdat3 <- merge(Rdat2,finalHarvest,by.x=c("Code"),by.y=c("Code"))
+  Rdat3 <- merge(Rdat2,finalHarvest,by=c("Code","W_treatment"))
   
   #- calculate mass-based respiration rates
   Rdat3$Rmass <- NA
@@ -1009,7 +1018,6 @@ returnRcomponents <- function(path="W://WORKING_DATA/GHS39/GREAT"){
   key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
   size2 <- merge(size,key)
   Rdat <- merge(Rdat3,size2,by=c("Code","W_treatment"))
-  Rdat$Date <- as.Date(as.character(Rdat$Date),format="%Y%m%d")
   Rdat$Rarea <- -1*Rdat$Photo
   
   #- predict respiration at growth temperature

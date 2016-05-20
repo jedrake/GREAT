@@ -2,8 +2,8 @@
 # devtools::install_bitbucket("remkoduursma/plotby")
 library(plotBy)
 
-#r <- require(HIEv)
-#if(!r)stop("Install the HIEv R package from bitbucket.org/remkoduursma/hiev")
+r <- require(HIEv)
+if(!r)stop("Install the HIEv R package from bitbucket.org/remkoduursma/hiev")
 
 
 

@@ -27,7 +27,7 @@ dat.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
 
 #-----------------------------------------------------------------------------------------
 #- fit AGR and RGR v T to estimate Topts
-tofit <- subset(dat,W_treatment=="w")
+tofit <- subset(dat,W_treatment=="w") # not needed, as this is done in returnRGR() now.
 tofit.l <- split(tofit,tofit$location)
 
 #- fit AGR and RGR T response curves
