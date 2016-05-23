@@ -15,77 +15,10 @@ avt <- merge(avt,leaf,by=c("Code","Prov","W_treatment"))
 avt$Photo_m <- avt$Photo*1000/10000*(avt$Leafarea/avt$Leafmass)
 
 
-# #-------------------------------------------------------
-# #- Plot RAW data
-# 
-# #- plot each light level's temperature response
-# palette(rev(brewer.pal(6,"Spectral")))
-# COL=palette()[c(1,2,6)]
-# 
-# windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
-# avt.l <- split(avt,avt$LightFac)
-# ylims <- list(c(0,150),c(0,800))
-# for(i in 1:length(avt.l)){
-#  toplot <- avt.l[[i]]
-#  plotBy(Photo_m~Tleaf|location,data=subset(toplot,W_treatment=="w"),las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
-#         axes=F,col=COL)
-#  legend("topright",paste("PAR = ",round(mean(toplot$PARi),0)),bty="n")
-#  magaxis(side=1:4,labels=c(0,1,0,1),las=1)
-#  abline(h=0,lty=2)
-# 
-# }
-# magaxis(side=1,labels=c(1),las=1)
-# title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
-# title(ylab=expression(Photo~(mmol~g^-1~s^-1)),outer=T,cex.lab=2)
-# legend("bottomleft",levels(avt$location),col=COL[1:3],pch=16,ncol=3,bg="white")
-# #-------------------------------------------------------
-# 
-# 
-# 
-# 
-# 
-# 
-#  #-------------------------------------------------------
-# #- plot TREATMENT MEANS
-# 
-# avt.m <- summaryBy(Photo_m+Cond+Tleaf+PARi~TleafFac+LightFac+Prov+location,data=avt,FUN=c(mean,standard.error))
-# 
-# #- plot each light level's temperature response
-# windows(30,40);par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,7,1,2))
-# avt.m.l <- split(avt.m,avt.m$LightFac)
-# ylims <- list(c(0,150),c(100,800))
-# for(i in 1:length(avt.l)){
-#  toplot <- avt.m.l[[i]]
-#  plotBy(Photo_m.mean~Tleaf.mean|location,data=toplot,las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
-#         axes=F,col=COL)
-#  legend("topright",paste("PAR = ",round(mean(toplot$PARi.mean),0)),bty="n")
-#  magaxis(side=1:4,labels=c(0,1,0,1),las=1)
-#  adderrorbars(x=toplot$Tleaf.mean,y=toplot$Photo_m.mean,SE=toplot$Photo_m.standard.error,direction="updown")
-#  adderrorbars(x=toplot$Tleaf.mean,y=toplot$Photo_m.mean,SE=toplot$Tleaf.standard.error,direction="leftright")
-#  plotBy(Photo_m.mean~Tleaf.mean|location,data=toplot,las=1,xlim=c(15,45),ylim=ylims[[i]],legend=F,pch=16,
-#         axes=F,add=T,col=COL,cex=2)
-# }
-# magaxis(side=1,labels=c(1),las=1)
-# title(xlab=expression(T[leaf]~(degree*C)),outer=T,cex.lab=2)
-# title(ylab=expression(Photo~(mmol~g^-1~s^-1)),outer=T,cex.lab=2)
-# legend("bottomleft",levels(avt$location),col=COL[1:3],pch=16,ncol=3,bg="white")
-# #-------------------------------------------------------
-# 
-
-
-#-------------------------------------------------------
-# Did prov A have different stomatal parameters on that day?
-summaryBy(Photo_m+Cond+Ci~Prov,data=subset(avt,LightFac==4),FUN=c(mean,sd))
-#-------------------------------------------------------
-
-
-
-
 
 #-------------------------------------------------------
 #-------------------------------------------------------
-#- fit AvT to estimate Topts again, for the DIRECT 
-#   short term fits only!
+#- fit AvT to estimate Topts at high light only
 tofit <- subset(avt, LightFac==4)
 tofit.l <- split(tofit,tofit$location)
 
