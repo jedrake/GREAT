@@ -1026,3 +1026,67 @@ returnRcomponents <- function(path="data"){
   return(Rdat)
 }
 #------------------------------------------------------------------------------------------------
+
+
+
+#------------------------------------------------------------------------------------------------
+#- function to make a plot of average leaf size and total leaf number as a function of temperature
+#------------------------------------------------------------------------------------------------
+plot_leaf_area <- function(output=T){
+  #- make a plot of the leaf
+  palette(rev(brewer.pal(6,"Spectral")))
+  COL=palette()[c(1,2,6)]
+  
+  #- process the total plant leaf area data
+  la.raw <- getLA()
+  
+  #- work out the air temperature and new provenance keys
+  key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
+  key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+                                                                   levels=c("Cold-edge","Central","Warm-edge")))
+  la1 <- merge(la.raw,key,by="Room")
+  la <- merge(la1,key2,by="Prov")
+  
+  #- calculate total plant leaf area. This method uses a different average leaf size for each plant
+  la$canopy <- with(la,Leafno*Leafarea)
+  
+  
+  #----------------------------------------------------------------------------------------------------
+  #- calculate the average size of "large" leaves, along with the total number of leaves
+  leaf_size <- summaryBy(Leafarea+Leafno+Tair~Room+location,data=subset(la,Leafsize=="large" & Date==as.Date("2016-01-28")),
+                         FUN=c(mean,standard.error),keep.names=F,na.rm=T)
+  
+  leaf_no <- summaryBy(Leafno~Room+location+Tair+Date+Code,data=subset(la,W_treatment=="w"),
+                       FUN=c(sum),keep.names=T,na.rm=T)
+  leaf_no2 <- summaryBy(Leafno+Tair~Room+location,data=subset(leaf_no,Date==as.Date("2016-01-28")),
+                        FUN=c(mean,standard.error),keep.names=F,na.rm=T)
+  #----------------------------------------------------------------------------------------------------
+  
+  
+  #----------------------------------------------------------------------------------------------------
+  #- plot
+  windows(40,50);par(mfrow=c(2,1),cex.lab=1.7,mar=c(1,1,1,1),oma=c(5,6,1,1))
+  #- plot leaf size
+  plotBy(Leafarea.mean~Tair.mean|location,data=leaf_size,pch=16,axes=F,xlab="",ylab="",legend=F,
+         ylim=c(0,50),xlim=c(15,40),cex=1.5,col=COL,
+         panel.first=adderrorbars(x=leaf_size$Tair.mean,y=leaf_size$Leafarea.mean,
+                                  SE=leaf_size$Leafarea.standard.error,direction="updown"))
+  magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1)
+  title(ylab=expression(Leaf~size~(cm^2)),xpd=NA)
+  legend("topright",levels(leaf_size$location),fill=COL,cex=0.8,title="Provenance")
+  legend("topleft",legend=letters[1],bty="n")
+  
+  #- plot leaf number
+  plotBy(Leafno.mean~Tair.mean|location,data=leaf_no2,pch=16,axes=F,xlab="",ylab="",legend=F,
+         ylim=c(0,20),xlim=c(15,40),cex=1.5,col=COL,
+         panel.first=adderrorbars(x=leaf_no2$Tair.mean,y=leaf_no2$Leafno.mean,
+                                  SE=leaf_no2$Leafno.standard.error,direction="updown"))
+  magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1)
+  title(ylab=expression(Leaf~number~("#")),xpd=NA)
+  legend("topleft",legend=letters[2],bty="n")
+  title(xlab=expression(Growth~T[air]~(degree*C)),xpd=NA)
+  
+  #----------------------------------------------------------------------------------------------------
+  if(output==T) dev.copy2pdf(file="output/Leaf_area_size.pdf")
+
+}

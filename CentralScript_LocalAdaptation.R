@@ -115,3 +115,11 @@ returnMassFromAllom(d2hdat=25,plotson=T,droughtdat=F)
 #   following the leaf counts and average leaf size measurements)
 checkLeafAreaEst()
 #-------------------------------------------------------------------------------------
+
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make a plot of average leaf area and number at the start of the growth interval
+plot_leaf_area()
+#-------------------------------------------------------------------------------------
