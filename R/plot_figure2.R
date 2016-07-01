@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
-#- This plots temperature response curves for final mass, leaf respiration, and photosynthesis
+#- This plots temperature response curves for final mass and absolute growth rate
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
@@ -32,31 +32,55 @@ MASSvTfits.l <- lapply(massdata.l,FUN=fitJuneT,start=list(Rref=5,Topt=30,theta=5
 
 
 
-
-#--- Asat
-#- get the AQ data (i.e., "long-term" photosynthesis dataset)
-aq <- getAQ()
-
-Asatdata <- subset(aq,campaign==1 & LightFac==4 & W_treatment=="w")
-Asatdata.l <- split(Asatdata,Asatdata$location)
-
-#- fit all the curves
-AvTfits.list <- lapply(Asatdata.l,FUN=fitAvT)
-
-
-
-#----- Respiration
-#- get the RvT data
-rvt <- getRvT()
-
-rvt.l <- split(rvt,rvt$location)
-
-#- fit all the curves
-RvTfits.list.st <- lapply(rvt.l,FUN=fitRvT,namex="Tleaf",namey="Rmass")
-
 #-----------------------------------------------------------------------------------------
+#- get the data, process it for RGR.
+dat.list <- returnRGR(plotson=F)
+agr <- dat.list[[2]]     # RGR and AGR merged with canopy leaf area and SLA for the intensive growth interval only
+agr.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
 #-----------------------------------------------------------------------------------------
 
+
+
+
+#-----------------------------------------------------------------------------------------
+#- fit AGR T to estimate Topts
+tofit <- subset(agr,W_treatment=="w") # not needed, as this is done in returnRGR() now.
+tofit.l <- split(tofit,tofit$location)
+
+#- fit AGR and RGR T response curves
+AGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.5,Topt=30,theta=5),namey="AGR",namex="Tair",lengthPredict=20)
+
+agr2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~Room+Tair+location,FUN=c(mean,standard.error),data=subset(agr,W_treatment=="w"),na.rm=T)
+
+#-----------------------------------------------------------------------------------------
+# 
+# 
+# 
+# 
+# #--- Asat
+# #- get the AQ data (i.e., "long-term" photosynthesis dataset)
+# aq <- getAQ()
+# 
+# Asatdata <- subset(aq,campaign==1 & LightFac==4 & W_treatment=="w")
+# Asatdata.l <- split(Asatdata,Asatdata$location)
+# 
+# #- fit all the curves
+# AvTfits.list <- lapply(Asatdata.l,FUN=fitAvT)
+# 
+# 
+# 
+# #----- Respiration
+# #- get the RvT data
+# rvt <- getRvT()
+# 
+# rvt.l <- split(rvt,rvt$location)
+# 
+# #- fit all the curves
+# RvTfits.list.st <- lapply(rvt.l,FUN=fitRvT,namex="Tleaf",namey="Rmass")
+# 
+# #-----------------------------------------------------------------------------------------
+# #-----------------------------------------------------------------------------------------
+# 
 
 
 
@@ -68,17 +92,19 @@ RvTfits.list.st <- lapply(rvt.l,FUN=fitRvT,namex="Tleaf",namey="Rmass")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- set up the plot
-windows(60,30);par(mar=c(6,8,1,1),mfrow=c(1,3),cex.lab=2,cex.axis=1.2,oma=c(2,0,0,0))
+windows(60,40);par(mar=c(6,8,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(2,0,0,0))
 palette(rev(brewer.pal(6,"Spectral")))
 
 COL=palette()[c(1,2,6)]
-xlims <- c(12,40)
+xlims <- c(15,40)
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
 
 
 
+
+#-----------------------------------------------------------------------------------------
 #-------- Make plots
 
 #---- Final mass
@@ -90,7 +116,7 @@ mass.pred$location <- c(rep("Cold-edge",nrow(mass.pred)/3),rep("Warm-edge",nrow(
 mass.pred$location <- factor(mass.pred$location,levels=c("Cold-edge","Central","Warm-edge"))  
   
 #- plot mass
-plotBy(Sim.Mean~Tleaf|location,data=mass.pred,legend=F,type="l",las=1,ylim=c(0,12),lwd=3,cex.lab=3,xlim=xlims,axes=F,
+plotBy(Sim.Mean~Tleaf|location,data=mass.pred,legend=F,type="l",las=1,ylim=c(0,12),lwd=3,cex.lab=2,xlim=xlims,axes=F,
        ylab=expression(Final~mass~(g)),
        xlab="")
 as.m <- subset(mass.pred,prov=="A")
@@ -100,7 +126,7 @@ cs.m <- subset(mass.pred,prov=="C")
 polygon(x = c(as.m$Tleaf, rev(as.m$Tleaf)), y = c(as.m$Sim.97.5., rev(as.m$Sim.2.5.)), col = alpha(COL[1],0.5), border = NA)
 polygon(x = c(bs.m$Tleaf, rev(bs.m$Tleaf)), y = c(bs.m$Sim.97.5., rev(bs.m$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
 polygon(x = c(cs.m$Tleaf, rev(cs.m$Tleaf)), y = c(cs.m$Sim.97.5., rev(cs.m$Sim.2.5.)), col = alpha(COL[3],0.5), border = NA)
-legend("topleft",levels(mass.pred$location),fill=COL,cex=1.7,title="Provenance")
+legend("topleft",levels(mass.pred$location),fill=COL,cex=1.2,title="Provenance",bty="n")
 
 #- add TREATMENT MEANS for mass
 dat3 <- summaryBy(totdm+Tair~Room+location,FUN=c(mean,standard.error),data=massdata,na.rm=T)
@@ -112,81 +138,41 @@ plotBy(totdm.mean~Tair.mean|location,data=dat3,add=T,pch=16,cex=2,legend=F,col=C
 
 #- gussy up the graph
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
-title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=3,line=4)
-legend("topright",letters[1],bty="n",cex=2)
+title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
+legend("topright",letters[1],bty="n",cex=1.5)
 
 
 
-
-
-#---- Asat
+#---
+#--- plot AGR vs. T (panel b)
 #- pull out the predictions and confidence intervals for plotting
-Asat.pred <- data.frame(do.call(rbind,
-                             list(AvTfits.list[[1]][[2]],AvTfits.list[[2]][[2]],AvTfits.list[[3]][[2]])))
-Asat.pred$prov <- c(rep("A",nrow(Asat.pred)/3),rep("B",nrow(Asat.pred)/3),rep("C",nrow(Asat.pred)/3))
-Asat.pred$location <- c(rep("Cold-edge",nrow(Asat.pred)/3),rep("Warm-edge",nrow(Asat.pred)/3),rep("Central",nrow(Asat.pred)/3))
-Asat.pred$location <- factor(Asat.pred$location,levels=c("Cold-edge","Central","Warm-edge"))  
+AGRplot <- data.frame(do.call(rbind,
+                              list(AGRvTfits.l[[1]][[2]],AGRvTfits.l[[2]][[2]],AGRvTfits.l[[3]][[2]])))
+AGRplot$prov <- c(rep("A",nrow(AGRplot)/3),rep("B",nrow(AGRplot)/3),rep("C",nrow(AGRplot)/3))
+AGRplot$location <- c(rep("Cold-edge",nrow(AGRplot)/3),rep("Warm-edge",nrow(AGRplot)/3),rep("Central",nrow(AGRplot)/3))
+AGRplot$location <- factor(AGRplot$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-plotBy(Sim.Mean~Tleaf|prov,data=Asat.pred,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=3,xlim=xlims,col=COL,
-       ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),axes=F,
+plotBy(Sim.Mean~Tleaf|prov,data=AGRplot,legend=F,type="l",las=1,ylim=c(0,0.5),lwd=3,cex.lab=2,col=COL,xlim=xlims,
+       ylab=expression(AGR~(g~d^-1)),axes=F,
        xlab="")
-as.asat <- subset(Asat.pred,prov=="A")
-bs.asat <- subset(Asat.pred,prov=="B")
-cs.asat <- subset(Asat.pred,prov=="C")
+as.agr <- subset(AGRplot,prov=="A")
+bs.agr <- subset(AGRplot,prov=="B")
+cs.agr <- subset(AGRplot,prov=="C")
 
-polygon(x = c(as.asat$Tleaf, rev(as.asat$Tleaf)), y = c(as.asat$Sim.97.5, rev(as.asat$Sim.2.5)), col = alpha(COL[1],0.5), border = NA)
-polygon(x = c(bs.asat$Tleaf, rev(bs.asat$Tleaf)), y = c(bs.asat$Sim.97.5, rev(bs.asat$Sim.2.5)), col = alpha(COL[2],0.5), border = NA)
-polygon(x = c(cs.asat$Tleaf, rev(cs.asat$Tleaf)), y = c(cs.asat$Sim.97.5, rev(cs.asat$Sim.2.5)), col = alpha(COL[3],0.5), border = NA)
+polygon(x = c(as.agr$Tleaf, rev(as.agr$Tleaf)), y = c(as.agr$Sim.97.5., rev(as.agr$Sim.2.5.)), col = alpha(COL[1],0.5), border = NA)
+polygon(x = c(bs.agr$Tleaf, rev(bs.agr$Tleaf)), y = c(bs.agr$Sim.97.5., rev(bs.agr$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
+polygon(x = c(cs.agr$Tleaf, rev(cs.agr$Tleaf)), y = c(cs.agr$Sim.97.5., rev(cs.agr$Sim.2.5.)), col = alpha(COL[3],0.5), border = NA)
+
 
 #- add TREATMENT MEANS
-aq.m <- summaryBy(Photo+Tleaf+PARi~TleafFac+LightFac+W_treatment+Prov+location,data=subset(aq,campaign==1 & W_treatment=="w"),
-                  FUN=c(mean,standard.error))
-plotmeans <- subset(aq.m,LightFac==4 & W_treatment=="w")
-plotBy(Photo.mean~Tleaf.mean|location,data=plotmeans,add=T,pch=16,cex=2,legend=F,col=COL,
-       panel.first=(adderrorbars(x=plotmeans$Tleaf.mean,y=plotmeans$Photo.mean,
-                                 SE=plotmeans$Photo.standard.error,direction="updown")))
-
-#- gussy up the graph
-magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
-title(xlab=expression(T[leaf]~(degree*C)),cex.lab=3,line=4)
-legend("topright",letters[2],bty="n",cex=2)
-
-
-
-
-
-#----- Respiration
-#- pull out the predictions and confidence intervals for plotting
-r.pred <- data.frame(do.call(rbind,
-                             list(RvTfits.list.st[[1]][[2]],RvTfits.list.st[[2]][[2]],RvTfits.list.st[[3]][[2]])))
-r.pred$prov <- c(rep("A",nrow(r.pred)/3),rep("B",nrow(r.pred)/3),rep("C",nrow(r.pred)/3))
-r.pred$location <- c(rep("Cold-edge",nrow(r.pred)/3),rep("Warm-edge",nrow(r.pred)/3),rep("Central",nrow(r.pred)/3))
-r.pred$location <- factor(r.pred$location,levels=c("Cold-edge","Central","Warm-edge"))  
-
-
-plotBy(Sim.Mean~Tleaf|location,data=r.pred,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=3,xlim=xlims,axes=F,
-       ylab=expression(R[dark]~(nmol~g^-1~s^-1)),col=COL,
-       xlab="")
-as.r <- subset(r.pred,prov=="A")
-bs.r <- subset(r.pred,prov=="B")
-cs.r <- subset(r.pred,prov=="C")
-
-polygon(x = c(as.r$Tleaf, rev(as.r$Tleaf)), y = c(as.r$Sim.97.5, rev(as.r$Sim.2.5)), col = alpha(COL[1],0.5), border = NA)
-polygon(x = c(bs.r$Tleaf, rev(bs.r$Tleaf)), y = c(bs.r$Sim.97.5, rev(bs.r$Sim.2.5)), col = alpha(COL[2],0.5), border = NA)
-polygon(x = c(cs.r$Tleaf, rev(cs.r$Tleaf)), y = c(cs.r$Sim.97.5, rev(cs.r$Sim.2.5)), col = alpha(COL[3],0.5), border = NA)
-
-#- add TREATMENT MEANS
-rvt.m <- summaryBy(Rarea+Rmass+Tleaf~TleafFac+Prov+location,data=rvt,FUN=c(mean,standard.error))
-plotmeans <- rvt.m
-plotBy(Rmass.mean~Tleaf.mean|location,data=plotmeans,add=T,pch=16,cex=2,legend=F,col=COL,
-       panel.first=(adderrorbars(x=plotmeans$Tleaf.mean,y=plotmeans$Rmass.mean,
-                                 SE=plotmeans$Rmass.standard.error,direction="updown")))
-
-#- gussy up the graph
-magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
-title(xlab=expression(T[leaf]~(degree*C)),cex.lab=3,line=4)
-legend("topright",letters[3],bty="n",cex=2)
+plotBy(AGR.mean~Tair|location,data=agr2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,
+       axes=F,xlab="",ylab="",cex=2,col=COL,add=T,
+       panel.first=adderrorbars(x=agr2$Tair,y=agr2$AGR.mean,SE=agr2$AGR.standard.error,direction="updown"))
+magaxis(side=1:4,labels=c(1,1,0,0),las=1,cex.axis=1.4)
+legend("bottomright",levels(dat2$location),fill=COL,cex=1.2,title="Provenance",bty="n")
+legend("topright",letters[2],bty="n",cex=1.5)
+title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
 
 
 #- export the graph
-dev.copy2pdf(file="output/Figure1_growth_Asat_Rdark.pdf")
+dev.copy2pdf(file="output/Figure2-FinalMass_AGR.pdf")
