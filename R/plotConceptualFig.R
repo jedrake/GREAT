@@ -37,6 +37,6 @@ lines(c~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",axes=F)
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.5)
 legend("topright",letters[2],bty="n",cex=1.5)
 
-title(xlab=expression(Temperature~(degree*C)),outer=T,cex.lab=3,line=2)
-title(ylab="Growth (normalized)",outer=T,cex.lab=3,line=1)
+title(xlab=expression(Temperature~(degree*C)),outer=T,cex.lab=2,line=2)
+title(ylab="Growth and physiological traits (normalized)",outer=T,cex.lab=2,line=1)
 dev.copy2pdf(file="output/conceptualfigure.pdf")
