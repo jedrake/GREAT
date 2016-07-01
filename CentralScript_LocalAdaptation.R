@@ -39,27 +39,26 @@ source("R/plot_figure2.R")
 
 #-------------------------------------------------------------------------------------
 #- Make figure 3. Growth analysis of the intensive interval
-# This takes a little while to fit all the temperature response curves
-source("R/growth_analysis_interval.R")
-#-------------------------------------------------------------------------------------
+# Plots RGR, LAR, and NAR versus temperature
+source("R/growth_analysis_interval_figure3.R")
 
-
-
-#-------------------------------------------------------------------------------------
-#- Make figure 4. RGR decomposition of the growth interval
-source("R/plot_RGR_decomposition.R")
 #-------------------------------------------------------------------------------------
 
 
 
 #-------------------------------------------------------------------------------------
-#- Make three dimensional plot of A-Q curves.
-source("R/plot_AQ_3d.R")
-
-#- rotate the rgl plot to your liking, then run the following code.
-#  Import the image into powerpoint and add axis labels etc.
-rgl.snapshot(filename="output/Aq_3d_provenances.png",fmt="png")
+#- Make figure 4. LAR decomposition of the growth interval
+source("R/plot_LAR_decomposition.R")
 #-------------------------------------------------------------------------------------
+
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make figures 5 and 6. The respiration across tissue components measured at the end.
+source("R/R_components_harvest.R")
+#-------------------------------------------------------------------------------------
+
 
 
 
@@ -68,13 +67,6 @@ rgl.snapshot(filename="output/Aq_3d_provenances.png",fmt="png")
 #  This takes a little while to fit all the temperature response curves
 source("R/photo_AvT.R")      # area-based
 source("R/photo_AvT_mass.R") # mass-based (Figure S4)
-#-------------------------------------------------------------------------------------
-
-
-
-#-------------------------------------------------------------------------------------
-#- Make figures 6 and 7. The respiration across tissue components measured at the end.
-source("R/R_components_harvest.R")
 #-------------------------------------------------------------------------------------
 
 
@@ -120,6 +112,20 @@ checkLeafAreaEst()
 
 
 #-------------------------------------------------------------------------------------
-#- Make a plot of average leaf area and number at the start of the growth interval
-plot_leaf_area()
+#- Make a big plot showing the hysteresis in the growth interval for the supplemental.
+# This takes a little while to fit all the temperature response curves
+source("R/growth_analysis_interval.R")
 #-------------------------------------------------------------------------------------
+
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make three dimensional plot of A-Q curves.
+source("R/plot_AQ_3d.R")
+
+#- rotate the rgl plot to your liking, then run the following code.
+#  Import the image into powerpoint and add axis labels etc.
+rgl.snapshot(filename="output/Aq_3d_provenances.png",fmt="png")
+#-------------------------------------------------------------------------------------
+

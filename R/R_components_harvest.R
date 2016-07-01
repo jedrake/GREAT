@@ -21,51 +21,69 @@ Rdat.m <- summaryBy(Rarea+Rmass+Rmass_insitu+Rarea_insitu~Room+Tair+Prov+W_treat
 toplot <- subset(Rdat.m,W_treatment=="w")
 toplot$Room <- as.numeric(toplot$Room)
 
-windows(30,70);par(mfrow=c(4,1),mar=c(2,7,1,0),oma=c(3,1,1,2),cex.lab=2)
+windows(30,60);par(mfrow=c(3,1),mar=c(2,7,1,0),oma=c(3,2,1,2),cex.lab=2)
 palette(rev(brewer.pal(6,"Spectral")))
 COL=palette()[c(1,2,6)]
 
-#- Rarea for leaves
-plotBy(Rarea.mean~Tair|location,data=subset(toplot,Organ=="leaf"),las=1,ylim=c(0,2.5),legend=F,pch=16,cex=2,col=COL,
-       panel.first=adderrorbars(x=subset(toplot,Organ=="leaf")$Tair,
-                                y=subset(toplot,Organ=="leaf")$Rarea.mean,
-                                SE=subset(toplot,Organ=="leaf")$Rarea.standard.error,direction="updown"),
-       axes=F,ylab=expression(atop(Leaf~R[area],
-                                   (mu*mol~CO[2]~m^-2~s^-1))),xlab="Tair",cex.lab=1.5)
-magaxis(side=1:4,labels=c(1,1,0,1),las=1)
-legend("topright",xpd=NA,legend=levels(toplot$location),pch=16,col=COL[1:3],ncol=1,bty="n",cex=1.2)
-legend("bottomleft",letters[1],cex=1.2,bty="n")
+#----
+#- plot Rmass for leaves, smoothplots
+smoothplot(Tair, Rmass, location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
+           polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
+           linecol=c("black","red"),pointcols=NA,
+           cex=1,main="",
+           xlim=c(15,40),ylim=c(0,40),xlab="",ylab="",
+           data=subset(Rdat, Organ == "leaf"), kgam=4,axes=F)
 
-#- Rmass for leaves
-plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="leaf"),las=1,ylim=c(0,40),legend=F,pch=16,cex=2,col=COL,
+#- overlay points
+plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="leaf"),las=1,ylim=c(0,40),legend=F,pch=16,cex=2,col=COL,add=T,
        panel.first=adderrorbars(x=subset(toplot,Organ=="leaf")$Tair,
                                 y=subset(toplot,Organ=="leaf")$Rmass.mean,
                                 SE=subset(toplot,Organ=="leaf")$Rmass.standard.error,direction="updown"),
-       axes=F,ylab=expression(atop(Leaf~R[mass],
-                                   (nmol~CO[2]~g^-1~s^-1))),xlab="Tair",cex.lab=1.5)
+       axes=F,xlab="Tair",cex.lab=2)
+title(ylab=expression(atop(Leaf~R[mass],
+                     (nmol~CO[2]~g^-1~s^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(1,1,0,1),las=1)
-legend("bottomleft",letters[2],cex=1.2,bty="n")
+legend("bottomleft",letters[1],cex=1.2,bty="n")
+legend("topright",levels(Rdat$location),fill=COL,cex=1.2,title="",bty="n")
 
-#- Rmass for stems
-plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="stem"),las=1,ylim=c(0,40),legend=F,pch=16,cex=2,col=COL,
+
+#----
+#- Rmass for stems smoothplots
+smoothplot(Tair, Rmass, location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
+           polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
+           linecol=c("black","red"),pointcols=NA,
+           cex=1,main="",
+           xlim=c(15,40),ylim=c(0,40),xlab="",ylab="",
+           data=subset(Rdat, Organ == "stem"), kgam=4,axes=F)
+#- overlay points
+plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="stem"),las=1,ylim=c(0,40),legend=F,pch=16,cex=2,col=COL,add=T,
        panel.first=adderrorbars(x=subset(toplot,Organ=="stem")$Tair,
                                 y=subset(toplot,Organ=="stem")$Rmass.mean,
                                 SE=subset(toplot,Organ=="stem")$Rmass.standard.error,direction="updown"),
-       axes=F,ylab=expression(atop(Stem~R[mass],
-                                   (nmol~CO[2]~g^-1~s^-1))),xlab="Tair",cex.lab=1.5)
+       axes=F,xlab="Tair",cex.lab=2)
+title(ylab=expression(atop(Stem~R[mass],
+                           (nmol~CO[2]~g^-1~s^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(1,1,0,1),las=1)
-legend("bottomleft",letters[3],cex=1.2,bty="n")
+legend("bottomleft",letters[2],cex=1.2,bty="n")
 
 
 #- Rmass for roots
-plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="root"),las=1,ylim=c(0,40),legend=F,pch=16,cex=2,col=COL,
+smoothplot(Tair, Rmass, location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
+           polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
+           linecol=c("black","red"),pointcols=NA,
+           cex=1,main="",
+           xlim=c(15,40),ylim=c(0,40),xlab="",ylab="",
+           data=subset(Rdat, Organ == "root"), kgam=4,axes=F)
+#- overlay points
+plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="root"),las=1,ylim=c(0,40),legend=F,pch=16,cex=2,col=COL,add=T,
        panel.first=adderrorbars(x=subset(toplot,Organ=="root")$Tair,
                                 y=subset(toplot,Organ=="root")$Rmass.mean,
                                 SE=subset(toplot,Organ=="root")$Rmass.standard.error,direction="updown"),
-       axes=F,ylab=expression(atop(Root~R[mass],
-                                   (nmol~CO[2]~g^-1~s^-1))),xlab="Tair",cex.lab=1.5)
+       axes=F,xlab="Tair",cex.lab=2)
+title(ylab=expression(atop(Root~R[mass],
+                           (nmol~CO[2]~g^-1~s^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(1,1,0,1),las=1)
-legend("bottomleft",letters[4],cex=1.2,bty="n")
+legend("bottomleft",letters[3],cex=1.2,bty="n")
 
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,outer=T,adj=0.9,line=1)
 dev.copy2pdf(file="output/Rcomponents.pdf")
@@ -159,8 +177,8 @@ Rdat_mean <- summaryBy(Rmass_insitu~Code+Prov+W_treatment+location+Tair,data=Rda
 Rdat_sum$Rtotal_insitu_mol <- Rdat_sum$Rtotal_insitu*60*60*24*1e-6 # convert to mmol CO2 day-1
 Rdat_mean$Rmass_insitu_mmol <- Rdat_mean$Rmass_insitu*60*60*24*1e-6  # convert to mmol CO2 g-1 day-1
 
-boxplot(Rtotal_insitu_mol~location+Tair,data=subset(Rdat_sum,W_treatment=="w"))
-boxplot(Rmass_insitu_mmol~location+Tair,data=subset(Rdat_mean,W_treatment=="w"))
+#boxplot(Rtotal_insitu_mol~location+Tair,data=subset(Rdat_sum,W_treatment=="w"))
+#boxplot(Rmass_insitu_mmol~location+Tair,data=subset(Rdat_mean,W_treatment=="w"))
 
 #- average across locations etc.
 Rdat_sum_mean <- summaryBy(Rtotal_insitu_mol~prov+Water_trt+location+Tair,
@@ -171,32 +189,52 @@ Rdat_mean_mean <- summaryBy(Rmass_insitu_mmol~prov+Water_trt+location+Tair,
 
 #---------------------
 #- make the plot
-windows(40,70);par(mfrow=c(2,1),mar=c(2,7,0,0),oma=c(3,1,3,2),cex.lab=2)
+windows(40,70);par(mfrow=c(2,1),mar=c(2,7,0,0),oma=c(3,1,3,2),cex.lab=1.5)
 
+
+#------
 #- Tissue specific Rmass
-plotBy(Rmass_insitu_mmol.mean~Tair|location,data=Rdat_mean_mean,las=1,ylim=c(0,3),xlim=c(15,37),
+smoothplot(Tair, Rmass_insitu_mmol.mean, location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
+           polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
+           linecol=c("black","red"),pointcols=NA,
+           cex=1,main="",
+           xlim=c(15,40),ylim=c(0,2.5),xlab="",ylab="",
+           data=Rdat_mean_mean, kgam=4,axes=F)
+#- overlay points
+plotBy(Rmass_insitu_mmol.mean~Tair|location,data=Rdat_mean_mean,las=1,ylim=c(0,3),xlim=c(15,37),add=T,
        legend=F,pch=16,cex=2,col=COL,
        panel.first=adderrorbars(x=Rdat_mean_mean$Tair,
                                 y=Rdat_mean_mean$Rmass_insitu_mmol.mean,
                                 SE=Rdat_mean_mean$Rmass_insitu_mmol.standard.error,direction="updown"),
-       axes=F,ylab=expression(atop(R[mass],
-                                   (mmol~CO[2]~g^-1~d^-1))),xlab="Tair",cex.lab=1.5)
+       axes=F,xlab="Tair",cex.lab=1.5)
+title(ylab=expression(atop(R[mass],
+                           (mmol~CO[2]~g^-1~d^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(1,1,0,1),las=1)
-legend("topleft",xpd=NA,legend=levels(Rdat_sum_mean$location),pch=16,col=COL[1:3],ncol=1,bty="n",cex=1.2)
 legend("topright",letters[1],bty="n",cex=1.2)
+legend("bottomright",xpd=NA,legend=levels(Rdat_sum_mean$location),pch=16,col=COL[1:3],ncol=1,bty="n",cex=1.2)
 
+#------
 #- Actual total Rmass, given total mass
-plotBy(Rtotal_insitu_mol.mean~Tair|location,data=Rdat_sum_mean,las=1,ylim=c(0,25),xlim=c(15,37),
+smoothplot(Tair, Rtotal_insitu_mol.mean, location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
+           polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
+           linecol=c("black","red"),pointcols=NA,
+           cex=1,main="",
+           xlim=c(15,40),ylim=c(0,25),xlab="",ylab="",
+           data=Rdat_sum_mean, kgam=4,axes=F)
+
+plotBy(Rtotal_insitu_mol.mean~Tair|location,data=Rdat_sum_mean,las=1,ylim=c(0,25),xlim=c(15,37),add=T,
        legend=F,pch=16,cex=2,col=COL,
        panel.first=adderrorbars(x=Rdat_sum_mean$Tair,
                                 y=Rdat_sum_mean$Rtotal_insitu_mol.mean,
                                 SE=Rdat_sum_mean$Rtotal_insitu_mol.standard.error,direction="updown"),
-       axes=F,ylab=expression(atop(R[total],
-                                   (mmol~CO[2]~d^-1))),xlab="Tair",cex.lab=1.5)
+       axes=F,xlab="Tair",cex.lab=1.5)
+title(ylab=expression(atop(R[total],
+                      (mmol~CO[2]~d^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(1,1,0,1),las=1)
 legend("topright",letters[2],bty="n",cex=1.2)
 
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,outer=T,adj=0.95,line=1)
+
 dev.copy2pdf(file="output/Rtotal_daily.pdf")
 
 #------------------------------------------------------------------------------------------------
