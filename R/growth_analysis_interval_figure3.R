@@ -64,6 +64,7 @@ windows(30,60);par(mfrow=c(3,1),mar=c(3,4,1,1),oma=c(5,4,1,1))
 palette(rev(brewer.pal(6,"Spectral")))
 ptsize <- 1.5
 COL <- palette()[c(1,2,6)]
+xlims <- c(17,37)
 dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~Room+Tair+location,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
 
 
@@ -75,7 +76,7 @@ RGRplot$prov <- c(rep("A",nrow(RGRplot)/3),rep("B",nrow(RGRplot)/3),rep("C",nrow
 RGRplot$location <- c(rep("Cold-edge",nrow(RGRplot)/3),rep("Warm-edge",nrow(RGRplot)/3),rep("Central",nrow(RGRplot)/3))
 RGRplot$location <- factor(RGRplot$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-plotBy(Sim.Mean~Tleaf|location,data=RGRplot,legend=F,type="l",las=1,ylim=c(0,0.17),lwd=3,cex.lab=2,col=COL,
+plotBy(Sim.Mean~Tleaf|location,data=RGRplot,legend=F,type="l",las=1,xlim=xlims,ylim=c(0,0.17),lwd=3,cex.lab=2,col=COL,
        ylab="",axes=F,
        xlab="")
 as.rgr <- subset(RGRplot,prov=="A")
@@ -106,7 +107,7 @@ LARplot <- data.frame(do.call(rbind,
 LARplot$location <- c(rep("Cold-edge",nrow(LARplot)/3),rep("Central",nrow(LARplot)/3),rep("Warm-edge",nrow(LARplot)/3))
 LARplot$location <- factor(LARplot$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-plotBy(Sim.Mean~Tleaf|location,data=LARplot,legend=F,type="l",las=1,ylim=c(0,20),lwd=3,cex.lab=2,col=COL,
+plotBy(Sim.Mean~Tleaf|location,data=LARplot,legend=F,type="l",las=1,xlim=xlims,ylim=c(0,20),lwd=3,cex.lab=2,col=COL,
        ylab="",axes=F,
        xlab="")
 cold.rgr <- subset(LARplot,location=="Cold-edge")
@@ -132,7 +133,7 @@ legend("topright",letters[2],bty="n",cex=1.8)
 
 #-----------------------------------------------------------------------------------------
 #- NAR
-plotBy(NAR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,10),type="n",legend=F,axes=F,ylab="")
+plotBy(NAR.mean~Tair|location,data=dat2,las=1,xlim=xlims,ylim=c(0,10),type="n",legend=F,axes=F,ylab="")
 predline(NARfits.l[[1]],col=alpha(COL[1],0.5))
 predline(NARfits.l[[2]],col=alpha(COL[2],0.5))
 predline(NARfits.l[[3]],col=alpha(COL[3],0.5))
