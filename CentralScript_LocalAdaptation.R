@@ -30,8 +30,7 @@ source("R/plotConceptualFig.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 2. Temperature response of final mass, Photosynthesis, and Rdark
-# This takes a little while to fit all the temperature response curves
+#- Make figure 2. Temperature response of final mass and absolute growth rate
 source("R/plot_figure2.R")
 #-------------------------------------------------------------------------------------
 
@@ -98,6 +97,14 @@ plotAussie(export=F)
 #-------------------------------------------------------------------------------------
 #- Make Figure S2. Allometry of d2h relative to total plant mass.
 returnMassFromAllom(d2hdat=25,plotson=T,droughtdat=F)
+#-------------------------------------------------------------------------------------
+
+
+
+
+#-------------------------------------------------------------------------------------
+#- Make Figure SX?. Leaf short-term respiration response functions
+source("R/plotRleafvsT.R")
 #-------------------------------------------------------------------------------------
 
 

@@ -83,6 +83,34 @@ leaf_no <- summaryBy(Leafno~Room+location+Tair+Date+Code,data=subset(la,W_treatm
 leaf_no2 <- summaryBy(Leafno+Tair~Room+location,data=subset(leaf_no,Date==as.Date("2016-01-28")),
                       FUN=c(mean,standard.error),keep.names=F,na.rm=T)
 
+#-----
+#- new bit to calculate the INCREMENT in leaf number
+leaf_increment <- summaryBy(Leafno~Room+location+Tair+Date+Code,data=subset(la,W_treatment=="w"),
+                            FUN=c(sum),keep.names=T,na.rm=T)
+leaf_increment.l <- split(leaf_increment,leaf_increment$Code)
+
+#- loop over each code, calculate the difference in leaf number, add to new dataframe
+newleaves <- data.frame(Room=rep(NA,length(leaf_increment.l)),location=rep(NA,length(leaf_increment.l)),
+                        Tair=rep(NA,length(leaf_increment.l)),Code=rep(NA,length(leaf_increment.l)),
+                        leaf_inc=rep(NA,length(leaf_increment.l)))
+for (i in 1:length(leaf_increment.l)){
+  dat <- leaf_increment.l[[i]]
+  dat <- dat[with(dat,order(Date)),]
+  
+  newleaves$Room[i] <- as.character(dat$Room[1])
+  newleaves$location[i] <- as.character(dat$location[1])
+  newleaves$Tair[i] <- dat$Tair[1]
+  newleaves$Code[i] <- as.character(dat$Code[1])
+  newleaves$leaf_inc[i] <- dat$Leafno[2] - dat$Leafno[1]
+}
+newleaves2 <- subset(newleaves,leaf_inc>=0) # exclude the trees that were harvested (and thus have no leaves on the second date)
+
+newleaves.m <- summaryBy(leaf_inc+Tair~Room+location,data=newleaves2,
+                      FUN=c(mean,standard.error),keep.names=F,na.rm=T)
+#-----
+
+
+
 
 #- fit T-response of leaf size
 la.wet <- subset(la,W_treatment=="w" & Leafsize=="large" & Date==as.Date("2016-01-28"))
@@ -110,6 +138,21 @@ for(i in 1:length(leaf_no.l)){
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
+
+
+
+
+#- fit T-response of leaf increment
+newleaves2.l <- split(newleaves2,newleaves2$location)
+
+#- fit all the curves
+NLfits.l <- lapply(newleaves2.l,FUN=fitJuneT,namex="Tair",namey="leaf_inc",lengthPredict=21,start=list(Rref=20,Topt=25,theta=10))
+
+NL.pred <- data.frame(do.call(rbind,
+                              list(NLfits.l[[1]][[2]],NLfits.l[[2]][[2]],NLfits.l[[3]][[2]])))
+NL.pred$location <- c(rep("Cold-edge",nrow(NL.pred)/3),rep("Central",nrow(NL.pred)/3),rep("Warm-edge",nrow(NL.pred)/3))
+NL.pred$location <- factor(NL.pred$location,levels=c("Cold-edge","Central","Warm-edge"))  
+#----------------------------------------------------------------------------------------------------
 
 
 
@@ -216,23 +259,54 @@ legend("topleft",letters[3],bty="n",cex=1.2)
 
 
 
+
 #-----------------------------------------------------------------------------------------
-#- leaf number
-plotBy(Leafno.mean~Tair.mean|location,data=leaf_no2,las=1,xlim=c(17,37),ylim=c(0,20),type="n",legend=F,axes=F,ylab="",xlab="")
-predline(LNfits.l[[1]],col=alpha(COL[1],0.5))
-predline(LNfits.l[[2]],col=alpha(COL[2],0.5))
-predline(LNfits.l[[3]],col=alpha(COL[3],0.5))
-plotBy(Leafno.mean~Tair.mean|location,data=leaf_no2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,cex=2,
+#- plot leaf number INCREMENT
+plotBy(Sim.Mean~Tleaf|location,data=NL.pred,legend=F,type="l",las=1,ylim=c(0,20),lwd=3,cex.lab=2,xlim=c(17,37),axes=F,
+       ylab="",col=COL,
+       xlab="")
+as.m <- subset(NL.pred,location=="Cold-edge")
+bs.m <- subset(NL.pred,location=="Central")
+cs.m <- subset(NL.pred,location=="Warm-edge")
+
+polygon(x = c(as.m$Tleaf, rev(as.m$Tleaf)), y = c(as.m$Sim.97.5., rev(as.m$Sim.2.5.)), col = alpha(COL[1],0.5), border = NA)
+polygon(x = c(bs.m$Tleaf, rev(bs.m$Tleaf)), y = c(bs.m$Sim.97.5., rev(bs.m$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
+polygon(x = c(cs.m$Tleaf, rev(cs.m$Tleaf)), y = c(cs.m$Sim.97.5., rev(cs.m$Sim.2.5.)), col = alpha(COL[3],0.5), border = NA)
+#legend("topleft",levels(SLA.pred$location),fill=COL,cex=1.7,title="Provenance")
+
+#- Leaf size
+plotBy(leaf_inc.mean~Tair.mean|location,data=newleaves.m,las=1,legend=F,pch=16,cex=2,
        axes=F,xlab="",ylab="",col=COL,add=T,
-       panel.first=adderrorbars(x=leaf_no2$Tair.mean,y=leaf_no2$Leafno.mean,SE=leaf_no2$Leafno.standard.error,direction="updown"))
+       panel.first=adderrorbars(x=newleaves.m$Tair.mean,y=newleaves.m$leaf_inc.mean,SE=newleaves.m$leaf_inc.standard.error,direction="updown"))
 
 
 magaxis(side=1:4,labels=c(0,1,0,0),las=1)
 magaxis(side=1,labels=c(1),las=1)
-title(ylab=expression(Leaf~number~("#")),outer=F,cex.lab=2)
+title(ylab=expression(Leaf~growth~("#"~"11-days"^-1)),outer=F,cex.lab=2)
 legend("topleft",letters[4],bty="n",cex=1.2)
 
 #-----------------------------------------------------------------------------------------
+
+
+
+# 
+# #-----------------------------------------------------------------------------------------
+# #- leaf number
+# plotBy(Leafno.mean~Tair.mean|location,data=leaf_no2,las=1,xlim=c(17,37),ylim=c(0,20),type="n",legend=F,axes=F,ylab="",xlab="")
+# predline(LNfits.l[[1]],col=alpha(COL[1],0.5))
+# predline(LNfits.l[[2]],col=alpha(COL[2],0.5))
+# predline(LNfits.l[[3]],col=alpha(COL[3],0.5))
+# plotBy(Leafno.mean~Tair.mean|location,data=leaf_no2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,cex=2,
+#        axes=F,xlab="",ylab="",col=COL,add=T,
+#        panel.first=adderrorbars(x=leaf_no2$Tair.mean,y=leaf_no2$Leafno.mean,SE=leaf_no2$Leafno.standard.error,direction="updown"))
+# 
+# 
+# magaxis(side=1:4,labels=c(0,1,0,0),las=1)
+# magaxis(side=1,labels=c(1),las=1)
+# title(ylab=expression(Leaf~number~("#")),outer=F,cex.lab=2)
+# legend("topleft",letters[4],bty="n",cex=1.2)
+# 
+# #-----------------------------------------------------------------------------------------
 
 
 title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.6,line=1)

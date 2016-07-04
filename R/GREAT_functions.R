@@ -446,11 +446,11 @@ fitRvT <- function(dat,namex=Tleaf,namey=Rmass,lengthPredict=20,start=list(Rref=
 
 
 #-----------------------------------------------------------------------------------------
-#-  Attempting to write a generic function to fit temperature response curves.
-#- function to fit the June et al. (2004) FPB model for the temperature response of GROWTH
-#- accepts a dataframe, returns a list with [1] named vector of parameter estiamtes and their se's,
-#-   and [2] a dataframe with the predictions and 95% confidence intervals.
-fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=51,start=list(Rref=2,Topt=20,theta=20)){
+#-  A generic function to fit temperature response curves based on June 2004 FPB.
+#-  The function accepts a dataframe and the quoted names of the x and y variabels
+#   in the dataframe. Returns a list with a named vector of parameter estimates and their se's,
+#-   and a dataframe with the predictions and 95% confidence intervals.
+fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=21,start=list(Rref=25,Topt=20,theta=20)){
   dat$Yvar <- dat[[namey]]
   dat$Xvar <- dat[[namex]]
   
@@ -469,6 +469,7 @@ fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=51,start=list(Rref=2,To
   CI3a <- paste(CI3[1],CI3[2],sep="-")
   confinterval2 <- c(CI1a,CI2a,CI3a)
   
+  #- predict the response variable across the full range of x-values
   TT <- seq(min(dat$Xvar),max(dat$Xvar),length=lengthPredict)
   predicts <- predictNLS(G_Topt, newdata=data.frame(Xvar = TT),interval="confidence",level=0.95)
   predicts.df <- data.frame(predicts$summary)
