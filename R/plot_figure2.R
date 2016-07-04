@@ -169,7 +169,7 @@ plotBy(AGR.mean~Tair|location,data=agr2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend
        axes=F,xlab="",ylab="",cex=2,col=COL,add=T,
        panel.first=adderrorbars(x=agr2$Tair,y=agr2$AGR.mean,SE=agr2$AGR.standard.error,direction="updown"))
 magaxis(side=1:4,labels=c(1,1,0,0),las=1,cex.axis=1.4)
-legend("bottomright",levels(dat2$location),fill=COL,cex=1.2,title="Provenance",bty="n")
+#legend("bottomright",levels(dat2$location),fill=COL,cex=1.2,title="Provenance",bty="n")
 legend("topright",letters[2],bty="n",cex=1.5)
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
 
