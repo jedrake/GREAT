@@ -72,9 +72,11 @@ tofit.l_lowQ <- split(tofit_lowQ,tofit_lowQ$location)
 MASSvTfits.l <- lapply(massdata.l,FUN=fitJuneT,start=list(Rref=5,Topt=30,theta=5),namey="totdm",namex="Tair",lengthPredict=20)
 
 
-#- fit AGR and RGR T response curves
+#- fit AGR, RGR, LAR, and SLA T response curves
 AGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.5,Topt=30,theta=5),namey="AGR",namex="Tair",lengthPredict=20)
 RGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.15,Topt=25,theta=20),namey="RGR",namex="Tair",lengthPredict=20)
+LARvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=15,Topt=25,theta=20),namey="LAR",namex="Tair",lengthPredict=20)
+SLAvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=450,Topt=25,theta=20),namey="SLA",namex="Tair",lengthPredict=20)
 
 
 #- fit all the curves (long-term photo at high par)
@@ -118,6 +120,26 @@ RGRvTfitsCI <- data.frame(do.call(rbind,
 names(RGRvTfitsCI) <- c("RGRref.CI","Topt.CI","theta.CI")
 RGRvTfits <- cbind(RGRvTfits,RGRvTfitsCI)
 
+#-LAR
+LARvTfits <- data.frame(do.call(rbind,
+                                list(LARvTfits.l[[1]][[1]],LARvTfits.l[[2]][[1]],LARvTfits.l[[3]][[1]])))
+LARvTfits$location <- levels(RGRdat$location)
+LARvTfitsCI <- data.frame(do.call(rbind,
+                                  list(LARvTfits.l[[1]][[3]],LARvTfits.l[[2]][[3]],LARvTfits.l[[3]][[3]])))
+names(LARvTfitsCI) <- c("LARref.CI","Topt.CI","theta.CI")
+LARvTfits <- cbind(LARvTfits,LARvTfitsCI)
+
+
+#-SLA
+SLAvTfits <- data.frame(do.call(rbind,
+                                list(SLAvTfits.l[[1]][[1]],SLAvTfits.l[[2]][[1]],SLAvTfits.l[[3]][[1]])))
+SLAvTfits$location <- levels(RGRdat$location)
+SLAvTfitsCI <- data.frame(do.call(rbind,
+                                  list(SLAvTfits.l[[1]][[3]],SLAvTfits.l[[2]][[3]],SLAvTfits.l[[3]][[3]])))
+names(SLAvTfitsCI) <- c("SLAref.CI","Topt.CI","theta.CI")
+SLAvTfits <- cbind(SLAvTfits,SLAvTfitsCI)
+
+
 
 #- AvT short term at high PAR
 AvTfits <- data.frame(do.call(rbind,
@@ -127,15 +149,15 @@ AvTfitsCI <- data.frame(do.call(rbind,
 names(AvTfitsCI) <- c("Aref.CI","Topt.CI","theta.CI")
 AvTfits <- cbind(AvTfits,AvTfitsCI)
 AvTfits$location <- levels(RGRdat$location)
-
-#- AvT short term at low PAR
-AvTfits_lowQ <- data.frame(do.call(rbind,
-                                   list(AvTfits.list2.st[[1]][[1]],AvTfits.list2.st[[2]][[1]],AvTfits.list2.st[[3]][[1]])))
-AvTfits_lowQ$location <- levels(RGRdat$location)
-AvTfits_lowQCI <- data.frame(do.call(rbind,
-                                  list(AvTfits.list2.st[[1]][[3]],AvTfits.list2.st[[2]][[3]],AvTfits.list2.st[[3]][[3]])))
-names(AvTfits_lowQCI) <- c("Photoref.CI","Topt.CI","theta.CI")
-AvTfits_lowQ <- cbind(AvTfits_lowQ,AvTfits_lowQCI)
+# 
+# #- AvT short term at low PAR
+# AvTfits_lowQ <- data.frame(do.call(rbind,
+#                                    list(AvTfits.list2.st[[1]][[1]],AvTfits.list2.st[[2]][[1]],AvTfits.list2.st[[3]][[1]])))
+# AvTfits_lowQ$location <- levels(RGRdat$location)
+# AvTfits_lowQCI <- data.frame(do.call(rbind,
+#                                   list(AvTfits.list2.st[[1]][[3]],AvTfits.list2.st[[2]][[3]],AvTfits.list2.st[[3]][[3]])))
+# names(AvTfits_lowQCI) <- c("Photoref.CI","Topt.CI","theta.CI")
+# AvTfits_lowQ <- cbind(AvTfits_lowQ,AvTfits_lowQCI)
 
 #- AvT long term at high PAR
 AvTfits_longterm <- data.frame(do.call(rbind,
@@ -152,30 +174,41 @@ AvTfits_longterm <- cbind(AvTfits_longterm,AvTfits_longtermQCI)
 
 
 # make a table 
-table1 <- data.frame(Variable=c("Final mass","AGR","RGR","Asat-growth","Asat-ST","Anet-ST"),
+table1 <- data.frame(Variable=c("Final mass","AGR","RGR","LAR","SLA","Asat-growth","Asat-ST"),
                      Topt_Cold <- NA,Topt_Cent <- NA,Topt_Hot<-NA,
                      Rref_Cold <- NA, Rref_Cent<- NA,Rref_Hot <- NA,
                      Omega_Cold <- NA, Omega_Cent <- NA, Omega_Hot <- NA)
+# final mass
 table1[1,c(2,3,4)] <- mktable(location=MASSvTfits$location,yvar=MASSvTfits$Topt,se=MASSvTfits$Topt.CI)                     
 table1[1,c(5,6,7)] <- mktable(location=MASSvTfits$location,yvar=MASSvTfits$totdmref,se=MASSvTfits$totdmref.CI,nchar1=2,nchar2=2)
 table1[1,c(8,9,10)] <- mktable(location=MASSvTfits$location,yvar=MASSvTfits$theta,se=MASSvTfits$theta.CI)   
+# AGR
 table1[2,c(2,3,4)] <- mktable(location=AGRvTfits$location,yvar=AGRvTfits$Topt,se=AGRvTfits$Topt.CI)                     
 table1[2,c(5,6,7)] <- mktable(location=AGRvTfits$location,yvar=AGRvTfits$AGRref,se=AGRvTfits$AGRref.CI,nchar1=2,nchar2=2)
 table1[2,c(8,9,10)] <- mktable(location=AGRvTfits$location,yvar=AGRvTfits$theta,se=AGRvTfits$theta.CI)                    
+# RGR
 table1[3,c(2,3,4)] <- mktable(location=RGRvTfits$location,yvar=RGRvTfits$Topt,se=RGRvTfits$Topt.CI)                     
 table1[3,c(5,6,7)] <- mktable(location=RGRvTfits$location,yvar=RGRvTfits$RGRref,se=RGRvTfits$RGRref.CI,nchar1=2,nchar2=2)
 table1[3,c(8,9,10)] <- mktable(location=RGRvTfits$location,yvar=RGRvTfits$theta,se=RGRvTfits$theta.CI)                    
-table1[4,c(2,3,4)] <- mktable(location=AvTfits_longterm$location,yvar=AvTfits_longterm$Topt,se=AvTfits_longterm$Topt.CI)                    
-table1[4,c(5,6,7)] <- mktable(location=AvTfits_longterm$location,yvar=AvTfits_longterm$Aref,se=AvTfits_longterm$Aref.CI)                    
-table1[4,c(8,9,10)] <- mktable(location=AvTfits_longterm$location,yvar=AvTfits_longterm$theta,se=AvTfits_longterm$theta.CI)                    
-table1[5,c(2,3,4)] <- mktable(location=AvTfits$location,yvar=AvTfits$Topt,se=AvTfits$Topt.CI)                    
-table1[5,c(5,6,7)] <- mktable(location=AvTfits$location,yvar=AvTfits$Aref,se=AvTfits$Aref.CI)                    
-table1[5,c(8,9,10)] <- mktable(location=AvTfits$location,yvar=AvTfits$theta,se=AvTfits$theta.CI)                    
-table1[6,c(2,3,4)] <- mktable(location=AvTfits_lowQ$location,yvar=AvTfits_lowQ$Topt,se=AvTfits_lowQ$Topt.CI)                    
-table1[6,c(5,6,7)] <- mktable(location=AvTfits_lowQ$location,yvar=AvTfits_lowQ$Photoref,se=AvTfits_lowQ$Photoref.CI )                    
-table1[6,c(8,9,10)] <- mktable(location=AvTfits_lowQ$location,yvar=AvTfits_lowQ$theta,se=AvTfits_lowQ$theta.CI) 
+#LAR
+table1[4,c(2,3,4)] <- mktable(location=LARvTfits$location,yvar=LARvTfits$Topt,se=LARvTfits$Topt.CI)                    
+table1[4,c(5,6,7)] <- mktable(location=LARvTfits$location,yvar=LARvTfits$LARref,se=LARvTfits$LARref.CI)                    
+table1[4,c(8,9,10)] <- mktable(location=LARvTfits$location,yvar=LARvTfits$theta,se=LARvTfits$theta.CI)
+#SLA
+table1[5,c(2,3,4)] <- mktable(location=SLAvTfits$location,yvar=SLAvTfits$Topt,se=SLAvTfits$Topt.CI)                    
+table1[5,c(5,6,7)] <- mktable(location=SLAvTfits$location,yvar=SLAvTfits$SLAref,se=SLAvTfits$SLAref.CI)                    
+table1[5,c(8,9,10)] <- mktable(location=SLAvTfits$location,yvar=SLAvTfits$theta,se=SLAvTfits$theta.CI)                    
+#Asat-in situ
+table1[6,c(2,3,4)] <- mktable(location=AvTfits_longterm$location,yvar=AvTfits_longterm$Topt,se=AvTfits_longterm$Topt.CI)                    
+table1[6,c(5,6,7)] <- mktable(location=AvTfits_longterm$location,yvar=AvTfits_longterm$Aref,se=AvTfits_longterm$Aref.CI)                    
+table1[6,c(8,9,10)] <- mktable(location=AvTfits_longterm$location,yvar=AvTfits_longterm$theta,se=AvTfits_longterm$theta.CI)                    
+#Asat short term
+table1[7,c(2,3,4)] <- mktable(location=AvTfits$location,yvar=AvTfits$Topt,se=AvTfits$Topt.CI)                    
+table1[7,c(5,6,7)] <- mktable(location=AvTfits$location,yvar=AvTfits$Aref,se=AvTfits$Aref.CI)                    
+table1[7,c(8,9,10)] <- mktable(location=AvTfits$location,yvar=AvTfits$theta,se=AvTfits$theta.CI)                    
 
 
+#- fix below
 table2 <- data.frame(Variable=c(rep("Final mass",3),rep("AGR",3),
                                 rep("RGR",3),rep("Asat-growth",3),
                                 rep("Asat-ST",3),rep("Anet-ST",3)),
