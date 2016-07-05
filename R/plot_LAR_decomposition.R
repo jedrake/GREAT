@@ -199,7 +199,8 @@ plotBy(SLA.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(250,500)
 
 magaxis(side=1:4,labels=c(0,1,0,0),las=1)
 magaxis(side=1,labels=c(1),las=1)
-legend("bottomright",levels(dat2$location),title="Provenance",col=COL[1:3],pch=16,bg="white",cex=1.4)
+legend("bottomright",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
+#legend("bottomright",levels(dat2$location),title="Provenance",col=COL[1:3],pch=16,bg="white",cex=1.4)
 title(ylab=expression(SLA~(cm^2~g^-1)),outer=F,cex.lab=2)
 legend("topleft",letters[1],bty="n",cex=1.2)
 #-----------------------------------------------------------------------------------------

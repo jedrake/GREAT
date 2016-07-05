@@ -37,7 +37,6 @@ Library(magicaxis)
 Library(RColorBrewer)
 Library(propagate)
 Library(gplots)
-Library(scales)
 Library(readxl)
 Library(maps)
 Library(mapdata)
@@ -46,6 +45,8 @@ Library(sp)
 Library(raster)
 Library(nlstools)
 Library(rgl)
+Library(mgcv)
+Library(scales)
 #---------------------------------------------------------------------
 
 
@@ -58,6 +59,6 @@ Library(rgl)
 
 source("R/generic_functions.R")
 source("R/GREAT_functions.R")
-source("R/gamplotfunctions.R")
+#source("R/gamplotfunctions.R")
 
 #---------------------------------------------------------------------

@@ -7,13 +7,6 @@
 
 
 
-#-----------------------------------------------------------------------------------------
-#- load the packages and custom functions that do all the work
-source("R/loadLibraries.R")
-#-----------------------------------------------------------------------------------------
-
-
-
 
 #-----------------------------------------------------------------------------------------
 #- get the data, process it for RGR.
@@ -95,7 +88,9 @@ plotBy(RGR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
 axis(side=1,at=c(20,25,30,35),labels=T,tick=F,cex.axis=2)
 legend("topright",letters[1],bty="n",cex=1.8)
-legend("bottomleft",levels(dat2$location),fill=COL,cex=1.2,title="",bty="n")
+legend("bottomleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
+
+#legend("bottomleft",levels(dat2$location),fill=COL,cex=1.2,title="",bty="n")
 
 
 #------------

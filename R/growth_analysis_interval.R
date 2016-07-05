@@ -85,7 +85,8 @@ plotBy(AGR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend
        axes=F,xlab="",ylab="",cex=ptsize,col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair,y=dat2$AGR.mean,SE=dat2$AGR.standard.error,direction="updown"))
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
-legend("bottomright",levels(dat2$location),fill=COL,cex=1.5,title="Provenance",bty="n")
+legend("bottomright",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
+#legend("bottomright",levels(dat2$location),fill=COL,cex=1.5,title="Provenance",bty="n")
 legend("topleft",letters[1],bty="n",cex=1.8)
 #--
 

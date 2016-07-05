@@ -611,8 +611,9 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
     COL=palette()[c(1,2,6)]
     windows(12,12);par(mar=c(6,6,1,1),cex.axis=1.2,cex.lab=2)
     plotBy(logtotdm~logd2h|location,data=dat,pch=16,xlab="",ylab="",axes=F,legend=F,col=COL)
-    legend(x=-1.2,y=1.1,legend=c("Cold-edge","Central","Warm-edge"),col=COL,
-            title="Provenance",pch=16,cex=1.5,bg="white")
+    # legend(x=-1.2,y=1.1,legend=c("Cold-edge","Central","Warm-edge"),col=COL,
+    #         title="Provenance",pch=16,cex=1.5,bg="white")
+    legend("topleft",c("Cold-origin","Central","Warm-origin"),pch=16,col=COL,cex=1.2,title="Provenance",bty="n")
     coefs <- coef(lm1)
     xval <- seq(min(dat$logd2h),max(dat$logd2h),length=101)
     preds <- coefs[1]+xval*coefs[2]+xval^2*coefs[3]

@@ -28,6 +28,7 @@ COL=palette()[c(1,2,6)]
 #----
 #- plot Rmass for leaves, smoothplots
 smoothplot(Tair, Rmass, location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
+           #polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
            polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
            linecol=c("black","red"),pointcols=NA,
            cex=1,main="",
@@ -44,7 +45,8 @@ title(ylab=expression(atop(Leaf~R[mass],
                      (nmol~CO[2]~g^-1~s^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(1,1,0,1),las=1)
 legend("bottomleft",letters[1],cex=1.2,bty="n")
-legend("topright",levels(Rdat$location),fill=COL,cex=1.2,title="",bty="n")
+legend("topright",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
+#legend("topright",levels(Rdat$location),fill=COL,cex=1.2,title="",bty="n")
 
 
 #----
@@ -211,7 +213,9 @@ title(ylab=expression(atop(R[mass],
                            (mmol~CO[2]~g^-1~d^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(1,1,0,1),las=1)
 legend("topright",letters[1],bty="n",cex=1.2)
-legend("bottomright",xpd=NA,legend=levels(Rdat_sum_mean$location),pch=16,col=COL[1:3],ncol=1,bty="n",cex=1.2)
+legend("bottomright",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1,title="Provenance",bty="n")
+
+#legend("bottomright",xpd=NA,legend=levels(Rdat_sum_mean$location),pch=16,col=COL[1:3],ncol=1,bty="n",cex=1.2)
 
 #------
 #- Actual total Rmass, given total mass

@@ -40,9 +40,7 @@ source("R/plot_figure2.R")
 #- Make figure 3. Growth analysis of the intensive interval
 # Plots RGR, LAR, and NAR versus temperature
 source("R/growth_analysis_interval_figure3.R")
-
 #-------------------------------------------------------------------------------------
-
 
 
 #-------------------------------------------------------------------------------------
@@ -51,21 +49,15 @@ source("R/plot_LAR_decomposition.R")
 #-------------------------------------------------------------------------------------
 
 
-
-
 #-------------------------------------------------------------------------------------
 #- Make figures 5 and 6. The respiration across tissue components measured at the end.
 source("R/R_components_harvest.R")
 #-------------------------------------------------------------------------------------
 
 
-
-
 #-------------------------------------------------------------------------------------
-#- Make figure 5. The direct short-term temperature response curves.
-#  This takes a little while to fit all the temperature response curves
-source("R/photo_AvT.R")      # area-based
-source("R/photo_AvT_mass.R") # mass-based (Figure S4)
+#- Figure 7. Long-term A-T response curves.
+source("R/plot_AT_longterm.R")
 #-------------------------------------------------------------------------------------
 
 
@@ -95,18 +87,54 @@ plotAussie(export=F)
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure S2. Allometry of d2h relative to total plant mass.
+#- Run the code to make Fig. S2 (environmental data over time).
+#  Note that this takes quite some time to run, as the met files are huge.
+source("R/S39_climate_data.R")
+#-------------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------------
+#- Make Figure S3. Allometry of d2h relative to total plant mass.
 returnMassFromAllom(d2hdat=25,plotson=T,droughtdat=F)
 #-------------------------------------------------------------------------------------
 
-
+#-------------------------------------------------------------------------------------
+#- Make Fig S4. Make a big plot showing the hysteresis in the growth interval for the supplemental.
+# This takes a little while to fit all the temperature response curves
+source("R/growth_analysis_interval.R")
+#-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure SX?. Leaf short-term respiration response functions
+#- Make Figure S5. Leaf short-term respiration response functions
 source("R/plotRleafvsT.R")
 #-------------------------------------------------------------------------------------
 
+
+
+#-------------------------------------------------------------------------------------
+#- Make Figure S6. The direct short-term temperature response curves.
+#  This takes a little while to fit all the temperature response curves
+#  This code needs adjustment to exclude the low PAR data.
+source("R/photo_AvT.R")      # area-based
+source("R/photo_AvT_mass.R") # mass-based 
+#-------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#-- other stuff.
 
 
 #-------------------------------------------------------------------------------------

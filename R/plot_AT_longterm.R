@@ -43,7 +43,8 @@ cs.m <- subset(A.pred,location=="Warm-edge")
 polygon(x = c(as.m$Tleaf, rev(as.m$Tleaf)), y = c(as.m$Sim.97.5., rev(as.m$Sim.2.5.)), col = alpha(COL[1],0.5), border = NA)
 polygon(x = c(bs.m$Tleaf, rev(bs.m$Tleaf)), y = c(bs.m$Sim.97.5., rev(bs.m$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
 polygon(x = c(cs.m$Tleaf, rev(cs.m$Tleaf)), y = c(cs.m$Sim.97.5., rev(cs.m$Sim.2.5.)), col = alpha(COL[3],0.5), border = NA)
-legend("bottomleft",levels(A.pred$location),fill=COL,cex=1.2,title="Provenance",bty="n")
+#legend("bottomleft",levels(A.pred$location),fill=COL,cex=1.2,title="Provenance",bty="n")
+legend("bottomleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
 
 #- add TREATMENT MEANS for mass
 dat3 <- summaryBy(Photo+Tair+Tleaf~Room+location,FUN=c(mean,standard.error),data=Asatdata,na.rm=T)
