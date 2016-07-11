@@ -706,15 +706,22 @@ returnRGR <- function(path="data",plotson=F){
   leaf_no <-summaryBy(Leafno~Code,data=la,FUN=sum,keep.names=T)
   la2 <- merge(la2,leaf_no,by="Code")
   
-  #- average the leaf area data across the two dates, which bracket the RGR growth interval
+  ##- average the leaf area data across the two dates, which bracket the RGR growth interval
   la.m <- summaryBy(canopy+canopy2+Leafno~Room+Code+Prov+prov_trt+W_treatment,data=la2,FUN=mean,keep.names=T)
   
+  #- average teh leaf area data, but keep the two dates separate! Changed on 12 July 2016.
+  #- This gives an estimate of teh initial canopy size, at teh beginning of the interval.
+  la.init <- summaryBy(canopy~Room+Code+Prov+prov_trt+W_treatment,
+                       data=subset(la2,Date==as.Date("2016-01-28")),FUN=mean,keep.names=T)[,c("Code","canopy")]
+  names(la.init)[2] <- "canopy.init"
   
   #- merge total plant leaf area with tree size from the interval measurements
   la3 <- merge(la.m,subset(rgrinterval,Date %in% as.Date(c("2016-1-28","2016-02-08"))),by=c("Room","Prov","prov_trt","Code","W_treatment"))
   la3 <- la3[complete.cases(la3),]
   la3$logLA <- with(la3,log10(canopy))
   la3$logd2h <- with(la3,log10(d2h))
+  
+  la3 <- merge(la3,la.init,by="Code")
   
   #- plot log-log relation between d2h and leaf area, compare to allometry from GLAHD
   # windows()

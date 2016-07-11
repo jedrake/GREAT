@@ -59,7 +59,7 @@ dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy~Room,FUN=c(mean,standard.error)
 #- Make a 6-panel plot showing AGR and RGR relative to growth temperature, total crown leaf area,
 #    and total plant mass.
 
-windows(60,50);par(mfrow=c(2,3),mar=c(1,4,1,1),oma=c(9,7,1,1))
+windows(60,50);par(mfrow=c(2,3),mar=c(1,4,1,1),oma=c(7,7,1,1))
 palette(rev(brewer.pal(6,"Spectral")))
 ptsize <- 1.5
 COL <- palette()[c(1,2,6)]
@@ -101,15 +101,16 @@ legend("topright",letters[1],bty="n",cex=1.8)
 
 #------------
 #--- plot the second panel and third panels (AGR vs. leaf area and total mass)
-dat3 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass+init.mass~Tair,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
+dat3 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+canopy.init+totmass+init.mass~Tair,FUN=c(mean,standard.error),
+                  data=subset(dat,W_treatment=="w"),na.rm=T)
 
 #- AGR vs. canopy leaf area
-plotBy(AGR~canopy|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,ylim=c(0,0.5),
+plotBy(AGR~canopy.init|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,ylim=c(0,0.5),
        xlab="",ylab="",cex.lab=2,legend=F,axes=F)
-adderrorbars(x=dat3$canopy.mean,y=dat3$AGR.mean,SE=dat3$AGR.standard.error,direction="updown")
-adderrorbars(x=dat3$canopy.mean,y=dat3$AGR.mean,SE=dat3$canopy.standard.error,direction="leftright")
-plotBy(AGR.mean~canopy.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3,legend=F)
-arrows(x0=dat3$canopy.mean[1:5],x1=dat3$canopy.mean[2:6],y0=dat3$AGR.mean[1:5],y1=dat3$AGR.mean[2:6])
+adderrorbars(x=dat3$canopy.init.mean,y=dat3$AGR.mean,SE=dat3$AGR.standard.error,direction="updown")
+adderrorbars(x=dat3$canopy.init.mean,y=dat3$AGR.mean,SE=dat3$canopy.init.standard.error,direction="leftright")
+plotBy(AGR.mean~canopy.init.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3,legend=F)
+arrows(x0=dat3$canopy.init.mean[1:5],x1=dat3$canopy.init.mean[2:6],y0=dat3$AGR.mean[1:5],y1=dat3$AGR.mean[2:6])
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
 legend("bottomright",levels(as.factor(dat2$Tair)),fill=rev(brewer.pal(6,"Spectral")),cex=1.5,title="Temperature",bty="n")
 legend("topright",letters[3],bty="n",cex=1.8)
@@ -165,15 +166,15 @@ legend("topright",letters[2],bty="n",cex=1.8)
 #--- plot the fifth panel and sixth panels (RGR vs. leaf area and total mass)
 
 #- RGR vs. canopy leaf area
-plotBy(RGR~canopy|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,
+plotBy(RGR~canopy.init|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,
        xlab="",ylab="",cex.lab=2,axes=F,ylim=c(0,0.17),legend=F,
        legendwhere="bottomright")
-adderrorbars(x=dat3$canopy.mean,y=dat3$RGR.mean,SE=dat3$RGR.standard.error,direction="updown")
-adderrorbars(x=dat3$canopy.mean,y=dat3$RGR.mean,SE=dat3$canopy.standard.error,direction="leftright")
-plotBy(RGR.mean~canopy.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3,legend=F)
-arrows(x0=dat3$canopy.mean[1:5],x1=dat3$canopy.mean[2:6],y0=dat3$RGR.mean[1:5],y1=dat3$RGR.mean[2:6])
+adderrorbars(x=dat3$canopy.init.mean,y=dat3$RGR.mean,SE=dat3$RGR.standard.error,direction="updown")
+adderrorbars(x=dat3$canopy.init.mean,y=dat3$RGR.mean,SE=dat3$canopy.init.standard.error,direction="leftright")
+plotBy(RGR.mean~canopy.init.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3,legend=F)
+arrows(x0=dat3$canopy.init.mean[1:5],x1=dat3$canopy.init.mean[2:6],y0=dat3$RGR.mean[1:5],y1=dat3$RGR.mean[2:6])
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
-axis(side=1,at=c(0,500,1000,1500),labels=T,tick=F,cex.axis=2,las=2)
+axis(side=1,at=c(0,500,1000,1500),labels=T,tick=F,cex.axis=2,las=1)
 legend("topright",letters[4],bty="n",cex=1.8)
 
 #- RGR vs. mass
@@ -193,9 +194,9 @@ legend("topright",letters[6],bty="n",cex=1.8)
 #- add axis labels
 title(ylab=expression(AGR~(g~d^-1)),outer=T,adj=0.85,cex.lab=3,line=2)
 title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,adj=0.15,cex.lab=3,line=2)
-title(xlab=expression(T[growth]~(degree*C)),outer=T,adj=0.1,cex.lab=3,line=7)
-title(xlab=expression(Leaf~area~(cm^2)),outer=T,adj=0.55,cex.lab=3,line=7)
-title(xlab=expression(Mass~(g)),outer=T,adj=0.95,cex.lab=3,line=7)
+title(xlab=expression(T[growth]~(degree*C)),outer=T,adj=0.1,cex.lab=3,line=5)
+title(xlab=expression(Leaf~area~(cm^2)),outer=T,adj=0.55,cex.lab=3,line=5)
+title(xlab=expression(Mass~(g)),outer=T,adj=0.95,cex.lab=3,line=5)
 
 #------------
 
