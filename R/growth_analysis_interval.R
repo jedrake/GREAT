@@ -20,6 +20,12 @@ source("R/loadLibraries.R")
 dat.list <- returnRGR(plotson=F)
 dat <- dat.list[[2]]     # RGR and AGR merged with canopy leaf area and SLA for the intensive growth interval only
 dat.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
+
+#- get the total mass at the BEGINNING of the interval, add to the "dat" dataframe
+mass.i <- subset(dat.all,Date==as.Date("2016-01-28"))[,c("Code","totmass")]
+names(mass.i)[2] <- "init.mass"
+
+dat <- merge(dat,mass.i,by="Code")
 #-----------------------------------------------------------------------------------------
 
 
@@ -57,7 +63,8 @@ windows(60,50);par(mfrow=c(2,3),mar=c(1,4,1,1),oma=c(9,7,1,1))
 palette(rev(brewer.pal(6,"Spectral")))
 ptsize <- 1.5
 COL <- palette()[c(1,2,6)]
-dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~Room+Tair+location,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
+dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass+init.mass~Room+Tair+location,FUN=c(mean,standard.error),
+                  data=subset(dat,W_treatment=="w"),na.rm=T)
 
 
 #--- plot AGR vs. T (panel 1)
@@ -87,14 +94,14 @@ plotBy(AGR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
 legend("bottomright",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
 #legend("bottomright",levels(dat2$location),fill=COL,cex=1.5,title="Provenance",bty="n")
-legend("topleft",letters[1],bty="n",cex=1.8)
+legend("topright",letters[1],bty="n",cex=1.8)
 #--
 
 
 
 #------------
 #--- plot the second panel and third panels (AGR vs. leaf area and total mass)
-dat3 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~Tair,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
+dat3 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass+init.mass~Tair,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
 
 #- AGR vs. canopy leaf area
 plotBy(AGR~canopy|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,ylim=c(0,0.5),
@@ -105,19 +112,19 @@ plotBy(AGR.mean~canopy.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch
 arrows(x0=dat3$canopy.mean[1:5],x1=dat3$canopy.mean[2:6],y0=dat3$AGR.mean[1:5],y1=dat3$AGR.mean[2:6])
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
 legend("bottomright",levels(as.factor(dat2$Tair)),fill=rev(brewer.pal(6,"Spectral")),cex=1.5,title="Temperature",bty="n")
-legend("topleft",letters[3],bty="n",cex=1.8)
+legend("topright",letters[3],bty="n",cex=1.8)
 
 
 #- AGR vs. mass
-plotBy(AGR~totmass|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,legend=F,
-       xlim=c(0,9),
+plotBy(AGR~init.mass|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,legend=F,
+       xlim=c(0,5),
        xlab="",ylab="",axes=F)
-adderrorbars(x=dat3$totmass.mean,y=dat3$AGR.mean,SE=dat3$AGR.standard.error,direction="updown")
-adderrorbars(x=dat3$totmass.mean,y=dat3$AGR.mean,SE=dat3$totmass.standard.error,direction="leftright")
-plotBy(AGR.mean~totmass.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3,legend=F)
-arrows(x0=dat3$totmass.mean[1:5],x1=dat3$totmass.mean[2:6],y0=dat3$AGR.mean[1:5],y1=dat3$AGR.mean[2:6])
+adderrorbars(x=dat3$init.mass.mean,y=dat3$AGR.mean,SE=dat3$AGR.standard.error,direction="updown")
+adderrorbars(x=dat3$init.mass.mean,y=dat3$AGR.mean,SE=dat3$init.mass.standard.error,direction="leftright")
+plotBy(AGR.mean~init.mass.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3,legend=F)
+arrows(x0=dat3$init.mass.mean[1:5],x1=dat3$init.mass.mean[2:6],y0=dat3$AGR.mean[1:5],y1=dat3$AGR.mean[2:6])
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
-legend("topleft",letters[5],bty="n",cex=1.8)
+legend("topright",letters[5],bty="n",cex=1.8)
 
 #------------
 
@@ -150,7 +157,7 @@ plotBy(RGR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend
        panel.first=adderrorbars(x=dat2$Tair,y=dat2$RGR.mean,SE=dat2$RGR.standard.error,direction="updown"))
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
 axis(side=1,at=c(20,25,30,35),labels=T,tick=F,cex.axis=2)
-legend("topleft",letters[2],bty="n",cex=1.8)
+legend("topright",letters[2],bty="n",cex=1.8)
 
 
 
@@ -167,19 +174,19 @@ plotBy(RGR.mean~canopy.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch
 arrows(x0=dat3$canopy.mean[1:5],x1=dat3$canopy.mean[2:6],y0=dat3$RGR.mean[1:5],y1=dat3$RGR.mean[2:6])
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
 axis(side=1,at=c(0,500,1000,1500),labels=T,tick=F,cex.axis=2,las=2)
-legend("topleft",letters[4],bty="n",cex=1.8)
+legend("topright",letters[4],bty="n",cex=1.8)
 
 #- RGR vs. mass
-plotBy(RGR~totmass|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,legend=F,ylim=c(0,0.17),
-       xlim=c(0,9),
+plotBy(RGR~init.mass|Tair,data=subset(dat,W_treatment=="w"),col=rev(brewer.pal(6,"Spectral")),pch=16,legend=F,ylim=c(0,0.17),
+       xlim=c(0,5),
        xlab="",ylab="",cex.lab=2,axes=F)
-adderrorbars(x=dat3$totmass.mean,y=dat3$RGR.mean,SE=dat3$RGR.standard.error,direction="updown")
-adderrorbars(x=dat3$totmass.mean,y=dat3$RGR.mean,SE=dat3$totmass.standard.error,direction="leftright")
-plotBy(RGR.mean~totmass.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3,legend=F)
-arrows(x0=dat3$totmass.mean[1:5],x1=dat3$totmass.mean[2:6],y0=dat3$RGR.mean[1:5],y1=dat3$RGR.mean[2:6])
+adderrorbars(x=dat3$init.mass.mean,y=dat3$RGR.mean,SE=dat3$RGR.standard.error,direction="updown")
+adderrorbars(x=dat3$init.mass.mean,y=dat3$RGR.mean,SE=dat3$init.mass.standard.error,direction="leftright")
+plotBy(RGR.mean~init.mass.mean|Tair,data=dat3,col=rev(brewer.pal(6,"Spectral")),pch=15,add=T,cex=3,legend=F)
+arrows(x0=dat3$init.mass.mean[1:5],x1=dat3$init.mass.mean[2:6],y0=dat3$RGR.mean[1:5],y1=dat3$RGR.mean[2:6])
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
 axis(side=1,at=c(0,2,4,6,8),labels=T,tick=F,cex.axis=2)
-legend("topleft",letters[6],bty="n",cex=1.8)
+legend("topright",letters[6],bty="n",cex=1.8)
 
 
 
