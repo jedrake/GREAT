@@ -36,6 +36,7 @@ MASSvTfits.l <- lapply(massdata.l,FUN=fitJuneT,start=list(Rref=5,Topt=30,theta=5
 #- get the data, process it for RGR.
 dat.list <- returnRGR(plotson=F)
 agr <- dat.list[[2]]     # RGR and AGR merged with canopy leaf area and SLA for the intensive growth interval only
+#agr <- subset(agr,Date==as.Date("2016-02-08"))
 agr.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
 #-----------------------------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ tofit.l <- split(tofit,tofit$location)
 #- fit AGR and RGR T response curves
 AGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.5,Topt=30,theta=5),namey="AGR",namex="Tair",lengthPredict=20)
 
-agr2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass~Room+Tair+location,FUN=c(mean,standard.error),data=subset(agr,W_treatment=="w"),na.rm=T)
+agr2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF~Room+Tair+location,FUN=c(mean,standard.error),data=subset(agr,W_treatment=="w"),na.rm=T)
 
 #-----------------------------------------------------------------------------------------
 # 

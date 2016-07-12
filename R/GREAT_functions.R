@@ -667,7 +667,7 @@ returnRGR <- function(path="data",plotson=F){
   
   
   #- pull out the most important agr and rgr estimates (during our growth interval from Jan 28th to Feb 8th)
-  rgrinterval1 <- subset(hddata2,Date==as.Date("2016-02-08"))
+  rgrinterval1 <- subset(hddata2,Date %in% as.Date(c("2016-01-28","2016-02-08")))
   rgrinterval <- rgrinterval1[complete.cases(rgrinterval1),] # remove missing data
   #-----------------------------------------------------------------------------------------
   
@@ -705,18 +705,20 @@ returnRGR <- function(path="data",plotson=F){
   #- merge in total plant leaf number
   leaf_no <-summaryBy(Leafno~Code,data=la,FUN=sum,keep.names=T)
   la2 <- merge(la2,leaf_no,by="Code")
+  la2$Date[which(la2$Date==as.Date("2016-02-09"))] <- as.Date("2016-02-08") # fix dates
   
   ##- average the leaf area data across the two dates, which bracket the RGR growth interval
+  # no longer needed?
   la.m <- summaryBy(canopy+canopy2+Leafno~Room+Code+Prov+prov_trt+W_treatment,data=la2,FUN=mean,keep.names=T)
   
   #- average teh leaf area data, but keep the two dates separate! Changed on 12 July 2016.
   #- This gives an estimate of teh initial canopy size, at teh beginning of the interval.
-  la.init <- summaryBy(canopy~Room+Code+Prov+prov_trt+W_treatment,
+  la.init <- summaryBy(canopy~Code,
                        data=subset(la2,Date==as.Date("2016-01-28")),FUN=mean,keep.names=T)[,c("Code","canopy")]
   names(la.init)[2] <- "canopy.init"
   
   #- merge total plant leaf area with tree size from the interval measurements
-  la3 <- merge(la.m,subset(rgrinterval,Date %in% as.Date(c("2016-1-28","2016-02-08"))),by=c("Room","Prov","prov_trt","Code","W_treatment"))
+  la3 <- merge(la2,rgrinterval1,by=c("Room","Prov","prov_trt","Code","W_treatment","Date"))
   la3 <- la3[complete.cases(la3),]
   la3$logLA <- with(la3,log10(canopy))
   la3$logd2h <- with(la3,log10(d2h))
@@ -740,8 +742,10 @@ returnRGR <- function(path="data",plotson=F){
   #--------------------------------------------------------------------------------------------------------------------
   #---- get the SLA data from punches. SLA increase with temperature, to a point.
   sla1 <- getPunches()
-  sla <- summaryBy(SLA+LMA~Room+Prov+Code+prov_trt+W_treatment,FUN=mean,keep.names=T,data=sla1)
-  rgrdat <- merge(la3,sla,by=c("Room","Prov","Code","prov_trt","W_treatment"))
+  sla1$Date <- sla1$Date-1 # fix up the dates
+  
+  sla <- summaryBy(SLA+LMA~Room+Prov+Code+prov_trt+W_treatment+Date,FUN=mean,keep.names=T,data=sla1)
+  rgrdat <- merge(la3,sla,by=c("Room","Prov","Code","prov_trt","W_treatment","Date"))
 
   
   
@@ -772,7 +776,7 @@ returnRGR <- function(path="data",plotson=F){
   
   
   #- get rid of some unwanted variabels to make things simpler
-  rgrdat$canopy2 <- rgrdat$Date <- rgrdat$D1 <- rgrdat$D2 <- rgrdat$Comment <- rgrdat$Leafno <- NULL
+  rgrdat$canopy2 <- rgrdat$D1 <- rgrdat$D2 <- rgrdat$Comment <- rgrdat$Leafno <- NULL
   
   
   #- work out the air temperature and new provenance keys
@@ -780,13 +784,22 @@ returnRGR <- function(path="data",plotson=F){
   #hddata3 <- merge(hddata2,key,by="Room")
   rgrdat2 <- merge(rgrdat,key,by=c("Room","Tair"))
   
+  #---------------------
+  #--- put final dataset together
   
+  #- AGR and RGR need to be extracted from the second date only (they were calculated by difference)
+  rgrdat3 <- subset(rgrdat2,Date==as.Date("2016-02-08"))[,c("Code","AGR","RGR")]
+  #- average RGR metrics across dates to provide interval averaged estimates
+  rgrdat2.m <- summaryBy(LAR+NAR+LMF+SLA+canopy.init~Room+Tair+Prov+Code+W_treatment+location,
+                         data=rgrdat2,FUN=mean,keep.names=T)
   
-  key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
-                                                                   levels=c("Cold-edge","Central","Warm-edge")))
+  rgrdat4 <- merge(rgrdat3,rgrdat2.m,by="Code")
+  #---------------------
+  #key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+  #                                                                 levels=c("Cold-edge","Central","Warm-edge")))
  # hddata4 <- merge(hddata3,key2,by=c("Prov","location"))
   
-  return(list(hddata2,rgrdat2))
+  return(list(hddata2,rgrdat4,rgrdat2))
 
 
   
