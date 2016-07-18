@@ -883,13 +883,11 @@ plotAussie <- function(export=F){
   
   #Tereticornis
   #create and export map with seed locations
-  windows(20,40);par(oma=c(5,5,1,1))
+  #windows(20,40);par(oma=c(5,5,1,1))
   map("worldHires", regions="australia", bg="white", fill=F, xlim=c(141.5, 155), ylim=c(-40, -10),mar=c(1,0,1,0),myboarder=0) 
   plot(pol,add=T,col="grey") #plot the joined circles\
-  axis(2,line=1,at=c(-45,-35,-25,-15,0),cex.axis=1)
-  axis(1,line=1,at=c(140,145,150,155),cex.axis=1)
-  title(ylab=expression(Latitude~(degree)),outer=T,cex.lab=1.5)
-  title(xlab=expression(Longitude~(degree)),outer=T,cex.lab=1.5)
+  axis(2,line=0.5,at=c(-45,-35,-25,-15,0),cex.axis=1)
+  axis(1,line=0.5,at=c(140,145,150,155),cex.axis=1)
   
   #clip to the sea boarder
   outline <- map("worldHires", regions="Australia", exact=TRUE, plot=FALSE) # returns a list of x/y coords

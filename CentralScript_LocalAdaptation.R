@@ -81,7 +81,10 @@ source("R/make_table_Rdark_Tresponses.R")
 
 #-------------------------------------------------------------------------------------
 #- Make Figure S1. Map of provenances
-plotAussie(export=F)
+#plotAussie(export=F)
+
+#- The following can take a long time to download and interpolate all of the climate data
+source("R/plot_map_spatial_climate.R")
 #-------------------------------------------------------------------------------------
 
 

@@ -52,10 +52,12 @@ dat.s30 <- subset(dat.s30,sp=="t" & treat !="r")
 #   So I have to normalize each dataset before comparing them, or some such.
 
 #- normalize great
-dat.gr$totdm_norm <- (dat.gr$totdm-min(dat.gr$totdm))/(max(dat.gr$totdm)-min(dat.gr$totdm))
+#dat.gr$totdm_norm <- (dat.gr$totdm-min(dat.gr$totdm))/(max(dat.gr$totdm)-min(dat.gr$totdm))
+dat.gr$totdm_norm <- dat.gr$totdm/11.345076 # normalize by average mass in 28.5 degree room
 
 #- normalize S30
-dat.s30$totdm_norm <- (dat.s30$totalDM-min(dat.s30$totalDM))/(max(dat.s30$totalDM)-min(dat.s30$totalDM))
+#dat.s30$totdm_norm <- (dat.s30$totalDM-min(dat.s30$totalDM))/(max(dat.s30$totalDM)-min(dat.s30$totalDM))
+dat.s30$totdm_norm <- dat.s30$totalDM/30.27427 # normalize by average mass in 28.5 degree room
 
 #- average the normalized data for both datasets
 dat.gr.n <- summaryBy(totdm+totdm_norm~Tair,data=dat.gr,FUN=c(mean,standard.error))
@@ -74,7 +76,7 @@ palette(c("black","darkgrey"))
 
 #- plot the GREAT data
 plot(totdm_norm.mean~Tair,data=dat.gr.n,type="o",axes=F,xlab="",ylab="",pch=16,col=palette()[1],
-     ylim=c(0,1),cex=2)
+     ylim=c(0,1.09),cex=2)
 adderrorbars(x=dat.gr.n$Tair,y=dat.gr.n$totdm_norm.mean,
                               SE=dat.gr.n$totdm_norm.standard.error,direction="updown")
 magaxis(side=c(1,2),labels=c(1,1),las=1,frame.plot=T)
@@ -88,7 +90,7 @@ points(totdm_norm.mean~Tair,data=dat.s30.n,type="o",axes=F,xlab="",ylab="",pch=1
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
 title(ylab=expression(Final~total~mass~(normalized)),cex.lab=2,line=4)
 
-legend("topright",legend=c("This study",expression(Drake~italic(et~al.)~(2015))),pch=16,col=palette()[1:2],cex=1.5)
+legend("bottomright",legend=c("This study",expression(Drake~italic(et~al.)~(2015))),pch=16,col=palette()[1:2],cex=1.5)
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
