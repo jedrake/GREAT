@@ -97,6 +97,8 @@ windows(2*40,40);par(mar=c(6,8,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(
 palette(rev(brewer.pal(6,"Spectral")))
 
 COL=palette()[c(1,2,6)]
+palette(COL) 
+
 xlims <- c(15,40)
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
@@ -132,9 +134,10 @@ legend("topleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title
 #- add TREATMENT MEANS for mass
 dat3 <- summaryBy(totdm+Tair~Room+location,FUN=c(mean,standard.error),data=massdata,na.rm=T)
 
-plotBy(totdm.mean~Tair.mean|location,data=dat3,add=T,pch=16,cex=2,legend=F,col=COL,
+plotBy(totdm.mean~Tair.mean|location,data=dat3,add=T,pch=16,cex=0.5,legend=F,col=COL,
        panel.first=(adderrorbars(x=dat3$Tair.mean,y=dat3$totdm.mean,
                                  SE=dat3$totdm.standard.error,direction="updown")))
+points(totdm.mean~Tair.mean,data=dat3,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 
 
 #- gussy up the graph
@@ -167,9 +170,12 @@ polygon(x = c(cs.agr$Tleaf, rev(cs.agr$Tleaf)), y = c(cs.agr$Sim.97.5., rev(cs.a
 
 #- add TREATMENT MEANS
 plotBy(AGR.mean~Tair|location,data=agr2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,
-       axes=F,xlab="",ylab="",cex=2,col=COL,add=T,
+       axes=F,xlab="",ylab="",cex=0.5,col=COL,add=T,
        panel.first=adderrorbars(x=agr2$Tair,y=agr2$AGR.mean,SE=agr2$AGR.standard.error,direction="updown"))
 magaxis(side=1:4,labels=c(1,1,0,0),las=1,cex.axis=1.4)
+points(AGR.mean~Tair,data=agr2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+
+
 #legend("bottomright",levels(dat2$location),fill=COL,cex=1.2,title="Provenance",bty="n")
 legend("topright",letters[2],bty="n",cex=1.5)
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
