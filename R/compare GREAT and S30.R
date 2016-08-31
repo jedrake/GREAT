@@ -60,8 +60,8 @@ dat.gr$totdm_norm <- dat.gr$totdm/11.345076 # normalize by average mass in 28.5 
 dat.s30$totdm_norm <- dat.s30$totalDM/30.27427 # normalize by average mass in 28.5 degree room
 
 #- average the normalized data for both datasets
-dat.gr.n <- summaryBy(totdm+totdm_norm~Tair,data=dat.gr,FUN=c(mean,standard.error))
-dat.s30.n <- summaryBy(totalDM+totdm_norm~Tair,data=dat.s30,FUN=c(mean,standard.error))
+dat.gr.n <- summaryBy(totdm+totdm_norm~Tair+Prov,data=dat.gr,FUN=c(mean,standard.error))
+dat.s30.n <- summaryBy(totalDM+totdm_norm~Tair+prov,data=dat.s30,FUN=c(mean,standard.error))
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
@@ -72,11 +72,12 @@ dat.s30.n <- summaryBy(totalDM+totdm_norm~Tair,data=dat.s30,FUN=c(mean,standard.
 #- plot normalized data relative to the growth temperature
 
 windows(40,50);par(mar=c(6,8,1,1),mfrow=c(1,1),cex.lab=1.5,cex.axis=1.2,oma=c(2,0,0,0))
-palette(c("black","darkgrey"))
+palette(c("red","green","blue"))
+palette(c("red","green","blue",rev(brewer.pal(11,"Spectral"))))
 
 #- plot the GREAT data
-plot(totdm_norm.mean~Tair,data=dat.gr.n,type="o",axes=F,xlab="",ylab="",pch=16,col=palette()[1],
-     ylim=c(0,1.09),cex=2)
+plotBy(totdm_norm.mean~Tair|Prov,data=dat.gr.n,type="o",axes=F,xlab="",ylab="",pch=16,col=palette()[1:3],
+     ylim=c(0,1.2),cex=2,legend=F)
 adderrorbars(x=dat.gr.n$Tair,y=dat.gr.n$totdm_norm.mean,
                               SE=dat.gr.n$totdm_norm.standard.error,direction="updown")
 magaxis(side=c(1,2),labels=c(1,1),las=1,frame.plot=T)
@@ -84,13 +85,14 @@ magaxis(side=c(1,2),labels=c(1,1),las=1,frame.plot=T)
 #- overlay the S30 data
 adderrorbars(x=dat.s30.n$Tair,y=dat.s30.n$totdm_norm.mean,
              SE=dat.s30.n$totdm_norm.standard.error,direction="updown")
-points(totdm_norm.mean~Tair,data=dat.s30.n,type="o",axes=F,xlab="",ylab="",pch=16,col=palette()[2],
-     ylim=c(0,1),cex=2)
+plotBy(totdm_norm.mean~Tair|prov,data=dat.s30.n,type="o",axes=F,xlab="",ylab="",pch=21,col=palette()[4:11],
+     ylim=c(0,1),cex=2,add=T,legend=F)
 
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
 title(ylab=expression(Final~total~mass~(normalized)),cex.lab=2,line=4)
 
-legend("bottomright",legend=c("This study",expression(Drake~italic(et~al.)~(2015))),pch=16,col=palette()[1:2],cex=1.5)
+legend("bottomright",legend=c("This study",expression(Drake~italic(et~al.)~(2015))),pch=c(16,21)
+       ,col="black",cex=1.5)
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
