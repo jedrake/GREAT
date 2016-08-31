@@ -93,7 +93,7 @@ agr2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF~Room+Tair+location,FUN=c(mean,standard
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- set up the plot
-windows(60,40);par(mar=c(6,8,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(2,0,0,0))
+windows(2*40,40);par(mar=c(6,8,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(2,0,0,0))
 palette(rev(brewer.pal(6,"Spectral")))
 
 COL=palette()[c(1,2,6)]
