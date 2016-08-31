@@ -52,7 +52,9 @@ dat3 <- summaryBy(Photo+Tair+Tleaf~Room+location,FUN=c(mean,standard.error),data
 adderrorbars(x=dat3$Tleaf.mean,y=dat3$Photo.mean,SE=dat3$Photo.standard.error,direction="updown")
 adderrorbars(x=dat3$Tleaf.mean,y=dat3$Photo.mean,SE=dat3$Tleaf.standard.error,direction="leftright")
 
-plotBy(Photo.mean~Tleaf.mean|location,data=dat3,add=T,pch=16,cex=2,legend=F,col=COL)
+#plotBy(Photo.mean~Tleaf.mean|location,data=dat3,add=T,pch=21,cex=2,legend=F,col="black")
+palette(COL) 
+points(Photo.mean~Tleaf.mean,data=dat3,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 
 
 #- gussy up the graph
