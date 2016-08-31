@@ -53,12 +53,12 @@ title(xlab=expression(Longitude~(degree)),outer=F,cex.lab=1.5,line=4,xpd=NA)
 legend("topright",bty="n",legend=letters[1],cex=2)
 
 #- plot climate distributions
-plot(bio5~bio6,dat=toplot,col="grey",axes=F,ylab="",xlab="")
-points(bio5~bio6,data=drakeseed,col="black",bg="white",pch=21,cex=2)
-points(bio5~bio6,data=myseed,col="black",pch=16,cex=2)
-title(xlab=expression(bio6~":"~Mean~minimum~T~of~coldest~month~(degree*C)),xpd="NA",cex.lab=1.5)
-title(ylab=expression(bio5~":"~Mean~maximum~T~of~warmest~month~(degree*C)),xpd="NA",cex.lab=1.5)
+plot(bio6~bio5,dat=toplot,col="grey",axes=F,ylab="",xlab="")
+points(bio6~bio5,data=drakeseed,col="black",bg="white",pch=21,cex=2)
+points(bio6~bio5,data=myseed,col="black",pch=16,cex=2)
+title(ylab=expression(bio6~":"~Mean~minimum~T~of~coldest~month~(degree*C)),xpd="NA",cex.lab=1.5)
+title(xlab=expression(bio5~":"~Mean~maximum~T~of~warmest~month~(degree*C)),xpd="NA",cex.lab=1.5)
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T)
 legend("topright",bty="n",legend=letters[2],cex=2)
-
+abline(h=0,lty=2,col="grey")
 #-----------------------------------------------------------------------------------------
