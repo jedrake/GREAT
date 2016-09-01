@@ -39,6 +39,9 @@ dat.s30$Tair[which(dat.s30$treat=="w")] <- dat.s30$homet[which(dat.s30$treat=="w
 
 #- get rid of the grandis or recipricol transplanted plants
 dat.s30 <- subset(dat.s30,sp=="t" & treat !="r")
+
+#- make a new factor variable that is a combination of homet and treat
+dat.s30$combotrt <- factor(paste(dat.s30$treat,dat.s30$homet,sep="-"))
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
@@ -60,8 +63,9 @@ dat.gr$totdm_norm <- dat.gr$totdm/11.345076 # normalize by average mass in 28.5 
 dat.s30$totdm_norm <- dat.s30$totalDM/30.27427 # normalize by average mass in 28.5 degree room
 
 #- average the normalized data for both datasets
-dat.gr.n <- summaryBy(totdm+totdm_norm~Tair+Prov,data=dat.gr,FUN=c(mean,standard.error))
-dat.s30.n <- summaryBy(totalDM+totdm_norm~Tair+prov,data=dat.s30,FUN=c(mean,standard.error))
+dat.gr.n <- summaryBy(totdm+totdm_norm~Tair,data=dat.gr,FUN=c(mean,standard.error))
+dat.s30.n <- summaryBy(totalDM+totdm_norm~Tair+combotrt,data=dat.s30,FUN=c(mean,standard.error))
+dat.s30.n$treat <- factor(substr(as.character(dat.s30.n$combotrt),start=1,stop=1))
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
@@ -76,7 +80,7 @@ palette(c("red","green","blue"))
 palette(c("red","green","blue",rev(brewer.pal(11,"Spectral"))))
 
 #- plot the GREAT data
-plotBy(totdm_norm.mean~Tair|Prov,data=dat.gr.n,type="o",axes=F,xlab="",ylab="",pch=16,col=palette()[1:3],
+plot(totdm_norm.mean~Tair,data=dat.gr.n,type="o",axes=F,xlab="",ylab="",pch=16,col="black",
      ylim=c(0,1.2),cex=2,legend=F)
 adderrorbars(x=dat.gr.n$Tair,y=dat.gr.n$totdm_norm.mean,
                               SE=dat.gr.n$totdm_norm.standard.error,direction="updown")
@@ -85,14 +89,22 @@ magaxis(side=c(1,2),labels=c(1,1),las=1,frame.plot=T)
 #- overlay the S30 data
 adderrorbars(x=dat.s30.n$Tair,y=dat.s30.n$totdm_norm.mean,
              SE=dat.s30.n$totdm_norm.standard.error,direction="updown")
-plotBy(totdm_norm.mean~Tair|prov,data=dat.s30.n,type="o",axes=F,xlab="",ylab="",pch=21,col=palette()[4:11],
+plotBy(totdm_norm.mean~Tair|combotrt,data=dat.s30.n,type="o",axes=F,xlab="",ylab="",pch=21,col=c("black"),
      ylim=c(0,1),cex=2,add=T,legend=F)
+palette(c("blue","red"))
+points(totdm_norm.mean~Tair,data=dat.s30.n,add=T,pch=21,cex=2,legend=F,col="black",bg=treat)
+
+arrows(x0=dat.s30.n$Tair[c(1,2,4,6)],y0=dat.s30.n$totdm_norm.mean[c(1,2,4,6)],
+       x1=dat.s30.n$Tair[c(3,5,7,8)],y1=dat.s30.n$totdm_norm.mean[c(3,5,7,8)],
+       code=2)
+
 
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
 title(ylab=expression(Final~total~mass~(normalized)),cex.lab=2,line=4)
 
-legend("bottomright",legend=c("This study",expression(Drake~italic(et~al.)~(2015))),pch=c(16,21)
-       ,col="black",cex=1.5)
+legend("bottomright",legend=c("This study",expression(Drake~italic(et~al.)~(2015)~Home),
+                              expression(Drake~italic(et~al.)~(2015)~Warmed)),pch=c(21,21,21)
+       ,col="black",cex=1.5,pt.bg=c("black","blue","red"))
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
