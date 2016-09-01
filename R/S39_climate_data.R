@@ -89,6 +89,14 @@ lookup$room[which(lookup$bay==8)] <- ifelse(lookup$Date[which(lookup$bay==8)] < 
 
 dat.fast.hr <- merge(dat.fast.hr,lookup,by=c("Date","bay"))
 dat.fast.hr$room <- factor(dat.fast.hr$room)
+
+
+#--- average across rooms for PAR
+dat.fast.hr.par <- dplyr::summarize(group_by(dat.fast.hr,DateTime_hr),PAR=mean(PAR,na.rm=T))
+
+#- NA-fill dates of rotation
+#tonafill <- which(dat.fast.hr$Date%in% c(as.Date("2016-1-20"),as.Date("2016-1-21")))
+#dat.fast.hr[tonafill,c("Tair","RH","VPD")] <- NA
 dat.fast.hr <- dat.fast.hr[!(dat.fast.hr$Date %in% c(as.Date("2016-1-20"),as.Date("2016-1-21"))),] #- remove dates of rotation
 dat.fast.hr <- dat.fast.hr[with(dat.fast.hr,order(DateTime_hr,room)),]
 
@@ -135,6 +143,8 @@ dat.fast.day$PARsum_mol <- dat.fast.day$PARsum*60*60*1e-6
 
 
 
+
+
 #- set up the palette
 COL <- rev(brewer.pal(6,"Spectral"))
 
@@ -152,7 +162,7 @@ plotBy(VPD~Date|room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
 legend("topright",letters[3],bty="n",cex=1.2)
 
-plotBy(PAR~DateTime_hr|room,type="l",col=COL,data=dat.fast.hr,legend=F,lwd=2,axes=F,ylim=c(0,2000))
+plot(PAR~DateTime_hr,type="l",col="black",data=dat.fast.hr.par,legend=F,lwd=1.5,axes=F,ylim=c(0,2000))
 axis.POSIXct(side=1,at=seq.POSIXt(from=as.POSIXct("2016-01-01"),to=max(dat.fast.hr$DateTime_hr),by="week"),labels=F)
 axis(2);box()
 axis.POSIXct(side=1,at=seq.POSIXt(from=as.POSIXct("2016-01-01"),to=max(dat.fast.hr$DateTime_hr),by="week"),labels=T,
