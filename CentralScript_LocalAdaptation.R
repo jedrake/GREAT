@@ -29,7 +29,7 @@ source("R/plotConceptualFig.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Figure 2. Long-term A-T response curves.
+#- Figure 2. Long-term photosynthesis vs. temperaure response curves.
 source("R/plot_AT_longterm.R")
 #-------------------------------------------------------------------------------------
 
@@ -42,16 +42,16 @@ source("R/R_components_harvest.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 2. Temperature response of final mass and absolute growth rate
+#- Make figure 4. Temperature response of final mass and absolute growth rate
 source("R/plot_mass_AGR.R")
 #-------------------------------------------------------------------------------------
 
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 3. Growth analysis of the intensive interval
+#- Make figure 5. Growth analysis of the intensive interval
 # Plots RGR, LAR, and NAR versus temperature
-source("R/growth_analysis_interval_figure3.R")
+source("R/RGR_growth_analysis_interval.R")
 #-------------------------------------------------------------------------------------
 
 
