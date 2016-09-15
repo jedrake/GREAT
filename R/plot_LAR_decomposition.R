@@ -23,7 +23,7 @@ dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+Tair~Room+Prov+location,FUN=c(mean,sta
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
-#- Fit T-response curves for SLA, LMF, and NAR
+#- Fit T-response curves for SLA
 
 
 #-----------------------------------------------------------------------------------------
@@ -49,9 +49,10 @@ for(i in 1:length(dat.l)){
   LMFfits.l[[i]] <- lm(LMF ~Tair,data=dat.l[[i]])
   
 }
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------
+
 
 
 
@@ -171,7 +172,7 @@ NL.pred$location <- factor(NL.pred$location,levels=c("Cold-edge","Central","Warm
 #-----------------------------------------------------------------------------------------
 #- plot temperature response curves for SLA, LMF, leafsize, and leaf number
 
-windows(30,30);par(mfrow=c(2,2),mar=c(2,6,1,1),oma=c(3,3,1,2))
+windows(48,30);par(mfrow=c(2,2),mar=c(2,6,1,1),oma=c(3,3,1,2))
 palette(rev(brewer.pal(6,"Spectral")))
 
 COL=palette()[c(1,2,6)]
@@ -192,10 +193,11 @@ polygon(x = c(cs.m$Tleaf, rev(cs.m$Tleaf)), y = c(cs.m$Sim.97.5., rev(cs.m$Sim.2
 #legend("topleft",levels(SLA.pred$location),fill=COL,cex=1.7,title="Provenance")
 
 #- SLA
-plotBy(SLA.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(250,500),legend=F,pch=16,cex=2,
+plotBy(SLA.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(250,500),legend=F,pch=16,cex=0.5,
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair.mean,y=dat2$SLA.mean,SE=dat2$SLA.standard.error,direction="updown"))
-
+palette(COL) 
+points(SLA.mean~Tair.mean,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 
 magaxis(side=1:4,labels=c(0,1,0,0),las=1)
 magaxis(side=1,labels=c(1),las=1)
@@ -215,6 +217,9 @@ predline(LMFfits.l[[3]],col=alpha(COL[3],0.5))
 plotBy(LMF.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.6),legend=F,pch=16,cex=2,
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair.mean,y=dat2$LMF.mean,SE=dat2$LMF.standard.error,direction="updown"))
+
+palette(COL) 
+points(LMF.mean~Tair.mean,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 
 
 magaxis(side=1:4,labels=c(0,1,0,0),las=1)
@@ -250,6 +255,9 @@ plotBy(Leafarea.mean~Tair.mean|location,data=leaf_size,las=1,legend=F,pch=16,cex
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=leaf_size$Tair.mean,y=leaf_size$Leafarea.mean,SE=leaf_size$Leafarea.standard.error,direction="updown"))
 
+palette(COL) 
+points(Leafarea.mean~Tair.mean,data=leaf_size,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+
 
 magaxis(side=1:4,labels=c(0,1,0,0),las=1)
 magaxis(side=1,labels=c(1),las=1)
@@ -280,6 +288,8 @@ plotBy(leaf_inc.mean~Tair.mean|location,data=newleaves.m,las=1,legend=F,pch=16,c
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=newleaves.m$Tair.mean,y=newleaves.m$leaf_inc.mean,SE=newleaves.m$leaf_inc.standard.error,direction="updown"))
 
+palette(COL) 
+points(leaf_inc.mean~Tair.mean,data=newleaves.m,add=T,pch=21,cex=2,legend=F,col="black",bg=as.factor(location))
 
 magaxis(side=1:4,labels=c(0,1,0,0),las=1)
 magaxis(side=1,labels=c(1),las=1)
@@ -310,6 +320,59 @@ legend("topleft",letters[4],bty="n",cex=1.2)
 # #-----------------------------------------------------------------------------------------
 
 
-title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.6,line=1)
+title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.25,line=1)
+title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.85,line=1)
 
 dev.copy2pdf(file="output/Figure4_leaves.pdf")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- Are leaf size and SLA correlated?
+
+#- process the total plant leaf area data
+la.raw <- getLA()
+
+#- work out the air temperature and new provenance keys
+key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
+key2 <- data.frame(Prov=as.factor(LETTERS[1:3]),location= factor(c("Cold-edge","Warm-edge","Central"),
+                                                                 levels=c("Cold-edge","Central","Warm-edge")))
+la1 <- merge(la.raw,key,by="Room")
+la <- merge(la1,key2,by="Prov")
+la$Date[which(la$Date==as.Date("2016-01-28"))] <- as.Date("2016-01-29") # add one to the leaf area dates to facilitate merging
+
+#- pull out just the large leaves
+la.large <- subset(la,Leafsize=="large")
+
+#-- get the SLA data
+SLA <- getSLA()[[1]] # these are the punches of the SAME plants measured for leaf size
+
+
+
+#- merge SLA and leaf size datasets
+dat2 <- merge(SLA,la.large,by=c("Room","Prov","Code","W_treatment","Date","prov_trt"))
+
+plot(SLA~Leafarea,data=dat2,xlab="leaf size (cm2)",ylab="SLA")
+
+#- average across groups
+dat2.m <- summaryBy(SLA+Leafarea~Tair,data=subset(dat2,W_treatment=="w"),FUN=mean,keep.names=T,na.rm=T)
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
