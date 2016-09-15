@@ -96,7 +96,7 @@ points(totdm_norm.mean~Tair,data=dat.s30.n,add=T,pch=21,cex=2,legend=F,col="blac
 
 arrows(x0=dat.s30.n$Tair[c(1,2,4,6)],y0=dat.s30.n$totdm_norm.mean[c(1,2,4,6)],
        x1=dat.s30.n$Tair[c(3,5,7,8)],y1=dat.s30.n$totdm_norm.mean[c(3,5,7,8)],
-       code=2)
+       code=2,lty=2)
 
 
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
