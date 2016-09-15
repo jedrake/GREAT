@@ -1,19 +1,8 @@
-library(HIEv)
-library(stringr)
-library(dplyr)
-library(plantecophys)
-library(plotBy)
-library(doBy)
-library(reshape2)
-library(RColorBrewer)
-
-source("R/generic_functions.R")
-
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #-- Script to read, process, and plot the climate data from the S39 glasshouse
-#-- The data consist of "fast" data recorded every minute (PAR, Tair, and RH),
-#--    and "slow" data recorded every 15-minutes (soil VWC)
+#-- The data consist of "fast" air variable data recorded every minute (PAR, Tair, and RH),
+#--    and "slow" soil data recorded every 15-minutes (soil VWC)
 #-- This script reads and processes them separately.
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
@@ -21,144 +10,108 @@ source("R/generic_functions.R")
 
 
 
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- read in the "fast" air vars dataset. (PAR, Tair, and RH measured minutely)
+dat.fast <- data.frame(data.table::fread("data/GHS39_GREAT_MAIN_MET-AIR_20160107-20160302_L1.csv"))
+dat.fast$V1 <- NULL # get rid of the first junk column
+dat.fast$DateTime <- as.POSIXct(dat.fast$DateTime,format="%Y-%m-%d %T",tz="UTC")
+dat.fast$Date <- as.Date(dat.fast$Date)
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
-#- get the "fast" files. This takes a little while, as the files are huge.
-fastfiles <- list.files("W://WORKING_DATA/GHS39/GREAT/Share/Data/climate/s39climate20160302/",pattern="fast",full.names=T)
-
-dat <- list()
-for(i in 1:length(fastfiles)){
-  #- read in the data
-  dat[[i]] <- readTOA5(fastfiles[i])
-  
-  #- extract the room number from the filename
-  name <- tolower(fastfiles[i])
-  dat[[i]]$bay <- as.factor(substr(str_extract(name,pattern="room[0-9]"),start=5,stop=5))
-}
-dat.fast.all <- do.call(rbind,dat)
-
-#- subset to rooms 3-8 and after Jan 8th 2016.
-dat.fast <- subset(dat.fast.all,DateTime > as.POSIXct("2016-1-8 00:00:00") & bay %in% 3:8)
-dat.fast$Date <- as.Date(dat.fast$DateTime)
-dat.fast$bay <- factor(dat.fast$bay)
-
-#- NA fill the PAR sensors in BAYS other than 3, 4, or 5 prior to 4 Feb 2016.
-toNAfill <- which(dat.fast$DateTime < as.POSIXct("2016-02-05 00:00:00",tz="UTC") & dat.fast$bay %in% 6:8)
-dat.fast$PAR[toNAfill] <- NA
-dat.fast$PAR_Avg[toNAfill] <- NA
-
-dat.fast <- dat.fast[,c("Date","DateTime","bay","BattV_Min","Tair_Avg","RH_Avg","PAR_Avg")]
-
-#- calculate VPD
-dat.fast$VPD_Avg <- RHtoVPD(RH=dat.fast$RH_Avg,TdegC=dat.fast$Tair_Avg)
-#-----------------------------------------------------------------------------------------
-
-
-#-----------------------------------------------------------------------------------------
-#- process "fast" data
-
-#- hourly averages
-dat.fast$DateTime_hr <- as.POSIXct(round.POSIXt(dat.fast$DateTime,units="hours"))
+#- process "fast" data into hourly averages, NA-fill data on the rotation days
 
 
 #- create hourly averages
-dat.fast.hr <- dplyr::summarize(group_by(dat.fast,DateTime_hr,bay),
-                           BattV_Min=mean(BattV_Min,na.rm=T),
-                           Tair=mean(Tair_Avg,na.rm=T),
-                           RH=mean(RH_Avg,na.rm=T),
-                           VPD=mean(VPD_Avg,na.rm=T),
-                           PAR=mean(PAR_Avg,na.rm=T))
+dat.fast$DateTime_hr <- nearestTimeStep(dat.fast$DateTime,nminutes=60,align="floor")
+dat.fast.hr <- dplyr::summarize(group_by(dat.fast,DateTime_hr,Bay,Room,Date),
+                           Tair=mean(Tair,na.rm=T),
+                           RH=mean(RH,na.rm=T),
+                           VPD=mean(VPD,na.rm=T),
+                           PAR=mean(PAR,na.rm=T))
 dat.fast.hr <- as.data.frame(dat.fast.hr)
-dat.fast.hr$Date <- as.Date(dat.fast.hr$DateTime_hr)
-
-
-
-#-----------------------------------------------------------------------------------------
-#- make a conversion table between bay and room numbers, which depends on date (rooms were rotated)
-lookup <- expand.grid(bay=3:8,
-                      Date=seq.Date(from=min(dat.fast.hr$Date),to=max(dat.fast.hr$Date),by=1),
-                      room=NA)
-lookup$room[which(lookup$bay==3)] <- ifelse(lookup$Date[which(lookup$bay==3)] < as.Date("2016-1-21"),1,2)
-lookup$room[which(lookup$bay==4)] <- ifelse(lookup$Date[which(lookup$bay==4)] < as.Date("2016-1-21"),2,5)
-lookup$room[which(lookup$bay==5)] <- ifelse(lookup$Date[which(lookup$bay==5)] < as.Date("2016-1-21"),3,6)
-lookup$room[which(lookup$bay==6)] <- ifelse(lookup$Date[which(lookup$bay==6)] < as.Date("2016-1-21"),4,1)
-lookup$room[which(lookup$bay==7)] <- ifelse(lookup$Date[which(lookup$bay==7)] < as.Date("2016-1-21"),5,4)
-lookup$room[which(lookup$bay==8)] <- ifelse(lookup$Date[which(lookup$bay==8)] < as.Date("2016-1-21"),6,3)
-
-dat.fast.hr <- merge(dat.fast.hr,lookup,by=c("Date","bay"))
-dat.fast.hr$room <- factor(dat.fast.hr$room)
 
 
 #--- average across rooms for PAR
 dat.fast.hr.par <- dplyr::summarize(group_by(dat.fast.hr,DateTime_hr),PAR=mean(PAR,na.rm=T))
 
 #- NA-fill dates of rotation
-#tonafill <- which(dat.fast.hr$Date%in% c(as.Date("2016-1-20"),as.Date("2016-1-21")))
-#dat.fast.hr[tonafill,c("Tair","RH","VPD")] <- NA
+tonafill <- which(dat.fast.hr$Date %in% c(as.Date("2016-1-20"),as.Date("2016-1-21")))
+dat.fast.hr[tonafill,c("Tair","RH","VPD")] <- NA
 dat.fast.hr <- dat.fast.hr[!(dat.fast.hr$Date %in% c(as.Date("2016-1-20"),as.Date("2016-1-21"))),] #- remove dates of rotation
-dat.fast.hr <- dat.fast.hr[with(dat.fast.hr,order(DateTime_hr,room)),]
-
-dat.fast2 <- merge(dat.fast,lookup,by=c("Date","bay"))
-dat.fast2 <- dat.fast2[,c("Date","DateTime","bay","room","Tair_Avg","RH_Avg","PAR_Avg","VPD_Avg")]
-names(dat.fast2) <- c("Date","DateTime","Bay","Room","Tair","RH","PAR","VPD")
-write.csv(dat.fast2,file="output/GHS39_GREAT_MAIN_MET-AIR_20160107-20160302_L1.csv")
+dat.fast.hr <- dat.fast.hr[with(dat.fast.hr,order(DateTime_hr,Room)),]
+#-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
 
 
 
-
+#-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- Averages,during our growth interval from Jan 28th to Feb 8th
-dat.fast.growth <- summaryBy(Tair+RH+VPD~room,
+dat.fast.growth <- summaryBy(Tair+RH+VPD~Room,
                            data=subset(dat.fast.hr,DateTime_hr>=as.POSIXct("2016-1-28 00:00:00")
                                        & DateTime_hr<=as.POSIXct("2016-2-8 00:00:00")),keep.names=T)
-plot(VPD~Tair,data=dat.fast.growth)
+plot(VPD~Tair,data=dat.fast.growth,pch=16,cex=1.2)
+#-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
 
+
+#-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- plot PAR on the day of the A~T curves (Feb 5)
-toplot <- subset(dat.fast.hr,Date>=as.Date("2016-02-04") & Date <= as.Date("2016-02-06"))
-plotBy(PAR~DateTime_hr|bay,data=toplot,type="l",col=rev(brewer.pal(6,"Spectral")))
-
+toplot <- subset(dat.fast.hr,Date==as.Date("2016-02-05"))
+plotBy(PAR~DateTime_hr|Room,data=toplot,type="l",col=rev(brewer.pal(6,"Spectral")))
 #-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+
 
 
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- create daily averages
-dat.fast.day <- dplyr::summarize(group_by(dat.fast.hr,Date,room),
+dat.fast.day <- dplyr::summarize(group_by(dat.fast.hr,Date,Room),
                                 PARsum = sum(PAR),
                                 PARmax = max(PAR,na.rm=T),
                                 Tair=mean(Tair,na.rm=T),
                                 RH=mean(RH,na.rm=T),
                                 VPD=mean(VPD,na.rm=T))
 dat.fast.day <- as.data.frame(dat.fast.day)
+dat.fast.day$Date <- as.Date(dat.fast.day$Date)
 dat.fast.day <- subset(dat.fast.day,Date>as.Date("2016-01-07") & Date < as.Date("2016-03-02"))
 dat.fast.day$PARsum_mol <- dat.fast.day$PARsum*60*60*1e-6
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 
 
 
 
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- plot climate metrics during the experiment
 
 #- set up the palette
 COL <- rev(brewer.pal(6,"Spectral"))
 
 windows(80,80);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(9,11,1,4),las=1,cex.axis=1.7)
 
-plotBy(Tair~Date|room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
+plotBy(Tair~Date|Room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
 legend("topright",letters[1],bty="n",cex=1.2)
 
-plotBy(RH~Date|room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
+plotBy(RH~Date|Room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
 legend("topright",letters[2],bty="n",cex=1.2)
 
-plotBy(VPD~Date|room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
+plotBy(VPD~Date|Room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
 legend("topright",letters[3],bty="n",cex=1.2)
 
@@ -179,6 +132,17 @@ dev.copy2pdf(file="output/GREAT_met.pdf")
 #-----------------------------------------------------------------------------------------
 
 
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- some soil moisture stuff, which is removable.
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 
 
 # 
