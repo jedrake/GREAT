@@ -56,11 +56,15 @@ source("R/RGR_growth_analysis_interval.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 4. LAR decomposition of the growth interval
+#- Make figure 6. LAR decomposition of the growth interval
 source("R/plot_LAR_decomposition.R")
 #-------------------------------------------------------------------------------------
 
 
+#-------------------------------------------------------------------------------------
+#- Make figure 7. A direct comparison of GREAT and Drake et al. (2015) growth responses
+source("R/compare GREAT and S30.R")
+#-------------------------------------------------------------------------------------
 
 
 
