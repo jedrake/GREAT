@@ -204,6 +204,11 @@ getAQ <- function(path="data"){
   
   #- average across replicate logs
   aq.means <- summaryBy(.~Room+Pot+Unit+Prov+prov_trt+location+W_treatment+LightFac+TleafFac+campaign,data=aq2,FUN=mean,keep.names=T)
+  
+  #- remove a crazy datapoint
+  torm <- which(aq.means$prov_trt=="A-3" & round(aq.means$CTleaf,2)==28.75)
+  aq.means[torm,"Photo"] <- NA 
+  
   return(aq.means)
 }
 #-----------------------------------------------------------------------------------------
@@ -447,7 +452,7 @@ fitRvT <- function(dat,namex=Tleaf,namey=Rmass,lengthPredict=20,start=list(Rref=
 
 #-----------------------------------------------------------------------------------------
 #-  A generic function to fit temperature response curves based on June 2004 FPB.
-#-  The function accepts a dataframe and the quoted names of the x and y variabels
+#-  The function accepts a dataframe and the quoted names of the x and y variables
 #   in the dataframe. Returns a list with a named vector of parameter estimates and their se's,
 #-   and a dataframe with the predictions and 95% confidence intervals.
 fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=21,start=list(Rref=25,Topt=20,theta=20)){
@@ -853,12 +858,12 @@ output.log_lin <- function(X, Y, params, times,Code){
 plotAussie <- function(export=F){
   
   #read in provenance locations
-  all.loc <- read.csv("./data/prov_locations_meanT2.csv")
+  all.loc <- read.csv("./data/GHS30_PCS_BIOG_PROV-LOCATIONS.csv")
   Eute.loc <- subset(all.loc,sp=="t")
   Eute.loc2 <- subset(Eute.loc,seedlot %in% c(17770,18589,20352))
   
   #- ala data?
-  Eute.all <- read.csv("./data/Eute spatial and climate.csv")
+  Eute.all <- read.csv("./data/GHS30_GREAT_MAIN_EUTE-ALA.csv")
   
   #- remove mediana subspecies?
   #medianas <- grep("mediana",Eute.all$Subspecies...matched)
@@ -1037,7 +1042,7 @@ returnRcomponents <- function(path="data"){
   #- merge in room temperature key
   key <- data.frame(Room=1:6,Tair= c(18,21.5,25,28.5,32,35.5)) # could be improved with real data
   size2 <- merge(size,key)
-  Rdat <- merge(Rdat3,size2,by=c("Code","W_treatment"))
+  Rdat <- merge(Rdat3,size2,by=c("Code","W_treatment","Prov"))
   Rdat$Rarea <- -1*Rdat$Photo
   
   #- predict respiration at growth temperature
