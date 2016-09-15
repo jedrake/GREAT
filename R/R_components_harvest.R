@@ -46,13 +46,13 @@ COL=palette()[c(1,2,6)]
 #--- Leaves
 
 #- plot Rmass for leaves, smoothplots
-smoothplot(Tair, Rmass, location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
+smoothplot(Tair, Rmass, location,kgam=6,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
            #polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
            polycolor=c(alpha(COL[1],0.3),alpha(COL[2],0.3),alpha(COL[3],0.3)),
            linecol=c("black","red"),pointcols=NA,
            cex=1,main="",
            xlim=c(15,40),ylim=c(0,40),xlab="",ylab="",
-           data=subset(Rdat, Organ == "leaf"), kgam=4,axes=F)
+           data=subset(Rdat, Organ == "leaf"), axes=F)
 
 #- overlay points
 plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="leaf"),las=1,ylim=c(0,40),legend=F,pch=16,cex=0.5,col=COL,add=T,
@@ -106,7 +106,7 @@ smoothplot(Tair, Rmass, location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alph
            linecol=c("black","red"),pointcols=NA,
            cex=1,main="",
            xlim=c(15,40),ylim=c(0,40),xlab="",ylab="",
-           data=subset(Rdat, Organ == "stem"), kgam=4,axes=F)
+           data=subset(Rdat, Organ == "stem"), kgam=6,axes=F)
 #- overlay points
 plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="stem"),las=1,ylim=c(0,40),legend=F,pch=16,cex=0.5,col=COL,add=T,
        panel.first=adderrorbars(x=subset(toplot,Organ=="stem")$Tair,
@@ -128,7 +128,7 @@ smoothplot(Tair, Rmass_insitu.mean , location,linecols=c(alpha(COL[1],1),alpha(C
            linecol=c("black","red"),pointcols=NA,
            cex=1,main="",
            xlim=c(15,40),ylim=c(0,40),xlab="",ylab="",
-           data=subset(Rdat_mean_insitu,Organ=="stem"), kgam=4,axes=F)
+           data=subset(Rdat_mean_insitu,Organ=="stem"), kgam=6,axes=F)
 #- overlay points
 plotBy(Rmass_insitu.mean~Tair|location,data=subset(Rdat_mean_insitu,Organ=="stem"),las=1,ylim=c(0,3),xlim=c(15,37),add=T,
        legend=F,pch=16,cex=0.5,col=COL,
