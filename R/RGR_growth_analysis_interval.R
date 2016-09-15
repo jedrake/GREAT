@@ -13,6 +13,8 @@
 dat.list <- returnRGR(plotson=F)
 dat <- dat.list[[2]]     # RGR and AGR merged with canopy leaf area and SLA for the intensive growth interval only
 dat.all <- dat.list[[1]] #RGR and AGR caculated for all available data.
+
+dat$LAR <- dat$LAR/1000 # convert back to m2 g-1
 #-----------------------------------------------------------------------------------------
 
 
@@ -25,7 +27,7 @@ tofit.l <- split(tofit,tofit$location)
 
 #- fit AGR and RGR T response curves
 RGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.15,Topt=25,theta=20),namey="RGR",namex="Tair",lengthPredict=20)
-LARvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=10,Topt=30,theta=5),namey="LAR",namex="Tair",lengthPredict=20)
+LARvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.010,Topt=30,theta=5),namey="LAR",namex="Tair",lengthPredict=20)
 
 
 #- fit NAR response curves
@@ -85,7 +87,11 @@ polygon(x = c(cs.rgr$Tleaf, rev(cs.rgr$Tleaf)), y = c(cs.rgr$Sim.97.5., rev(cs.r
 plotBy(RGR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,legendwhere="bottomleft",pch=16,
        axes=F,xlab="",ylab="",cex=ptsize,col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair,y=dat2$RGR.mean,SE=dat2$RGR.standard.error,direction="updown"))
-magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
+palette(COL) 
+points(RGR.mean~Tair,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+
+
+magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2,minorn=2,ratio=0.25)
 axis(side=1,at=c(20,25,30,35),labels=T,tick=F,cex.axis=2)
 legend("topright",letters[1],bty="n",cex=1.8)
 legend("bottomleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
@@ -102,7 +108,7 @@ LARplot <- data.frame(do.call(rbind,
 LARplot$location <- c(rep("Cold-edge",nrow(LARplot)/3),rep("Central",nrow(LARplot)/3),rep("Warm-edge",nrow(LARplot)/3))
 LARplot$location <- factor(LARplot$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-plotBy(Sim.Mean~Tleaf|location,data=LARplot,legend=F,type="l",las=1,xlim=xlims,ylim=c(0,30),lwd=3,cex.lab=2,col=COL,
+plotBy(Sim.Mean~Tleaf|location,data=LARplot,legend=F,type="l",las=1,xlim=xlims,ylim=c(0,0.030),lwd=3,cex.lab=2,col=COL,
        ylab="",axes=F,
        xlab="")
 cold.rgr <- subset(LARplot,location=="Cold-edge")
@@ -118,7 +124,8 @@ polygon(x = c(warm.rgr$Tleaf, rev(warm.rgr$Tleaf)), y = c(warm.rgr$Sim.97.5., re
 plotBy(LAR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),legend=F,pch=16,
        axes=F,xlab="",ylab="",cex=ptsize,col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair,y=dat2$LAR.mean,SE=dat2$LAR.standard.error,direction="updown"))
-magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
+points(LAR.mean~Tair,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2,ratio=0.25,majorn=3)
 axis(side=1,at=c(20,25,30,35),labels=T,tick=F,cex.axis=2)
 legend("topright",letters[2],bty="n",cex=1.8)
 
@@ -135,7 +142,9 @@ predline(NARfits.l[[3]],col=alpha(COL[3],0.5))
 plotBy(NAR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,10),legend=F,pch=16,cex=2,
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair,y=dat2$NAR.mean,SE=dat2$NAR.standard.error,direction="updown"))
-magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2)
+points(NAR.mean~Tair,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+
+magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2,ratio=0.25)
 axis(side=1,at=c(20,25,30,35),labels=T,tick=F,cex.axis=2)
 
 legend("topright",letters[3],bty="n",cex=1.8)
@@ -145,7 +154,7 @@ legend("topright",letters[3],bty="n",cex=1.8)
 
 #- add axis labels
 title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,adj=0.95,cex.lab=2,line=1)
-title(ylab=expression(LAR~(m^2~kg^-1)),outer=T,adj=0.5,cex.lab=2,line=1)
+title(ylab=expression(LAR~(m^2~g^-1)),outer=T,adj=0.5,cex.lab=2,line=1)
 title(ylab=expression(NAR~(g~m^-2~d^-1)),outer=T,adj=0.1,cex.lab=2,line=1)
 title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,adj=0.6,cex.lab=2,line=3)
 
