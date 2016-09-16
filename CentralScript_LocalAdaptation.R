@@ -9,7 +9,8 @@
 
 
 #-------------------------------------------------------------------------------------
-#- load the packages and custom functions that do all the work
+#- load the packages and custom functions that do all the work.
+#   This will install a bunch of required libraries, including some non-standard stuff.
 source("R/loadLibraries.R")
 #-------------------------------------------------------------------------------------
 
