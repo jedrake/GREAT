@@ -27,11 +27,16 @@ dat.gr <- subset(dat2,Date==as.Date("2016-02-22") & W_treatment=="w")
 
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
-#- biomass in the GHS30 experiment (my first glasshouse experiment in Oz)
-dat.s30 <- read.csv("data/GHS_1_finalharvest.csv")
-dat.s30$Tair <- NA
+#- biomass in the GHS30 experiment (Drake 2015 GCB)
+#dat.s30 <- read.csv("data/GHS_1_finalharvest.csv")
+dat.s30 <- read.csv("data/GHS30_PCS_BIOG_harvest_130107-130111_L1.csv")
+
+#- add in the home temperatures. Assumes the datafile is in the original sort order!
+dat.s30$homet <- c(rep(21.5,39),rep(25,28),rep(28.5,30),
+                   rep(18,20),rep(21.5,37),rep(25,30),rep(28.5,29))
 
 #- add the air temperature of the home plants
+dat.s30$Tair <- NA
 dat.s30$Tair[which(dat.s30$treat=="h")] <- dat.s30$homet[which(dat.s30$treat=="h")]
 
 #- add the air temperature of the warmed plants
