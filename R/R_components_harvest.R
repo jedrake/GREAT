@@ -36,7 +36,7 @@ Rdat_mean_insitu <- summaryBy(Rmass_insitu~Prov+location+Tair+Organ,
 toplot <- subset(Rdat.m,W_treatment=="w")
 toplot$Room <- as.numeric(toplot$Room)
 
-windows(60,60);par(mfrow=c(3,2),mar=c(2,2,1,2),oma=c(3,8,1,8),cex.lab=2)
+windows(60,60);par(mfrow=c(3,2),mar=c(0.5,0.5,0.5,0.5),oma=c(5,8,1,8),cex.lab=2)
 palette(rev(brewer.pal(6,"Spectral")))
 COL=palette()[c(1,2,6)]
 
@@ -66,7 +66,7 @@ palette(COL)
 points(Rmass.mean~Tair,data=subset(toplot,Organ=="leaf"),add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 
 
-magaxis(side=1:4,labels=c(1,1,0,1),las=1)
+magaxis(side=1:4,labels=c(0,1,0,0),las=1)
 legend("bottomleft",letters[1],cex=1.2,bty="n")
 legend("topright",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
 
@@ -89,8 +89,8 @@ plotBy(Rmass_insitu.mean~Tair|location,data=subset(Rdat_mean_insitu,Organ=="leaf
 points(Rmass_insitu.mean~Tair,data=subset(Rdat_mean_insitu,Organ=="leaf"),add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 
 title(ylab=expression(atop(Leaf~R[mass]~at~T[growth],
-                           (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-25,srt=90)
-magaxis(side=1:4,labels=c(1,1,0,1),las=1)
+                           (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-27,srt=90)
+magaxis(side=1:4,labels=c(0,0,0,1),las=1)
 legend("bottomleft",letters[4],bty="n",cex=1.2)
 #----------------------------------
 
@@ -116,7 +116,7 @@ plotBy(Rmass.mean~Tair|location,data=subset(toplot,Organ=="stem"),las=1,ylim=c(0
 points(Rmass.mean~Tair,data=subset(toplot,Organ=="stem"),add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 title(ylab=expression(atop(Stem~R[mass]~at~25~degree*C,
                            (nmol~CO[2]~g^-1~s^-1))),xpd=NA)
-magaxis(side=1:4,labels=c(1,1,0,1),las=1)
+magaxis(side=1:4,labels=c(0,1,0,0),las=1)
 legend("bottomleft",letters[2],cex=1.2,bty="n")
 
 
@@ -139,8 +139,8 @@ plotBy(Rmass_insitu.mean~Tair|location,data=subset(Rdat_mean_insitu,Organ=="stem
 points(Rmass_insitu.mean~Tair,data=subset(Rdat_mean_insitu,Organ=="stem"),add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 
 title(ylab=expression(atop(Stem~R[mass]~at~T[growth],
-                           (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-25,srt=90)
-magaxis(side=1:4,labels=c(1,1,0,1),las=1)
+                           (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-27,srt=90)
+magaxis(side=1:4,labels=c(0,0,0,1),las=1)
 legend("bottomleft",letters[5],bty="n",cex=1.2)
 #----------------------------------
 
@@ -168,7 +168,7 @@ points(Rmass.mean~Tair,data=subset(toplot,Organ=="root"),add=T,pch=21,cex=2,lege
 
 title(ylab=expression(atop(Root~R[mass]~at~25~degree*C,
                            (nmol~CO[2]~g^-1~s^-1))),xpd=NA)
-magaxis(side=1:4,labels=c(1,1,0,1),las=1)
+magaxis(side=1:4,labels=c(1,1,0,0),las=1)
 legend("bottomleft",letters[3],cex=1.2,bty="n")
 
 #- Tissue specific Rmass for roots
@@ -188,15 +188,15 @@ plotBy(Rmass_insitu.mean~Tair|location,data=subset(Rdat_mean_insitu,Organ=="root
 points(Rmass_insitu.mean~Tair,data=subset(Rdat_mean_insitu,Organ=="root"),add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 
 title(ylab=expression(atop(Root~R[mass]~at~T[growth],
-                           (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-25,srt=90)
-magaxis(side=1:4,labels=c(1,1,0,1),las=1)
+                           (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-27,srt=90)
+magaxis(side=1:4,labels=c(1,0,0,1),las=1)
 legend("bottomleft",letters[6],bty="n",cex=1.2)
 #----------------------------------
 
 
-title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,outer=T,adj=0.2,line=1)
+title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,outer=T,adj=0.2,line=3)
 
-title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,outer=T,adj=0.9,line=1)
+title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,outer=T,adj=0.9,line=3)
 dev.copy2pdf(file="output/Rcomponents.pdf")
 
 #------------------------------------------------------------------------------------------------

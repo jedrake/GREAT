@@ -23,7 +23,7 @@ palette(rev(brewer.pal(6,"Spectral")))
 COL=palette()[c(1,2,6)]
 linewidth=3
 
-windows(35,20);par(mfrow=c(1,2),mar=c(4,4,1,1),oma=c(4,4,0,0))
+windows(35,20);par(mfrow=c(1,2),mar=c(4,4,1,1),oma=c(4,7,0,0))
 
 #- different curves
 plot(a~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",axes=F,ylim=c(0,1))
@@ -38,9 +38,10 @@ lines(b2~Tleaf,type="l",col=COL[2],lwd=linewidth,xlab="",ylab="",axes=F)
 lines(c2~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",axes=F)
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.5)
 legend("topright",letters[2],bty="n",cex=1.5)
-legend("bottomleft",c("Cold-origin","Central","Warm-origin"),lty=1,col=COL,lwd=3,cex=1.2,title="Provenance",bty="n")
+legend("bottomleft",c("Cold-origin","Central","Warm-origin"),lty=1,col=COL,lwd=3,cex=1.6,title="Provenance",bty="n")
 
 
-title(xlab=expression(Temperature~(degree*C)),outer=T,cex.lab=2,line=2)
-title(ylab="Growth and physiological traits (normalized)",outer=T,cex.lab=2,line=1)
+title(xlab=expression(Temperature~(degree*C)),outer=T,cex.lab=3,line=2)
+title(ylab=expression(atop(Growth~or~physiological,
+                process~(normalized))),outer=T,cex.lab=3,line=-1)
 dev.copy2pdf(file="output/conceptualfigure.pdf")

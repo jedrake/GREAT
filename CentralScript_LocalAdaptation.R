@@ -30,7 +30,7 @@ source("R/plotConceptualFig.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Figure 2. Long-term photosynthesis vs. temperaure response curves.
+#- Figure 2. Long-term photosynthesis vs. temperature response curves.
 source("R/plot_AT_longterm.R")
 #-------------------------------------------------------------------------------------
 
