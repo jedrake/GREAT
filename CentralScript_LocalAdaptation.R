@@ -16,9 +16,9 @@ source("R/loadLibraries.R")
 
 
 #-------------------------------------------------------------------------------------
-#- download all of the required data from HIEv.
-setToken(tokenfile="HIEv_token.txt") #- set HIEv token. See ?setToken
-source("R/downloadData.R")
+#- download all of the required data. DOI: http://doi.org/10.4225/35/57e4bf22dd3ec.
+# Data are placed in "Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data
+get_zipdata()
 #-------------------------------------------------------------------------------------
 
 
@@ -41,12 +41,10 @@ source("R/R_components_harvest.R")
 #-------------------------------------------------------------------------------------
 
 
-
 #-------------------------------------------------------------------------------------
 #- Make figure 4. Temperature response of final mass and absolute growth rate
 source("R/plot_mass_AGR.R")
 #-------------------------------------------------------------------------------------
-
 
 
 #-------------------------------------------------------------------------------------

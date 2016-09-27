@@ -6,9 +6,45 @@
 
 
 
+
+#------------------------------------------------------------------------------------------------------------------
+#- function to download the zipfile containing all of the data from the library at Western Sydney University 
+get_zipdata <- function(){
+  
+
+  #- check if the data and output directories exist. If they don't, create them.
+  dir.create(file.path("Data"),showWarnings=F)
+  dir.create(file.path("Output"),showWarnings=F)
+  
+  #- define the file name and the URL to the data
+  zipfn <- "Glasshouse_DRAKE_EUTE_local-adaptation.zip"
+  url <-   "http://research-data.westernsydney.edu.au/redbox/verNum1.8-SNAPSHOT/default/detail/baa6e7b38113a59b8e9d2e6b0fb4009a/Glasshouse_DRAKE_EUTE_THERMAL-NICHE.zip"
+  
+  
+  #- download the data, if there is no local copy
+  failureFlag <- 0
+  if(!file.exists(zipfn)){
+    failureFlag <- try(download.file(url, zipfn, mode="wb"))
+  }
+  
+  #- unzip the data
+  unzip(zipfn, exdir="Data", overwrite=TRUE)
+  
+  #- print an informative error message if downloading fails
+  if(failureFlag !=0){
+    message("Download failed. Perhaps try downloading the data manually by pointing a web-browser to http://doi.org/10.4225/35/57e4bf22dd3ec")
+  }
+  
+}
+#------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
 #-----------------------------------------------------------------------------------------
 #- function to read and return the most recent size measurements of height and diameter
-getSize <- function(path="data"){
+getSize <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   
   #- work out the path
   
@@ -59,7 +95,7 @@ getSize <- function(path="data"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf number and leaf size datasets
-getLA <- function(path="data"){
+getLA <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   
   la <-read.csv(paste(path,"GHS39_GREAT_MAIN_LEAFAREA_20160128_L2_V1.csv",sep="/"))
   la$Date <- as.Date("2016-1-28")
@@ -84,7 +120,7 @@ getLA <- function(path="data"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the leaf punch datasets
-getPunches <- function(path="data"){
+getPunches <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   dat1 <-read.csv(paste(path,"GHS39_GREAT_MAIN_LEAFAREA-PUNCHES_20160129_L2.csv",sep="/"))
   dat1$Date <- as.Date("2016-1-29")
   
@@ -115,7 +151,7 @@ getPunches <- function(path="data"){
 #  (2) gas exchange leaves harvested on 2016-2-11 and 2016-2-29,
 #  (3) whole-crown average SLA obtained by harvesting (total leaf area / total leaf mass)
 #  Returns a list of these three elements
-getSLA <- function(path="data"){
+getSLA <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   
   #- get the punches
   punches <- getPunches()
@@ -161,7 +197,7 @@ getSLA <- function(path="data"){
   
 #-----------------------------------------------------------------------------------------
 #- function to read and process the Asat and AQ datasets
-getAQ <- function(path="data"){
+getAQ <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   
   #- read in the first set of measurements
   aq1 <-read.csv(paste(path,"GHS39_GREAT_MAIN_GX-AQ_20160202-20160203_L2.csv",sep="/"))
@@ -220,7 +256,7 @@ getAQ <- function(path="data"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read the soil moisture data
-getVWC_AQ <- function(path="data"){
+getVWC_AQ <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   
   #- read in the data
   vwc <- read.csv(paste(path,"/Share/Data/GHS39_GREAT_MAIN_SOILVWC_hydrosense_L1.csv",sep=""))
@@ -252,7 +288,7 @@ getVWC_AQ <- function(path="data"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the temperature response curves of photosynthesis
-getAvT <- function(path="data"){
+getAvT <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   
   avt <-read.csv(paste(path,"GHS39_GREAT_MAIN_GX-AVT_20160205_L2.csv",sep="/"))
   avt$Room <- as.factor(avt$Room)
@@ -287,7 +323,7 @@ getAvT <- function(path="data"){
 
 #-----------------------------------------------------------------------------------------
 #- function to read and process the temperature response curves of respiration
-getRvT <- function(path="data"){
+getRvT <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   
   rvt <-read.csv(paste(path,"GHS39_GREAT_MAIN_GX-RDARK_20160211_L3.csv",sep="/"))
   #rvt$prov <- as.factor(substr(rvt$pot,start=1,stop=1))
@@ -489,7 +525,7 @@ fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=21,start=list(Rref=25,T
 
 #-----------------------------------------------------------------------------------------
 #- function to return the harvest data as a dataframe
-getHarvest <- function(path="data"){
+getHarvest <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
 
     #- read in the raw data
   files <-  list.files(paste(path,"",sep=""),pattern="GHS39_GREAT_MAIN_BIOMASS",full.names=T)
@@ -641,7 +677,7 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
 #- function to caculate and return growth metrics. Returns a list of two dataframes:
 #     [1] RGR and AGR caculated for all available data.
 #     [2] RGT and AGR merged with canopy leaf area and SLA for the intensive growth interval only
-returnRGR <- function(path="data",plotson=F){
+returnRGR <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data",plotson=F){
   
   #-----------------------------------------------------------------------------------------
   #- get the size data, estimate mass
@@ -855,15 +891,15 @@ output.log_lin <- function(X, Y, params, times,Code){
 #--------------------------------------------------------------------------------------------------------------------
 #- Function to plot map of Australia with circles showing points with measured provenances
 #--------------------------------------------------------------------------------------------------------------------
-plotAussie <- function(export=F){
+plotAussie <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data",export=F){
   
   #read in provenance locations
-  all.loc <- read.csv("./data/GHS30_PCS_BIOG_PROV-LOCATIONS.csv")
+  all.loc <- read.csv(paste(path,"GHS30_PCS_BIOG_PROV-LOCATIONS.csv",sep="/"))
   Eute.loc <- subset(all.loc,sp=="t")
   Eute.loc2 <- subset(Eute.loc,seedlot %in% c(17770,18589,20352))
   
   #- ala data?
-  Eute.all <- read.csv("./data/GHS30_GREAT_MAIN_EUTE-ALA.csv")
+  Eute.all <- read.csv(paste(path,"GHS30_GREAT_MAIN_EUTE-ALA.csv",sep="/"))
   
   #- remove mediana subspecies?
   #medianas <- grep("mediana",Eute.all$Subspecies...matched)
@@ -988,7 +1024,7 @@ checkLeafAreaEst <- function(){
 #- Function to return the respiratory component measurements,
 #  made during the destructive harvests near the end of the experiment
 #-------------------------------------------------------------------------------------
-returnRcomponents <- function(path="data"){
+returnRcomponents <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   #- read in the respiration data
   #path <- "W://WORKING_DATA/GHS39/GREAT"
   Rdat1 <- read.csv(paste(path,"GHS39_GREAT_MAIN_GX-R_20160217-20160224_L2.csv",sep="/"))
