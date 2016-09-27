@@ -4,7 +4,7 @@ avt <- getAvT()
 
 
 #- merge in the leaf mass data
-leaf <- read.csv("data/GHS39_GREAT_MAIN_GX-LEAVES_20160211_L2.csv")
+leaf <- read.csv("Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data/GHS39_GREAT_MAIN_GX-LEAVES_20160211_L2.csv")
 leaf$Comment <- NULL
 #leaf <- leaf[,c("Code","Leafarea","Leafmass")]# 
 
@@ -132,7 +132,7 @@ plotBy(Photo_m.mean~Tleaf.mean|location,data=plotmeans,add=T,pch=16,cex=1.5,lege
                                  SE=plotmeans$Photo_m.standard.error,direction="updown")))
 title(xlab=expression(Measurement~T[leaf]~(degree*C)),outer=T,adj=0.7,line=0.5)
 
-dev.copy2pdf(file="output/FigureS6_Asat_vsT_area_mass.pdf")
+dev.copy2pdf(file="output/FigureS4_Asat_vsT_area_mass.pdf")
 
 #-------
 

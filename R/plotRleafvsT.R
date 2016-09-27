@@ -113,5 +113,5 @@ title(xlab=expression(Measurement~T[leaf]~(degree*C)),cex.lab=2,line=4)
 legend("topright",letters[2],bty="n",cex=1.5)
 
 
-
+dev.copy2pdf(file="output/FigureS5-RvsT")
 #-----------------------------------------------------------------------------------------

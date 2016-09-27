@@ -7,13 +7,6 @@
 
 
 
-#-----------------------------------------------------------------------------------------
-#- load the packages and custom functions that do all the work
-source("R/loadLibraries.R")
-#-----------------------------------------------------------------------------------------
-
-
-
 
 #-----------------------------------------------------------------------------------------
 #- get the data, process it for RGR.
@@ -47,7 +40,7 @@ RGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.15,Topt=25,theta=20
 
 #-----------------------------------------------------------------------------------------
 #- average across provenances, ignore the dry data
-dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy~Room,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
+dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy.init~Room+Tair+location,FUN=c(mean,standard.error),data=subset(dat,W_treatment=="w"),na.rm=T)
 #-----------------------------------------------------------------------------------------
 
 
@@ -63,8 +56,7 @@ windows(60,50);par(mfrow=c(2,3),mar=c(1,4,1,1),oma=c(7,7,1,1))
 palette(rev(brewer.pal(6,"Spectral")))
 ptsize <- 1.5
 COL <- palette()[c(1,2,6)]
-dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+logmass+totmass+init.mass~Room+Tair+location,FUN=c(mean,standard.error),
-                  data=subset(dat,W_treatment=="w"),na.rm=T)
+
 
 
 #--- plot AGR vs. T (panel 1)
@@ -101,7 +93,7 @@ legend("topright",letters[1],bty="n",cex=1.8)
 
 #------------
 #--- plot the second panel and third panels (AGR vs. leaf area and total mass)
-dat3 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy+canopy.init+totmass+init.mass~Tair,FUN=c(mean,standard.error),
+dat3 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF+canopy.init+init.mass~Tair,FUN=c(mean,standard.error),
                   data=subset(dat,W_treatment=="w"),na.rm=T)
 
 #- AGR vs. canopy leaf area
@@ -201,4 +193,4 @@ title(xlab=expression(Mass~(g)),outer=T,adj=0.95,cex.lab=3,line=5)
 #------------
 
 
-dev.copy2pdf(file="output/Figure2_AGR_RGR_interval.pdf")
+dev.copy2pdf(file="output/FigureS6_AGR_RGR_interval.pdf")
