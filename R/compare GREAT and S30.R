@@ -29,7 +29,7 @@ dat.gr <- subset(dat2,Date==as.Date("2016-02-22") & W_treatment=="w")
 #-----------------------------------------------------------------------------------------
 #- biomass in the GHS30 experiment (Drake 2015 GCB)
 #dat.s30 <- read.csv("data/GHS_1_finalharvest.csv")
-dat.s30 <- read.csv("data/GHS30_PCS_BIOG_harvest_130107-130111_L1.csv")
+dat.s30 <- read.csv("Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data/GHS30_PCS_BIOG_harvest_130107-130111_L1.csv")
 
 #- add in the home temperatures. Assumes the datafile is in the original sort order!
 dat.s30$homet <- c(rep(21.5,39),rep(25,28),rep(28.5,30),
@@ -111,6 +111,7 @@ legend("bottomright",legend=c("This study",expression(Drake~italic(et~al.)~(2015
                               expression(Drake~italic(et~al.)~(2015)~Warmed)),pch=c(21,21,21)
        ,col="black",cex=1.5,pt.bg=c("black","blue","red"))
 
+dev.copy2pdf(file="output/Figure7-experiment_comparison.pdf")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 

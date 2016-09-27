@@ -26,8 +26,8 @@ tofit <- subset(dat,W_treatment=="w") # not needed, as this is done in returnRGR
 tofit.l <- split(tofit,tofit$location)
 
 #- fit AGR and RGR T response curves
-RGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.15,Topt=25,theta=20),namey="RGR",namex="Tair",lengthPredict=20)
-LARvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.010,Topt=30,theta=5),namey="LAR",namex="Tair",lengthPredict=20)
+RGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.12,Topt=25,theta=12),namey="RGR",namex="Tair",lengthPredict=20)
+LARvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.020,Topt=30,theta=5),namey="LAR",namex="Tair",lengthPredict=20)
 
 
 #- fit NAR response curves
@@ -71,7 +71,7 @@ RGRplot$prov <- c(rep("A",nrow(RGRplot)/3),rep("B",nrow(RGRplot)/3),rep("C",nrow
 RGRplot$location <- c(rep("Cold-edge",nrow(RGRplot)/3),rep("Warm-edge",nrow(RGRplot)/3),rep("Central",nrow(RGRplot)/3))
 RGRplot$location <- factor(RGRplot$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-plotBy(Sim.Mean~Tleaf|location,data=RGRplot,legend=F,type="l",las=1,xlim=xlims,ylim=c(0,0.17),lwd=3,cex.lab=2,col=COL,
+plotBy(Sim.Mean~Tleaf|location,data=RGRplot,legend=F,type="l",las=1,xlim=xlims,ylim=c(0,0.15),lwd=3,cex.lab=2,col=COL,
        ylab="",axes=F,
        xlab="")
 as.rgr <- subset(RGRplot,prov=="A")
@@ -108,7 +108,7 @@ LARplot <- data.frame(do.call(rbind,
 LARplot$location <- c(rep("Cold-edge",nrow(LARplot)/3),rep("Central",nrow(LARplot)/3),rep("Warm-edge",nrow(LARplot)/3))
 LARplot$location <- factor(LARplot$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-plotBy(Sim.Mean~Tleaf|location,data=LARplot,legend=F,type="l",las=1,xlim=xlims,ylim=c(0,0.030),lwd=3,cex.lab=2,col=COL,
+plotBy(Sim.Mean~Tleaf|location,data=LARplot,legend=F,type="l",las=1,xlim=xlims,ylim=c(0,0.03),lwd=3,cex.lab=2,col=COL,
        ylab="",axes=F,
        xlab="")
 cold.rgr <- subset(LARplot,location=="Cold-edge")
@@ -161,4 +161,4 @@ title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,adj=0.6,cex.lab=2,line=3
 #------------
 
 
-dev.copy2pdf(file="output/Figure3_RGR_LAR_NAR_interval.pdf")
+dev.copy2pdf(file="output/Figure5_RGR_LAR_NAR_interval.pdf")

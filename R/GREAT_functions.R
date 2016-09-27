@@ -543,6 +543,9 @@ getHarvest <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
     
     if(i==1) dat.i[[i]]$W_treatment <- "w"
     
+    if(i==1) dat.i[[i]]$Height <- dat.i[[i]]$Height/10 # on the first date, height was recorded in mm, rather than cm
+    
+    
     dat.i[[i]] <- dat.i[[i]][,c("Prov","Pot","W_treatment","Code","Height","D1","D2","Leafarea","Leafno","Leafmass","Stemmass","Rootmass")]
     dates[i] <- as.numeric(substr(files4[i],start=31,stop=38)) # extract the date from the file name
     dat.i[[i]]$Date <- base::as.Date(as.character(dates[i]),format="%Y%m%d")

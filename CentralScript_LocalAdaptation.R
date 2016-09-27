@@ -49,13 +49,13 @@ source("R/plot_mass_AGR.R")
 
 #-------------------------------------------------------------------------------------
 #- Make figure 5. Growth analysis of the intensive interval
-# Plots RGR, LAR, and NAR versus temperature
+# Plots RGR, LAR, and NAR versus temperature. Why did this change when switching to published data??
 source("R/RGR_growth_analysis_interval.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 6. LAR decomposition of the growth interval
+#- Make figure 6. LAR decomposition of the growth interval. Leaf mass fraction is way too big!
 source("R/plot_LAR_decomposition.R")
 #-------------------------------------------------------------------------------------
 
