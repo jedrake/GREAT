@@ -23,7 +23,9 @@ palette(rev(brewer.pal(6,"Spectral")))
 COL=palette()[c(1,2,6)]
 linewidth=3
 
-windows(35,20);par(mfrow=c(1,2),mar=c(4,4,1,1),oma=c(4,7,0,0))
+#- make the figure
+windows(35,20)
+par(mfrow=c(1,2),mar=c(4,4,1,1),oma=c(4,7,0,0))
 
 #- different curves
 plot(a~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",axes=F,ylim=c(0,1))
@@ -44,4 +46,5 @@ legend("bottomleft",c("Cold-origin","Central","Warm-origin"),lty=1,col=COL,lwd=3
 title(xlab=expression(Temperature~(degree*C)),outer=T,cex.lab=3,line=2)
 title(ylab=expression(atop(Growth~or~physiological,
                 process~(normalized))),outer=T,cex.lab=3,line=-1)
-dev.copy2pdf(file="output/conceptualfigure.pdf")
+
+dev.copy2pdf(file="output/Figure1-conceptual.pdf")
