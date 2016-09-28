@@ -323,7 +323,7 @@ legend("topleft",letters[4],bty="n",cex=1.2)
 title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.25,line=1)
 title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.85,line=1)
 
-dev.copy2pdf(file="output/Figure4_leaves.pdf")
+dev.copy2pdf(file="output/Figure6_LAR_decomposition.pdf")
 
 
 

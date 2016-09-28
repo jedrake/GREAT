@@ -182,4 +182,4 @@ title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
 
 
 #- export the graph
-dev.copy2pdf(file="output/Figure3-FinalMass_AGR.pdf")
+dev.copy2pdf(file="output/Figure4-FinalMass_AGR.pdf")

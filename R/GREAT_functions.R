@@ -584,8 +584,8 @@ getHarvest <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
   #- Do some data manipulation
   
   #- height was measured in mm for the first dataset. convert to cm
-  firsts <- which(dat$Date == as.Date("2016-01-07"))
-  dat[firsts,"h"] <- dat[firsts,"h"]/10
+  #firsts <- which(dat$Date == as.Date("2016-01-07"))
+  #dat[firsts,"h"] <- dat[firsts,"h"]/10
   
   #- do some simple math
   dat$diam <- base::rowMeans(cbind(dat$d1,dat$d2))
@@ -919,9 +919,9 @@ plotAussie <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data",expo
   
   # circles with a radius of 50 km
   
-  #x <- circles(Eute.all2, d=50000, lonlat=TRUE) #create circles around each point with a radius of 50km. This takes a long time
+  x <- circles(Eute.all2, d=50000, lonlat=TRUE) #create circles around each point with a radius of 50km. This takes a long time
   #save(x,file="./output/Eutecircles")
-  load(file="./output/Eutecircles")
+  #load(file="./output/Eutecircles")
   pol <- gUnaryUnion(x@polygons) #"dissolve" the circles into each other
   
   

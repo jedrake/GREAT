@@ -62,4 +62,4 @@ magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
 title(xlab=expression(Measurement~T[leaf]~(degree*C)),cex.lab=2,line=4)
 title(ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),cex.lab=2,line=2)
 
-dev.copy2pdf(file="output/Figure3-PhotoVsT.pdf")
+dev.copy2pdf(file="output/Figure2-PhotoVsT.pdf")
