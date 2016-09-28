@@ -96,19 +96,18 @@ source("R/plot_map_spatial_climate.R")
 
 #-------------------------------------------------------------------------------------
 #- Run the code to make Fig. S2 (environmental data over time).
-#  Note that this takes quite some time to run, as the met files are huge.
 source("R/S39_climate_data.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
 #- Make Figure S3. Allometry of d2h relative to total plant mass.
-returnMassFromAllom(d2hdat=25,plotson=T,droughtdat=F)
+returnMassFromAllom(d2hdat=NA,plotson=T,droughtdat=F)
 #-------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------
 #- Make Figure S4. Temperature response curves of photosynthesis
-source("photo_AvT.R")
+source("R/photo_AvT.R")
 #-------------------------------------------------------------------------------------
 
 
@@ -128,9 +127,14 @@ source("R/plotRleafvsT.R")
 
 
 
+#-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
+#-- other potentially interesting bits that were not included as figures in the 
+#  main text or supplemental
+#-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
 
 
-#-- other stuff.
 
 
 #-------------------------------------------------------------------------------------

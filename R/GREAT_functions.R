@@ -547,7 +547,7 @@ getHarvest <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data"){
     
     
     dat.i[[i]] <- dat.i[[i]][,c("Prov","Pot","W_treatment","Code","Height","D1","D2","Leafarea","Leafno","Leafmass","Stemmass","Rootmass")]
-    dates[i] <- as.numeric(substr(files4[i],start=31,stop=38)) # extract the date from the file name
+    dates[i] <- as.numeric(substr(files4[i],start=72,stop=79)) # extract the date from the file name
     dat.i[[i]]$Date <- base::as.Date(as.character(dates[i]),format="%Y%m%d")
     
     
@@ -666,12 +666,14 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
     title(xlab=expression(log[10]~(Plant~size~";"~d^2*h~";"~cm^3)),
           ylab=expression(log[10]~(Total~mass~";"~g)))
     
-    dev.copy2pdf(file="output/allometry.pdf")
+    
   
   }
   #----------------------------------------------------------------------------------------------------------------
   
-  return(predictions)
+  if(is.na(d2hdat)==T) dev.copy2pdf(file="output/FigureS3-Allometry.pdf")
+  if(is.na(d2hdat)==F) return(predictions)
+  
 }
 
 
@@ -1007,8 +1009,9 @@ checkLeafAreaEst <- function(){
   
   
   dat <- merge(la2[,c("Room","Prov","Code","Date","W_treatment","canopy","canopy2")],
-               size2[,c("Code","leafarea","totdm","Date2")],
-               by.x=c("Code","Date"),by.y=c("Code","Date2"))
+               size2[,c("Code","W_treatment","leafarea","totdm","Date2")],
+               by.x=c("Code","W_treatment","Date"),by.y=c("Code","W_treatment","Date2"))
+  windows()
   plot(leafarea~canopy,data=dat,
        xlab="Canopy leaf area; estimated (cm2)",ylab="Canopy leaf area; destructively measured (cm2)")
   abline(0,1)

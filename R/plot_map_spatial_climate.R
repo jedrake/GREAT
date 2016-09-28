@@ -59,5 +59,5 @@ title(xlab=expression(bio5~":"~Mean~maximum~T~of~warmest~month~(degree*C)),xpd="
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T)
 legend("topright",bty="n",legend=letters[2],cex=2)
 abline(h=0,lty=2,col="grey")
-dev.copy2pdf(file="FigureS1-Map.pdf")
+dev.copy2pdf(file="output/FigureS1-Map.pdf")
 #-----------------------------------------------------------------------------------------

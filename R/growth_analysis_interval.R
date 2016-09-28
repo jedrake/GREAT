@@ -193,4 +193,3 @@ title(xlab=expression(Mass~(g)),outer=T,adj=0.95,cex.lab=3,line=5)
 #------------
 
 
-dev.copy2pdf(file="output/FigureS6_AGR_RGR_interval.pdf")
