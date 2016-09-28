@@ -4,17 +4,15 @@
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
-library(dismo)
-library(raster)
-
 #-----------------------------------------------------------------------------------------
 #- Download the climate data
+dir.create(file.path("data/Climate"),showWarnings=F)
 biodat <- raster::getData("worldclim", var="bio", res=2.5, path="data/Climate/")
 biodat5 <- subset(biodat,5)#mean max T of warmest month
 biodat6<-subset(biodat,6) #mean min T of coldest month
 
 #- merge climate data with spatial points of E. tereticornis occurances
-dist <- read.csv("data/distribution_climate.csv")
+dist <- read.csv("Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data/GHS30_GREAT_MAIN_EUTE-ALA.csv")
 
 xy <- SpatialPoints(cbind(dist$Longitude...processed,dist$Latitude...processed))
 dist$bio5 <- extract(biodat5/10,xy,method="bilinear",fun=mean, buffer=15000) #mean max T of warmest month
@@ -27,7 +25,7 @@ myseed$bio5 <- extract(biodat5/10,myseed.sp,method="bilinear",fun=mean, buffer=1
 myseed$bio6 <- extract(biodat6/10,myseed.sp,method="bilinear",fun=mean, buffer=15000) #mean min T of coldest month
 
 #- seedlots from Drake et al. 2015
-drakeseed <- read.csv("data/prov_locations_meanT2.csv")
+drakeseed <- read.csv("Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data/GHS30_PCS_BIOG_PROV-LOCATIONS.csv")
 drakeseed <- subset(drakeseed,sp=="t")
 drakeseed.sp <- SpatialPoints(cbind(drakeseed$long,drakeseed$lat))
 drakeseed$bio5 <- extract(biodat5/10,drakeseed.sp,method="bilinear",fun=mean, buffer=15000) #mean max T of warmest month
@@ -61,4 +59,5 @@ title(xlab=expression(bio5~":"~Mean~maximum~T~of~warmest~month~(degree*C)),xpd="
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T)
 legend("topright",bty="n",legend=letters[2],cex=2)
 abline(h=0,lty=2,col="grey")
+dev.copy2pdf(file="FigureS1-Map.pdf")
 #-----------------------------------------------------------------------------------------

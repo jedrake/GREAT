@@ -512,7 +512,7 @@ fitJuneT <- function(dat,namex=Tleaf,namey,lengthPredict=21,start=list(Rref=25,T
   
   #- predict the response variable across the full range of x-values
   TT <- seq(min(dat$Xvar),max(dat$Xvar),length=lengthPredict)
-  predicts <- predictNLS(G_Topt, newdata=data.frame(Xvar = TT),interval="confidence",level=0.95)
+  predicts <- predictNLS(G_Topt, newdata=data.frame(Xvar = TT),interval="confidence",level=0.95,verbose=FALSE)
   predicts.df <- data.frame(predicts$summary)
   predicts.df$Tleaf <- TT
   
@@ -644,7 +644,7 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
   outsides <- sum(length(toolow),length(toohigh))
   total <- length(d2hdat)
   percentage <- round(outsides/total*100,1)
-  print(paste(outsides," observations of ",total," outside of allometry (",percentage,"%)",sep=""))
+  #print(paste(outsides," observations of ",total," outside of allometry (",percentage,"%)",sep=""))
   #----------------------------------------------------------------------------------------------------------------
   
   

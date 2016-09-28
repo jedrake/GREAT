@@ -9,11 +9,10 @@
 
 
 
-
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- read in the "fast" air vars dataset. (PAR, Tair, and RH measured minutely)
-dat.fast <- data.frame(data.table::fread("data/GHS39_GREAT_MAIN_MET-AIR_20160107-20160302_L1.csv"))
+dat.fast <- data.frame(data.table::fread("Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data/GHS39_GREAT_MAIN_MET-AIR_20160107-20160302_L1.csv"))
 dat.fast$V1 <- NULL # get rid of the first junk column
 dat.fast$DateTime <- as.POSIXct(dat.fast$DateTime,format="%Y-%m-%d %T",tz="UTC")
 dat.fast$Date <- as.Date(dat.fast$Date)
@@ -127,6 +126,6 @@ title(ylab=expression(RH~("%")),outer=T,adj=0.65,line=5,cex.lab=2)
 title(ylab=expression(VPD~(kPa)),outer=T,adj=0.35,line=5,cex.lab=2)
 title(ylab=expression(atop(PPFD,
                            ~(mu*mol~m^-2~s^-1))),outer=T,adj=0,line=5,cex.lab=2)
-dev.copy2pdf(file="output/GREAT_met.pdf")
+dev.copy2pdf(file="output/FigureS2-met_data.pdf")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------

@@ -75,7 +75,7 @@ MASSvTfits.l <- lapply(massdata.l,FUN=fitJuneT,start=list(Rref=5,Topt=30,theta=5
 #- fit AGR, RGR, LAR, and SLA T response curves
 AGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.5,Topt=30,theta=5),namey="AGR",namex="Tair",lengthPredict=20)
 RGRvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=0.15,Topt=25,theta=20),namey="RGR",namex="Tair",lengthPredict=20)
-LARvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=15,Topt=25,theta=20),namey="LAR",namex="Tair",lengthPredict=20)
+LARvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=10,Topt=27,theta=12),namey="LAR",namex="Tair",lengthPredict=20)
 SLAvTfits.l <- lapply(tofit.l,FUN=fitJuneT,start=list(Rref=450,Topt=25,theta=20),namey="SLA",namex="Tair",lengthPredict=20)
 
 
@@ -211,8 +211,8 @@ table1[7,c(8,9,10)] <- mktable(location=AvTfits$location,yvar=AvTfits$theta,se=A
 #- fix below
 table2 <- data.frame(Variable=c(rep("Final mass",3),rep("AGR",3),
                                 rep("RGR",3),rep("Asat-growth",3),
-                                rep("Asat-ST",3),rep("Anet-ST",3)),
-                     location=rep(c("Cold","Central","Warm"),6),
+                                rep("Asat-ST",3)),
+                     location=rep(c("Cold","Central","Warm"),5),
                      Topt = NA, Rref = NA, omega=NA)
 table2[1:3,3] <- mktable(location=MASSvTfits$location,yvar=MASSvTfits$Topt,se=MASSvTfits$Topt.CI)                     
 table2[1:3,4] <- mktable(location=MASSvTfits$location,yvar=MASSvTfits$totdmref,se=MASSvTfits$totdmref.CI,nchar1=2,nchar2=2)
@@ -229,9 +229,6 @@ table2[10:12,5] <- mktable(location=AvTfits_longterm$location,yvar=AvTfits_longt
 table2[13:15,3] <- mktable(location=AvTfits$location,yvar=AvTfits$Topt,se=AvTfits$Topt.CI)                    
 table2[13:15,4] <- mktable(location=AvTfits$location,yvar=AvTfits$Aref,se=AvTfits$Aref.CI)                    
 table2[13:15,5] <- mktable(location=AvTfits$location,yvar=AvTfits$theta,se=AvTfits$theta.CI)                    
-table2[16:18,3] <- mktable(location=AvTfits_lowQ$location,yvar=AvTfits_lowQ$Topt,se=AvTfits_lowQ$Topt.CI)                    
-table2[16:18,4] <- mktable(location=AvTfits_lowQ$location,yvar=AvTfits_lowQ$Photoref,se=AvTfits_lowQ$Photoref.CI )                    
-table2[16:18,5] <- mktable(location=AvTfits_lowQ$location,yvar=AvTfits_lowQ$theta,se=AvTfits_lowQ$theta.CI) 
 
 
 write.csv(table2,file="output/Table1.csv",row.names=F)
