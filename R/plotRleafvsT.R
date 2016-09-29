@@ -30,7 +30,8 @@ RvTfits.list.st.area <- lapply(rvt.l,FUN=fitRvT,namex="Tleaf",namey="Rarea")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- set up the plot
-windows(60,40);par(mar=c(6,8,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(2,0,0,0))
+pdf(file="output/FigureS5-RvsT.pdf",width=7.3,height=5)
+par(mar=c(6,7,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(1,0,0,0))
 palette(rev(brewer.pal(6,"Spectral")))
 
 COL=palette()[c(1,2,6)]
@@ -53,7 +54,7 @@ R.pred$location <- c(rep("Cold-edge",nrow(R.pred)/3),rep("Central",nrow(R.pred)/
 R.pred$location <- factor(R.pred$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
 #- plot mass
-plotBy(Sim.Mean~Tleaf|location,data=R.pred,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=2,xlim=xlims,axes=F,
+plotBy(Sim.Mean~Tleaf|location,data=R.pred,legend=F,type="l",las=1,ylim=c(0,30),lwd=3,cex.lab=1.5,xlim=xlims,axes=F,
        ylab=expression(R[mass]~(nmol~CO[2]~g^-1~s^-1)),col=COL,
        xlab="")
 as.m <- subset(R.pred,location=="Cold-edge")
@@ -75,8 +76,9 @@ plotBy(Rmass.mean~Tleaf.mean|location,data=dat3,add=T,pch=16,cex=2,legend=F,col=
 
 #- gussy up the graph
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
-title(xlab=expression(Measurement~T[leaf]~(degree*C)),cex.lab=2,line=4)
-legend("topright",letters[1],bty="n",cex=1.5)
+title(xlab=expression(atop(Measurement,
+                           T[leaf]~(degree*C))),cex.lab=1.5,line=5)
+legend("topright",letters[1],bty="n",cex=1)
 
 
 
@@ -89,7 +91,7 @@ RA.pred$location <- c(rep("Cold-edge",nrow(RA.pred)/3),rep("Central",nrow(RA.pre
 RA.pred$location <- factor(RA.pred$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
 #- plot mass
-plotBy(Sim.Mean~Tleaf|location,data=RA.pred,legend=F,type="l",las=1,ylim=c(0,1.5),lwd=3,cex.lab=2,xlim=xlims,axes=F,
+plotBy(Sim.Mean~Tleaf|location,data=RA.pred,legend=F,type="l",las=1,ylim=c(0,1.5),lwd=3,cex.lab=1.5,xlim=xlims,axes=F,
        ylab=expression(R[area]~(mu*mol~CO[2]~m^-2~s^-1)),col=COL,
        xlab="")
 as.m <- subset(RA.pred,location=="Cold-edge")
@@ -109,9 +111,10 @@ plotBy(Rarea.mean~Tleaf.mean|location,data=dat3,add=T,pch=16,cex=2,legend=F,col=
 
 #- gussy up the graph
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
-title(xlab=expression(Measurement~T[leaf]~(degree*C)),cex.lab=2,line=4)
-legend("topright",letters[2],bty="n",cex=1.5)
+title(xlab=expression(atop(Measurement,
+                           T[leaf]~(degree*C))),cex.lab=1.5,line=5)
+legend("topright",letters[2],bty="n",cex=1)
 
-
-dev.copy2pdf(file="output/FigureS5-RvsT.pdf")
+dev.off()
+#dev.copy2pdf(file="output/FigureS5-RvsT.pdf")
 #-----------------------------------------------------------------------------------------
