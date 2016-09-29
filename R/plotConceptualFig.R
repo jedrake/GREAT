@@ -24,27 +24,28 @@ COL=palette()[c(1,2,6)]
 linewidth=3
 
 #- make the figure
-windows(35,20)
-par(mfrow=c(1,2),mar=c(4,4,1,1),oma=c(4,7,0,0))
+#windows(35,20)
+pdf(file="output/Figure1-Conceptual.pdf",width=7.3,height=4)
+par(mfrow=c(1,2),mar=c(0.5,0.5,0.5,0.5),oma=c(4,7,0,0))
 
 #- different curves
-plot(a~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",axes=F,ylim=c(0,1))
-lines(b~Tleaf,type="l",col=COL[2],lwd=linewidth,xlab="",ylab="",axes=F)
-lines(c~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",axes=F)
+plot(a~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",ylim=c(0,1),xaxt="n",yaxt="n")
+lines(b~Tleaf,type="l",col=COL[2],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n")
+lines(c~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n")
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.5)
 legend("topright",letters[1],bty="n",cex=1.5)
 
 #- one curve
-plot(a2~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",axes=F,ylim=c(0,1))
-lines(b2~Tleaf,type="l",col=COL[2],lwd=linewidth,xlab="",ylab="",axes=F)
-lines(c2~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",axes=F)
-magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.5)
+plot(a2~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n",ylim=c(0,1))
+lines(b2~Tleaf,type="l",col=COL[2],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n")
+lines(c2~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n")
+magaxis(side=c(1,2),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.5)
 legend("topright",letters[2],bty="n",cex=1.5)
-legend("bottomleft",c("Cold-origin","Central","Warm-origin"),lty=1,col=COL,lwd=3,cex=1.6,title="Provenance",bty="n")
+legend("bottomleft",c("Cold-origin","Central","Warm-origin"),lty=1,col=COL,lwd=3,cex=0.8,title="Provenance",bty="n")
 
 
-title(xlab=expression(Temperature~(degree*C)),outer=T,cex.lab=3,line=2)
+title(xlab=expression(Temperature~(degree*C)),outer=T,cex.lab=1.5,line=2)
 title(ylab=expression(atop(Growth~or~physiological,
-                process~(normalized))),outer=T,cex.lab=3,line=-1)
-
-dev.copy2pdf(file="output/Figure1-conceptual.pdf")
+                process~(normalized))),outer=T,cex.lab=1.5,line=3)
+dev.off()
+#dev.copy2pdf(file="output/Figure1-conceptual.pdf")

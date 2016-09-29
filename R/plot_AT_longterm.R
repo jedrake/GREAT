@@ -30,10 +30,13 @@ A.pred <- data.frame(do.call(rbind,
 A.pred$location <- c(rep("Cold-edge",nrow(A.pred)/3),rep("Central",nrow(A.pred)/3),rep("Warm-edge",nrow(A.pred)/3))
 A.pred$location <- factor(A.pred$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-windows();par(mar=c(6,7,1,1))
+
+#windows();
+pdf(file="output/Figure2-Photo_vs_Temperature.pdf",width=3.5,height=3)
+par(mar=c(3.5,4,0.5,0.5),oma=c(0,0,0,0))
 
 #- plot Asat
-plotBy(Sim.Mean~Tleaf|location,data=A.pred,legend=F,type="l",las=1,xlim=c(18,42),ylim=c(0,30),lwd=3,cex.lab=2,axes=F,
+plotBy(Sim.Mean~Tleaf|location,data=A.pred,legend=F,type="l",las=1,xlim=c(18,42),ylim=c(0,30),lwd=3,cex.lab=2,,xaxt="n",yaxt="n",
        ylab="",col=COL,
        xlab="")
 as.m <- subset(A.pred,location=="Cold-edge")
@@ -44,7 +47,7 @@ polygon(x = c(as.m$Tleaf, rev(as.m$Tleaf)), y = c(as.m$Sim.97.5., rev(as.m$Sim.2
 polygon(x = c(bs.m$Tleaf, rev(bs.m$Tleaf)), y = c(bs.m$Sim.97.5., rev(bs.m$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
 polygon(x = c(cs.m$Tleaf, rev(cs.m$Tleaf)), y = c(cs.m$Sim.97.5., rev(cs.m$Sim.2.5.)), col = alpha(COL[3],0.5), border = NA)
 #legend("bottomleft",levels(A.pred$location),fill=COL,cex=1.2,title="Provenance",bty="n")
-legend("bottomleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
+legend("bottomleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=0.9,title="Provenance",bty="n")
 
 #- add TREATMENT MEANS for mass
 dat3 <- summaryBy(Photo+Tair+Tleaf~Room+location,FUN=c(mean,standard.error),data=Asatdata,na.rm=T)
@@ -54,12 +57,13 @@ adderrorbars(x=dat3$Tleaf.mean,y=dat3$Photo.mean,SE=dat3$Tleaf.standard.error,di
 
 #plotBy(Photo.mean~Tleaf.mean|location,data=dat3,add=T,pch=21,cex=2,legend=F,col="black")
 palette(COL) 
-points(Photo.mean~Tleaf.mean,data=dat3,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+points(Photo.mean~Tleaf.mean,data=dat3,add=T,pch=21,cex=1.2,legend=F,col="black",bg=location)
 
 
 #- gussy up the graph
-magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
-title(xlab=expression(Measurement~T[leaf]~(degree*C)),cex.lab=2,line=4)
-title(ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),cex.lab=2,line=2)
+magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.1,ratio=0.4,tcl=0.2)
+title(xlab=expression(Measurement~T[leaf]~(degree*C)),cex.lab=1.3,line=2)
+title(ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),cex.lab=1.3,line=2)
 
-dev.copy2pdf(file="output/Figure2-PhotoVsT.pdf")
+dev.off()
+#dev.copy2pdf(file="output/Figure2-PhotoVsT.pdf")
