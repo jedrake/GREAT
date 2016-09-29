@@ -653,7 +653,9 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
   if (plotson==T){
     palette(rev(brewer.pal(6,"Spectral")))
     COL=palette()[c(1,2,6)]
-    windows(12,12);par(mar=c(6,6,1,1),cex.axis=1.2,cex.lab=2)
+    #windows(12,12)
+    pdf(file="output/FigureS3-Allometry.pdf",width=7.3,height=8)
+    par(mar=c(6,6,1,1),cex.axis=1.2,cex.lab=2)
     plotBy(logtotdm~logd2h|location,data=dat,pch=16,xlab="",ylab="",axes=F,legend=F,col=COL)
     # legend(x=-1.2,y=1.1,legend=c("Cold-edge","Central","Warm-edge"),col=COL,
     #         title="Provenance",pch=16,cex=1.5,bg="white")
@@ -666,12 +668,12 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
     title(xlab=expression(log[10]~(Plant~size~";"~d^2*h~";"~cm^3)),
           ylab=expression(log[10]~(Total~mass~";"~g)))
     
-    
-  
+    dev.off()
+ 
   }
   #----------------------------------------------------------------------------------------------------------------
   
-  if(is.na(d2hdat)==T) dev.copy2pdf(file="output/FigureS3-Allometry.pdf")
+  #if(is.na(d2hdat)==T) dev.copy2pdf(file="output/FigureS3-Allometry.pdf")
   if(is.na(d2hdat)==F) return(predictions)
   
 }
