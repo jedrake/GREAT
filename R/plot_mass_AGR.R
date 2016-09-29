@@ -93,7 +93,10 @@ agr2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF~Room+Tair+location,FUN=c(mean,standard
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- set up the plot
-windows(2*40,40);par(mar=c(6,8,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(2,0,0,0))
+#windows(2*40,40);
+pdf(file="output/Figure4-Absolute_growth.pdf",width=7.3,height=4)
+
+par(mar=c(3.5,4,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(0.5,0.5,0,0))
 palette(rev(brewer.pal(6,"Spectral")))
 
 COL=palette()[c(1,2,6)]
@@ -119,17 +122,17 @@ mass.pred$location <- c(rep("Cold-edge",nrow(mass.pred)/3),rep("Warm-edge",nrow(
 mass.pred$location <- factor(mass.pred$location,levels=c("Cold-edge","Central","Warm-edge"))  
   
 #- plot mass
-plotBy(Sim.Mean~Tleaf|location,data=mass.pred,legend=F,type="l",las=1,ylim=c(0,12),lwd=3,cex.lab=2,xlim=xlims,axes=F,
-       ylab=expression(Final~mass~(g)),
+plotBy(Sim.Mean~Tleaf|location,data=mass.pred,legend=F,type="l",las=1,ylim=c(0,12),lwd=3,cex.lab=1.4,xlim=xlims,axes=F,
+       ylab="",
        xlab="")
 as.m <- subset(mass.pred,prov=="A")
 bs.m <- subset(mass.pred,prov=="B")
 cs.m <- subset(mass.pred,prov=="C")
+title(ylab=expression(Final~mass~(g)),line=2,cex.lab=1.4)
 
 polygon(x = c(as.m$Tleaf, rev(as.m$Tleaf)), y = c(as.m$Sim.97.5., rev(as.m$Sim.2.5.)), col = alpha(COL[1],0.5), border = NA)
 polygon(x = c(bs.m$Tleaf, rev(bs.m$Tleaf)), y = c(bs.m$Sim.97.5., rev(bs.m$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
 polygon(x = c(cs.m$Tleaf, rev(cs.m$Tleaf)), y = c(cs.m$Sim.97.5., rev(cs.m$Sim.2.5.)), col = alpha(COL[3],0.5), border = NA)
-legend("topleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
 
 #- add TREATMENT MEANS for mass
 dat3 <- summaryBy(totdm+Tair~Room+location,FUN=c(mean,standard.error),data=massdata,na.rm=T)
@@ -137,13 +140,13 @@ dat3 <- summaryBy(totdm+Tair~Room+location,FUN=c(mean,standard.error),data=massd
 plotBy(totdm.mean~Tair.mean|location,data=dat3,add=T,pch=16,cex=0.5,legend=F,col=COL,
        panel.first=(adderrorbars(x=dat3$Tair.mean,y=dat3$totdm.mean,
                                  SE=dat3$totdm.standard.error,direction="updown")))
-points(totdm.mean~Tair.mean,data=dat3,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+points(totdm.mean~Tair.mean,data=dat3,add=T,pch=21,cex=1.2,legend=F,col="black",bg=location)
 
 
 #- gussy up the graph
-magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.4)
-title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
-legend("topright",letters[1],bty="n",cex=1.5)
+magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.1,ratio=0.4,tcl=0.2)
+title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=1.5,line=2.5)
+legend("topright",letters[1],bty="n",cex=1.2)
 
 
 
@@ -156,12 +159,13 @@ AGRplot$prov <- c(rep("A",nrow(AGRplot)/3),rep("B",nrow(AGRplot)/3),rep("C",nrow
 AGRplot$location <- c(rep("Cold-edge",nrow(AGRplot)/3),rep("Warm-edge",nrow(AGRplot)/3),rep("Central",nrow(AGRplot)/3))
 AGRplot$location <- factor(AGRplot$location,levels=c("Cold-edge","Central","Warm-edge"))  
 
-plotBy(Sim.Mean~Tleaf|prov,data=AGRplot,legend=F,type="l",las=1,ylim=c(0,0.5),lwd=3,cex.lab=2,col=COL,xlim=xlims,
-       ylab=expression(AGR~(g~d^-1)),axes=F,
+plotBy(Sim.Mean~Tleaf|prov,data=AGRplot,legend=F,type="l",las=1,ylim=c(0,0.5),lwd=3,cex.lab=1.4,col=COL,xlim=xlims,
+       ylab="",axes=F,
        xlab="")
 as.agr <- subset(AGRplot,prov=="A")
 bs.agr <- subset(AGRplot,prov=="B")
 cs.agr <- subset(AGRplot,prov=="C")
+title(ylab=expression(AGR~(g~d^-1)),line=2,cex.lab=1.4)
 
 polygon(x = c(as.agr$Tleaf, rev(as.agr$Tleaf)), y = c(as.agr$Sim.97.5., rev(as.agr$Sim.2.5.)), col = alpha(COL[1],0.5), border = NA)
 polygon(x = c(bs.agr$Tleaf, rev(bs.agr$Tleaf)), y = c(bs.agr$Sim.97.5., rev(bs.agr$Sim.2.5.)), col = alpha(COL[2],0.5), border = NA)
@@ -172,14 +176,16 @@ polygon(x = c(cs.agr$Tleaf, rev(cs.agr$Tleaf)), y = c(cs.agr$Sim.97.5., rev(cs.a
 plotBy(AGR.mean~Tair|location,data=agr2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,
        axes=F,xlab="",ylab="",cex=0.5,col=COL,add=T,
        panel.first=adderrorbars(x=agr2$Tair,y=agr2$AGR.mean,SE=agr2$AGR.standard.error,direction="updown"))
-magaxis(side=1:4,labels=c(1,1,0,0),las=1,cex.axis=1.4)
-points(AGR.mean~Tair,data=agr2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+magaxis(side=c(1,2,4),labels=c(1,1,0),las=1,cex.axis=1.1,ratio=0.4,tcl=0.2,frame.plot=T)
+points(AGR.mean~Tair,data=agr2,add=T,pch=21,cex=1.2,legend=F,col="black",bg=location)
+legend("topleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=0.8,title="Provenance",bty="n")
 
 
 #legend("bottomright",levels(dat2$location),fill=COL,cex=1.2,title="Provenance",bty="n")
-legend("topright",letters[2],bty="n",cex=1.5)
-title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=2,line=4)
+legend("topright",letters[2],bty="n",cex=1.2)
+title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=1.5,line=2.5)
 
 
 #- export the graph
-dev.copy2pdf(file="output/Figure4-FinalMass_AGR.pdf")
+dev.off()
+#dev.copy2pdf(file="output/Figure4-FinalMass_AGR.pdf")
