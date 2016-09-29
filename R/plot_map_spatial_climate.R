@@ -42,22 +42,25 @@ drakeseed$bio6 <- extract(biodat6/10,drakeseed.sp,method="bilinear",fun=mean, bu
 toplot <- dist[grep(pattern="tereticornis",x=dist$Scientific.Name),]
 toplot <- toplot[grep(pattern="Australia",x=toplot$Country...parsed),]
 
-
-windows(55,40);par(mfrow=c(1,2),oma=c(5,3,1,1))
+pdf(file="output/FigureS1-Map.pdf",width=7.3,height=6)
+par(mfrow=c(1,2),mar=c(3,8,1,1),oma=c(6,6,1,5))
 #- plot spatial distribution
 plotAussie(export=F)
-title(ylab=expression(Latitude~(degree)),outer=F,cex.lab=1.5)
-title(xlab=expression(Longitude~(degree)),outer=F,cex.lab=1.5,line=4,xpd=NA)
-legend("topright",bty="n",legend=letters[1],cex=2)
+title(ylab=expression(Latitude~(degree)),outer=F,cex.lab=1.2,xpd=NA)
+title(xlab=expression(Longitude~(degree)),outer=F,cex.lab=1.2,line=4,xpd=NA)
+legend("topright",bty="n",legend=letters[1],cex=1.2)
 
 #- plot climate distributions
 plot(bio6~bio5,dat=toplot,col="grey",axes=F,ylab="",xlab="")
 points(bio6~bio5,data=drakeseed,col="black",bg="white",pch=21,cex=2)
 points(bio6~bio5,data=myseed,col="black",pch=16,cex=2)
-title(ylab=expression(bio6~":"~Mean~minimum~T~of~coldest~month~(degree*C)),xpd="NA",cex.lab=1.5)
-title(xlab=expression(bio5~":"~Mean~maximum~T~of~warmest~month~(degree*C)),xpd="NA",cex.lab=1.5)
-magaxis(side=c(1,2),labels=c(1,1),frame.plot=T)
-legend("topright",bty="n",legend=letters[2],cex=2)
+title(ylab=expression(atop(bio6~":"~Mean~minimum~T~of,
+                           coldest~month~(degree*C))),xpd="NA",cex.lab=1.2,line=-13,xpd=NA)
+title(xlab=expression(atop(bio5~":"~Mean~maximum~T,
+                           of~warmest~month~(degree*C))),xpd="NA",cex.lab=1.2,line=4)
+magaxis(side=c(1,2,4),labels=c(1,0,1),frame.plot=T)
+legend("topright",bty="n",legend=letters[2],cex=1.2)
 abline(h=0,lty=2,col="grey")
-dev.copy2pdf(file="output/FigureS1-Map.pdf")
+dev.off()
+#dev.copy2pdf(file="output/FigureS1-Map.pdf")
 #-----------------------------------------------------------------------------------------
