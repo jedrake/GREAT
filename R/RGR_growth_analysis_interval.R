@@ -54,8 +54,10 @@ dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF~Room,FUN=c(mean,standard.error),data=s
 
 #-----------------------------------------------------------------------------------------
 #- Make a 3-panel plot showing RGR, LAR, and NAR relative to growth temperature.
+pdf(file="output/Figure5_RGR_LAR_NAR_interval.pdf",width=3.5,height=8)
 
-windows(30,60);par(mfrow=c(3,1),mar=c(3,4,1,1),oma=c(5,4,1,1))
+#windows(30,60)
+par(mfrow=c(3,1),mar=c(3,4,1,1),oma=c(5,4,1,1))
 palette(rev(brewer.pal(6,"Spectral")))
 ptsize <- 1.5
 COL <- palette()[c(1,2,6)]
@@ -153,12 +155,12 @@ legend("topright",letters[3],bty="n",cex=1.8)
 
 
 #- add axis labels
-title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,adj=0.95,cex.lab=2,line=1)
-title(ylab=expression(LAR~(m^2~g^-1)),outer=T,adj=0.5,cex.lab=2,line=1)
-title(ylab=expression(NAR~(g~m^-2~d^-1)),outer=T,adj=0.1,cex.lab=2,line=1)
-title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,adj=0.6,cex.lab=2,line=3)
+title(ylab=expression(RGR~(g~g^-1~d^-1)),outer=T,adj=0.95,cex.lab=2,line=0.5)
+title(ylab=expression(LAR~(m^2~g^-1)),outer=T,adj=0.5,cex.lab=2,line=0.5)
+title(ylab=expression(NAR~(g~m^-2~d^-1)),outer=T,adj=0.1,cex.lab=2,line=0.5)
+title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,adj=0.6,cex.lab=2,line=2)
 
 #------------
 
-
-dev.copy2pdf(file="output/Figure5_RGR_LAR_NAR_interval.pdf")
+dev.off()
+#dev.copy2pdf(file="output/Figure5_RGR_LAR_NAR_interval.pdf")
