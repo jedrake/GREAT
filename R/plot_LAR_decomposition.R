@@ -172,7 +172,9 @@ NL.pred$location <- factor(NL.pred$location,levels=c("Cold-edge","Central","Warm
 #-----------------------------------------------------------------------------------------
 #- plot temperature response curves for SLA, LMF, leafsize, and leaf number
 
-windows(48,30);par(mfrow=c(2,2),mar=c(2,6,1,1),oma=c(3,3,1,2))
+#windows(48,30);
+pdf(file="output/Figure6_LAR_decomposition.pdf",width=7.3,height=6)
+par(mfrow=c(2,2),mar=c(2,6,1,1),oma=c(3,3,1,2))
 palette(rev(brewer.pal(6,"Spectral")))
 
 COL=palette()[c(1,2,6)]
@@ -197,11 +199,11 @@ plotBy(SLA.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(250,500)
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair.mean,y=dat2$SLA.mean,SE=dat2$SLA.standard.error,direction="updown"))
 palette(COL) 
-points(SLA.mean~Tair.mean,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+points(SLA.mean~Tair.mean,data=dat2,add=T,pch=21,cex=1.4,legend=F,col="black",bg=location)
 
-magaxis(side=1:4,labels=c(0,1,0,0),las=1)
-magaxis(side=1,labels=c(1),las=1)
-legend("bottomright",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
+magaxis(side=1:4,labels=c(0,1,0,0),las=1,ratio=0.4,tcl=0.2,frame.plot=T)
+magaxis(side=1,labels=c(1),las=1,ratio=0.4,tcl=0.2,frame.plot=T)
+legend("bottomright",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=0.9,title="Provenance",bty="n")
 #legend("bottomright",levels(dat2$location),title="Provenance",col=COL[1:3],pch=16,bg="white",cex=1.4)
 title(ylab=expression(SLA~(cm^2~g^-1)),outer=F,cex.lab=2)
 legend("topleft",letters[1],bty="n",cex=1.2)
@@ -214,16 +216,16 @@ plotBy(LMF.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.6),t
 predline(LMFfits.l[[1]],col=alpha(COL[1],0.5))
 predline(LMFfits.l[[2]],col=alpha(COL[2],0.5))
 predline(LMFfits.l[[3]],col=alpha(COL[3],0.5))
-plotBy(LMF.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.6),legend=F,pch=16,cex=2,
+plotBy(LMF.mean~Tair.mean|location,data=dat2,las=1,xlim=c(17,37),ylim=c(0,0.6),legend=F,pch=16,cex=1,
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=dat2$Tair.mean,y=dat2$LMF.mean,SE=dat2$LMF.standard.error,direction="updown"))
 
 palette(COL) 
-points(LMF.mean~Tair.mean,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+points(LMF.mean~Tair.mean,data=dat2,add=T,pch=21,cex=1.4,legend=F,col="black",bg=location)
 
 
-magaxis(side=1:4,labels=c(0,1,0,0),las=1)
-magaxis(side=1,labels=c(1),las=1)
+magaxis(side=1:4,labels=c(0,1,0,0),las=1,ratio=0.4,tcl=0.2,frame.plot=T)
+magaxis(side=1,labels=c(1),las=1,ratio=0.4,tcl=0.2,frame.plot=T)
 title(ylab=expression(LMF~(g~g^-1)),outer=F,cex.lab=2)
 legend("topleft",letters[2],bty="n",cex=1.2)
 
@@ -251,16 +253,16 @@ polygon(x = c(cs.m$Tleaf, rev(cs.m$Tleaf)), y = c(cs.m$Sim.97.5., rev(cs.m$Sim.2
 #legend("topleft",levels(SLA.pred$location),fill=COL,cex=1.7,title="Provenance")
 
 #- Leaf size
-plotBy(Leafarea.mean~Tair.mean|location,data=leaf_size,las=1,legend=F,pch=16,cex=2,
+plotBy(Leafarea.mean~Tair.mean|location,data=leaf_size,las=1,legend=F,pch=16,cex=1,
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=leaf_size$Tair.mean,y=leaf_size$Leafarea.mean,SE=leaf_size$Leafarea.standard.error,direction="updown"))
 
 palette(COL) 
-points(Leafarea.mean~Tair.mean,data=leaf_size,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
+points(Leafarea.mean~Tair.mean,data=leaf_size,add=T,pch=21,cex=1.4,legend=F,col="black",bg=location)
 
 
-magaxis(side=1:4,labels=c(0,1,0,0),las=1)
-magaxis(side=1,labels=c(1),las=1)
+magaxis(side=1:4,labels=c(0,1,0,0),las=1,ratio=0.4,tcl=0.2,frame.plot=T)
+magaxis(side=1,labels=c(1),las=1,ratio=0.4,tcl=0.2,frame.plot=T)
 title(ylab=expression(Leaf~size~(cm^2)),outer=F,cex.lab=2)
 legend("topleft",letters[3],bty="n",cex=1.2)
 
@@ -284,44 +286,25 @@ polygon(x = c(cs.m$Tleaf, rev(cs.m$Tleaf)), y = c(cs.m$Sim.97.5., rev(cs.m$Sim.2
 #legend("topleft",levels(SLA.pred$location),fill=COL,cex=1.7,title="Provenance")
 
 #- Leaf size
-plotBy(leaf_inc.mean~Tair.mean|location,data=newleaves.m,las=1,legend=F,pch=16,cex=2,
+plotBy(leaf_inc.mean~Tair.mean|location,data=newleaves.m,las=1,legend=F,pch=16,cex=1.2,
        axes=F,xlab="",ylab="",col=COL,add=T,
        panel.first=adderrorbars(x=newleaves.m$Tair.mean,y=newleaves.m$leaf_inc.mean,SE=newleaves.m$leaf_inc.standard.error,direction="updown"))
 
 palette(COL) 
-points(leaf_inc.mean~Tair.mean,data=newleaves.m,add=T,pch=21,cex=2,legend=F,col="black",bg=as.factor(location))
+points(leaf_inc.mean~Tair.mean,data=newleaves.m,add=T,pch=21,cex=1.4,legend=F,col="black",bg=as.factor(location))
 
-magaxis(side=1:4,labels=c(0,1,0,0),las=1)
-magaxis(side=1,labels=c(1),las=1)
-title(ylab=expression(Leaf~growth~("#"~"11-days"^-1)),outer=F,cex.lab=2)
+magaxis(side=1:4,labels=c(0,1,0,0),las=1,ratio=0.4,tcl=0.2,frame.plot=T)
+magaxis(side=1,labels=c(1),las=1,ratio=0.4,tcl=0.2,frame.plot=T)
+title(ylab=expression(atop(Leaf~growth,
+                           ~("#"~"11-days"^-1))),outer=F,cex.lab=2,line=1.2)
 legend("topleft",letters[4],bty="n",cex=1.2)
 
 #-----------------------------------------------------------------------------------------
 
 
-
-# 
-# #-----------------------------------------------------------------------------------------
-# #- leaf number
-# plotBy(Leafno.mean~Tair.mean|location,data=leaf_no2,las=1,xlim=c(17,37),ylim=c(0,20),type="n",legend=F,axes=F,ylab="",xlab="")
-# predline(LNfits.l[[1]],col=alpha(COL[1],0.5))
-# predline(LNfits.l[[2]],col=alpha(COL[2],0.5))
-# predline(LNfits.l[[3]],col=alpha(COL[3],0.5))
-# plotBy(Leafno.mean~Tair.mean|location,data=leaf_no2,las=1,xlim=c(17,37),ylim=c(0,0.5),legend=F,pch=16,cex=2,
-#        axes=F,xlab="",ylab="",col=COL,add=T,
-#        panel.first=adderrorbars(x=leaf_no2$Tair.mean,y=leaf_no2$Leafno.mean,SE=leaf_no2$Leafno.standard.error,direction="updown"))
-# 
-# 
-# magaxis(side=1:4,labels=c(0,1,0,0),las=1)
-# magaxis(side=1,labels=c(1),las=1)
-# title(ylab=expression(Leaf~number~("#")),outer=F,cex.lab=2)
-# legend("topleft",letters[4],bty="n",cex=1.2)
-# 
-# #-----------------------------------------------------------------------------------------
-
-
 title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.25,line=1)
-title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.85,line=1)
+title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,cex.lab=2,adj=0.95,line=1)
 
-dev.copy2pdf(file="output/Figure6_LAR_decomposition.pdf")
+dev.off()
+#dev.copy2pdf(file="output/Figure6_LAR_decomposition.pdf")
 
