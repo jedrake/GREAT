@@ -99,8 +99,8 @@ dat.fast.day$PARsum_mol <- dat.fast.day$PARsum*60*60*1e-6
 
 #- set up the palette
 COL <- rev(brewer.pal(6,"Spectral"))
-
-windows(80,80);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(9,11,1,4),las=1,cex.axis=1.7)
+pdf(file="output/FigureS2-Met_data.pdf",width=7.3,height=8)
+par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(9,11,1,4),las=1,cex.axis=1.7)
 
 plotBy(Tair~Date|Room,type="l",col=COL,data=dat.fast.day,legend=F,lwd=3)
 axis.Date(side=1,at=seq.Date(from=as.Date("2016-01-01"),to=max(dat.fast.day$Date),by="week"),labels=F)
@@ -126,6 +126,7 @@ title(ylab=expression(RH~("%")),outer=T,adj=0.65,line=5,cex.lab=2)
 title(ylab=expression(VPD~(kPa)),outer=T,adj=0.35,line=5,cex.lab=2)
 title(ylab=expression(atop(PPFD,
                            ~(mu*mol~m^-2~s^-1))),outer=T,adj=0,line=5,cex.lab=2)
-dev.copy2pdf(file="output/FigureS2-met_data.pdf")
+dev.off()
+#dev.copy2pdf(file="output/FigureS2-met_data.pdf")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
