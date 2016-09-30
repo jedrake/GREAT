@@ -64,8 +64,8 @@ plot(VPD~Tair,data=dat.fast.growth,pch=16,cex=1.2)
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- plot PAR on the day of the A~T curves (Feb 5)
-toplot <- subset(dat.fast.hr,Date==as.Date("2016-02-05"))
-plotBy(PAR~DateTime_hr|Room,data=toplot,type="l",col=rev(brewer.pal(6,"Spectral")))
+#toplot <- subset(dat.fast.hr,Date==as.Date("2016-02-05"))
+#plotBy(PAR~DateTime_hr|Room,data=toplot,type="l",col=rev(brewer.pal(6,"Spectral")))
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
