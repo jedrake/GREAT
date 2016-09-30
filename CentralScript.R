@@ -1,8 +1,12 @@
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
-#- Central analysis script for the GREAT local adaptation manuscript.
+#- Central analysis script for the GREAT local adaptation manuscript, entitled
+#  "A common and broad thermal niche among geographically diverse populations of the 
+#      widely distributed tree species Eucalyptus tereticornis: 
+#      no evidence for adaptation to climate of origin".
 #  The idea is to keep this script nice and tidy, but reproducibly do all the
-#  analysis and make all of the figures for the manuscript.
+#  analysis and make all of the figures for the manuscript. Data will be placed in
+#  the "data" folder, while figures and tables will be placed in the "output" folder.
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
 
@@ -131,8 +135,6 @@ source("R/plotRleafvsT.R")
 #-------------------------------------------------------------------------------------
 #-- other potentially interesting bits that were not included as figures in the 
 #  main text or supplemental
-#-------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------
 
 
 
@@ -150,6 +152,9 @@ checkLeafAreaEst()
 #- Make a big plot showing the hysteresis in the growth interval data.
 # This takes a little while to fit all the temperature response curves
 source("R/growth_analysis_interval.R")
+#-------------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
 
 
