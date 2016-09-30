@@ -28,7 +28,7 @@ get_zipdata()
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 1. A simple conceptual model figure (one curve or different curves)
+#- Make Figure 1. A simple conceptual model figure (one curve or different curves)
 source("R/plotConceptualFig.R")
 #-------------------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ source("R/plot_AT_longterm.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make figures 3. The respiration across tissue components measured at the end.
+#- Make Figure 3. The respiration of leaves, stems, and roots
 source("R/R_components_harvest.R")
 #-------------------------------------------------------------------------------------
 
@@ -52,20 +52,19 @@ source("R/plot_mass_AGR.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 5. Growth analysis of the intensive interval
-# Plots RGR, LAR, and NAR versus temperature. Why did this change when switching to published data??
+#- Make Figure 5. Growth analysis
 source("R/RGR_growth_analysis_interval.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 6. LAR decomposition of the growth interval. Leaf mass fraction is way too big!
+#- Make Figure 6. LAR decomposition
 source("R/plot_LAR_decomposition.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 7. A direct comparison of GREAT and Drake et al. (2015) growth responses
+#- Make Figure 7. A direct comparison of GREAT and Drake et al. (2015) growth responses
 source("R/compare GREAT and S30.R")
 #-------------------------------------------------------------------------------------
 
@@ -73,7 +72,7 @@ source("R/compare GREAT and S30.R")
 
 #-------------------------------------------------------------------------------------
 #- Make Table 1. Temperature response parameters for lots of things
-#  This takes a little while to fit all the temperature response curves
+#  This takes a few minutes to fit all the temperature response curves
 #  Exports the table as "output/Table1.csv"
 source("R/make_table_Topt.R")
 #-------------------------------------------------------------------------------------
@@ -90,16 +89,14 @@ source("R/make_table_Rdark_Tresponses.R")
 
 #-------------------------------------------------------------------------------------
 #- Make Figure S1. Map of provenances
-#plotAussie(export=F)
-
-#- The following can take a long time to download and interpolate all of the climate data
+#- This can take a long time (~5 minutes) to download and interpolate all of the climate data
 source("R/plot_map_spatial_climate.R")
 #-------------------------------------------------------------------------------------
 
 
 
 #-------------------------------------------------------------------------------------
-#- Run the code to make Fig. S2 (environmental data over time).
+#- Make Figure S2. Environmental data
 source("R/S39_climate_data.R")
 #-------------------------------------------------------------------------------------
 
