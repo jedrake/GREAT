@@ -118,3 +118,113 @@ legend("topright",letters[2],bty="n",cex=1)
 dev.off()
 #dev.copy2pdf(file="output/FigureS5-RvsT.pdf")
 #-----------------------------------------------------------------------------------------
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------
+#- Attempt to add a non-linear mixed effects model to directly test for differences
+#   across provenances.
+
+
+
+head(rvt)
+
+RvTFUN <- function(Tkeaf,Rref,Q10)Rref*Q10^((Tleaf-22)/10)
+
+#--- MASS based respiration rates
+
+#--- Rref
+#-fit with no fixed effect on Rref
+fitnlme0 <- nlme(Rmass ~ RvTFUN(Tleaf, Rref,Q10),
+                 fixed=list(Rref + Q10 ~ 1),
+                 random = Rref ~ 1 | location,
+                 start=list(fixed=c(Rref=10,Q10=2)),
+                 data=rvt)
+
+fitnlme1 <- nlme(Rmass ~ RvTFUN(Tleaf, Rref,Q10),
+                 fixed=list(Rref~location, + Q10 ~ 1),
+                 random = Rref ~ 1 | location,
+                 start=list(fixed=c(Rref=c(10,10,10),Q10=2)),
+                 data=rvt)
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1) # not different
+
+# K <- diag(4)
+# rownames(K) <- names(coef(fitnlme1))
+# out <- glht(fitnlme1, linfct = K)
+# summary(out)
+
+
+
+#--- Q10
+#-fit with no fixed effect on Q10
+fitnlme0 <- nlme(Rmass ~ RvTFUN(Tleaf, Rref,Q10),
+                 fixed=list(Rref + Q10 ~ 1),
+                 random = Rref ~ 1 | location,
+                 start=list(fixed=c(Rref=10,Q10=2)),
+                 data=rvt)
+
+fitnlme1 <- nlme(Rmass ~ RvTFUN(Tleaf, Rref,Q10),
+                 fixed=list(Rref ~ 1,Q10~location),
+                 random = Rref ~ 1 | location,
+                 start=list(fixed=c(Rref=10,Q10=c(2,2,2))),
+                 data=rvt)
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1) # not different
+
+#K <- diag(4)
+#rownames(K) <- names(coef(fitnlme1))
+#out <- glht(fitnlme1, linfct = K)
+#summary(out)
+
+
+
+
+#--- AREA based respiration rates
+
+#--- Rref
+#-fit with no fixed effect on Rref
+fitnlme0 <- nlme(Rarea ~ RvTFUN(Tleaf, Rref,Q10),
+                 fixed=list(Rref + Q10 ~ 1),
+                 random = Rref ~ 1 | location,
+                 start=list(fixed=c(Rref=0.6,Q10=2)),
+                 data=rvt)
+
+fitnlme1 <- nlme(Rarea ~ RvTFUN(Tleaf, Rref,Q10),
+                 fixed=list(Rref~location, + Q10 ~ 1),
+                 random = Rref ~ 1 | location,
+                 start=list(fixed=c(Rref=c(0.6,0.6,0.6),Q10=2)),
+                 data=rvt)
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1) # not different
+
+# K <- diag(4)
+# rownames(K) <- names(coef(fitnlme1))
+# out <- glht(fitnlme1, linfct = K)
+# summary(out)
+
+
+
+#--- Q10
+#-fit with no fixed effect on Q10
+fitnlme0 <- nlme(Rarea ~ RvTFUN(Tleaf, Rref,Q10),
+                 fixed=list(Rref + Q10 ~ 1),
+                 random = Rref ~ 1 | location,
+                 start=list(fixed=c(Rref=0.6,Q10=2)),
+                 data=rvt)
+
+fitnlme1 <- nlme(Rarea ~ RvTFUN(Tleaf, Rref,Q10),
+                 fixed=list(Q10~location,Rref ~ 1),
+                 random = Rref ~ 1 | location,
+                 start=list(fixed=c(Rref=0.6,Q10=c(2,2,2))),
+                 data=rvt)
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1) # not different
+
+#K <- diag(4)
+#rownames(K) <- names(coef(fitnlme1))
+#out <- glht(fitnlme1, linfct = K)
+#summary(out)
