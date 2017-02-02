@@ -189,3 +189,170 @@ title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=1.5,line=2.5)
 #- export the graph
 dev.off()
 #dev.copy2pdf(file="output/Figure4-FinalMass_AGR.pdf")
+
+
+
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------
+#- Attempt to add a non-linear mixed effects model to directly test for differences
+#   across provenances.
+head(massdata)
+head(agr)
+
+#- here is the function to fit
+GvtFUN <- function(Tair,Jref,Topt,theta)Jref*exp(-1*((Tair-Topt)/theta)^2)
+
+
+#---- final mass data
+#--- Popt
+#-fit with no fixed effect on Popt
+fitnlme0 <- nlme(totdm ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=8,Topt=28,theta=9)),
+                 data=massdata)
+
+#- refit with fixed effect on Popt
+fitnlme1 <- nlme(totdm ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref~location,Topt +  theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=c(8,8,8),Topt=28,theta=9)),
+                 data=massdata)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+#--- Topt
+#-fit with no fixed effect on Topt
+fitnlme0 <- nlme(totdm ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=8,Topt=28,theta=9)),
+                 data=massdata)
+
+#- refit with fixed effect on Topt
+fitnlme1 <- nlme(totdm ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Topt~location,Jref +  theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=8,Topt=c(28,28,28),theta=9)),
+                 data=massdata)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+#--- theta
+#-fit with no fixed effect on theta
+fitnlme0 <- nlme(totdm ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=8,Topt=28,theta=9)),
+                 data=massdata)
+
+#- refit with fixed effect on theta
+fitnlme1 <- nlme(totdm ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt ~ 1,theta~location),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=8,Topt=28,theta=c(9,9,9))),
+                 data=massdata)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+
+
+
+
+#---- absolute growth rate
+
+#--- Popt
+#-fit with no fixed effect on Popt
+fitnlme0 <- nlme(AGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=0.4,Topt=25,theta=20)),
+                 data=agr)
+
+#- refit with fixed effect on Popt
+fitnlme1 <- nlme(AGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref~location,Topt +  theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=c(0.4,0.4,0.4),Topt=25,theta=20)),
+                 data=agr)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+#--- Topt
+#-fit with no fixed effect on Topt
+fitnlme0 <- nlme(AGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=0.4,Topt=25,theta=20)),
+                 data=agr)
+
+#- refit with fixed effect on Topt
+fitnlme1 <- nlme(AGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Topt~location,Jref +  theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=0.4,Topt=c(25,25,25),theta=20)),
+                 data=agr)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+#--- theta
+#-fit with no fixed effect on theta
+fitnlme0 <- nlme(AGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=0.4,Topt=28,theta=8)),
+                 data=agr)
+
+#- refit with fixed effect on theta
+fitnlme1 <- nlme(AGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt ~ 1,theta~location),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=0.4,Topt=28,theta=c(8,8,8))),
+                 data=agr)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
