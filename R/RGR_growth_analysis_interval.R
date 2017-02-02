@@ -164,3 +164,248 @@ title(xlab=expression(Growth~T[air]~(degree*C)),outer=T,adj=0.6,cex.lab=2,line=2
 
 dev.off()
 #dev.copy2pdf(file="output/Figure5_RGR_LAR_NAR_interval.pdf")
+
+
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------
+#- Attempt to add a non-linear mixed effects model to directly test for differences
+#   across provenances.
+head(dat)
+
+
+#---- relative growth rate
+
+#--- Popt
+#-fit with no fixed effect on Popt
+fitnlme0 <- nlme(RGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=.12,Topt=25,theta=12)),
+                 data=dat)
+
+#- refit with fixed effect on Popt
+fitnlme1 <- nlme(RGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref~location,Topt +  theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=c(.12,.12,.12),Topt=25,theta=12)),
+                 data=dat)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+#--- Topt
+#-fit with no fixed effect on Topt
+fitnlme0 <- nlme(RGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=0.12,Topt=25,theta=12)),
+                 data=dat)
+
+#- refit with fixed effect on Topt
+fitnlme1 <- nlme(RGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Topt~location,Jref +  theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=0.12,Topt=c(25,25,25),theta=12)),
+                 data=dat)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+#--- theta
+#-fit with no fixed effect on theta
+fitnlme0 <- nlme(RGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=0.12,Topt=25,theta=12)),
+                 data=dat)
+
+#- refit with fixed effect on theta
+fitnlme1 <- nlme(RGR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt ~ 1,theta~location),
+                 random = Jref ~ 1 | location,
+                 start=list(fixed=c(Jref=0.12,Topt=25,theta=c(12,12,12))),
+                 data=dat)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+
+
+
+#---- leaf area ratio
+
+#- create a new variable, with the central location as the intercept
+dat$location2 <- factor(dat$location,levels=c("Central","Cold-edge","Warm-edge"))
+dat$location3 <- factor(dat$location,levels=c("Warm-edge","Cold-edge","Central"))
+
+#--- Popt
+#-fit with no fixed effect on Popt
+fitnlme0 <- nlme(LAR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Topt ~ 1 | location2,
+                 start=list(fixed=c(Jref=.02,Topt=28,theta=12)),
+                 data=dat)
+
+#- refit with fixed effect on Popt
+fitnlme1 <- nlme(LAR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref~location2,Topt +  theta ~ 1),
+                 random = Topt ~ 1 | location2,
+                 start=list(fixed=c(Jref=c(.02,.02,.02),Topt=28,theta=12)),
+                 data=dat)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+#--- Topt
+#-fit with no fixed effect on Topt
+fitnlme0 <- nlme(LAR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location2,
+                 start=list(fixed=c(Jref=0.02,Topt=28,theta=12)),
+                 data=dat)
+
+#- refit with fixed effect on Topt
+fitnlme1 <- nlme(LAR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Topt~location2,Jref +  theta ~ 1),
+                 random = Jref ~ 1 | location2,
+                 start=list(fixed=c(Jref=0.02,Topt=c(28,28,28),theta=12)),
+                 data=dat)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+#--- theta
+#-fit with no fixed effect on theta
+fitnlme0 <- nlme(LAR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location2,
+                 start=list(fixed=c(Jref=0.02,Topt=28,theta=12)),
+                 data=dat)
+
+#- refit with fixed effect on theta
+fitnlme1 <- nlme(LAR ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt ~ 1,theta~location2),
+                 random = Jref ~ 1 | location2,
+                 start=list(fixed=c(Jref=0.02,Topt=28,theta=c(12,12,12))),
+                 data=dat)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1) #- not different
+
+#K <- diag(5)
+#rownames(K) <- names(coef(fitnlme1))
+#out <- glht(fitnlme1, linfct = K)
+#summary(out)
+
+
+
+
+
+
+#---- specific leaf area
+
+#- remove eight missing datapoints
+dat.sla <- dat[-which(is.na(dat$SLA)),]
+
+#--- Popt
+#-fit with no fixed effect on Popt
+fitnlme0 <- nlme(SLA ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Topt ~ 1 | location2,
+                 start=list(fixed=c(Jref=420,Topt=28,theta=18)),
+                 data=dat.sla)
+
+#- refit with fixed effect on Popt
+fitnlme1 <- nlme(SLA ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref~location2,Topt +  theta ~ 1),
+                 random = Topt ~ 1 | location2,
+                 start=list(fixed=c(Jref=c(420,420,420),Topt=28,theta=18)),
+                 data=dat.sla)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+#--- Topt
+#-fit with no fixed effect on Topt
+fitnlme0 <- nlme(SLA ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location3,
+                 start=list(fixed=c(Jref=420,Topt=28,theta=18)),
+                 data=dat.sla)
+
+#- refit with fixed effect on Topt
+fitnlme1 <- nlme(SLA ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref +  theta ~ 1,Topt~location3),
+                 random = Jref ~ 1 | location3,
+                 start=list(fixed=c(Jref=400,Topt=c(28,28,28),theta=16)),
+                 data=dat.sla)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+#--- theta
+#-fit with no fixed effect on theta
+fitnlme0 <- nlme(SLA ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | location2,
+                 start=list(fixed=c(Jref=400,Topt=28,theta=16)),
+                 data=dat.sla)
+
+#- refit with fixed effect on theta
+fitnlme1 <- nlme(SLA ~ GvtFUN(Tair, Jref, Topt,theta),
+                 fixed=list(Jref + Topt ~ 1,theta~location2),
+                 random = Jref ~ 1 | location2,
+                 start=list(fixed=c(Jref=400,Topt=28,theta=c(16,16,16))),
+                 data=dat.sla)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1) #- not different
+
+#K <- diag(5)
+#rownames(K) <- names(coef(fitnlme1))
+#out <- glht(fitnlme1, linfct = K)
+#ummary(out)
