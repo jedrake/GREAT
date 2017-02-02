@@ -67,3 +67,99 @@ title(ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),cex.lab=1.3,line=2)
 
 dev.off()
 #dev.copy2pdf(file="output/Figure2-PhotoVsT.pdf")
+
+#----------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------
+#- Attempt to add a non-linear mixed effects model to directly test for differences
+#   across provenances.
+
+names(Asatdata)
+
+#- remove one obseration with a missing value
+Asatdata <- Asatdata[-which(is.na(Asatdata$Photo)),]
+
+#- here is the function to fit
+AvtFUN <- function(Tleaf,Jref,Topt,theta)Jref*exp(-1*((Tleaf-Topt)/theta)^2)
+
+
+#--- Popt
+#-fit with no fixed effect on Popt
+fitnlme0 <- nlme(Photo ~ AvtFUN(Tleaf, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=30,Topt=25,theta=20)),
+                 data=Asatdata)
+
+#- refit with fixed effect on Popt
+fitnlme1 <- nlme(Photo ~ AvtFUN(Tleaf, Jref, Topt,theta),
+                 fixed=list(Jref~location,Topt +  theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=c(25,25,25),Topt=25,theta=20)),
+                 data=Asatdata)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+confint(fitnlme1)[1]
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+
+#--- Topt
+#-fit with no fixed effect on Topt
+fitnlme0 <- nlme(Photo ~ AvtFUN(Tleaf, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Jref ~ 1 | Prov,
+                 start=list(fixed=c(Jref=30,Topt=25,theta=20)),
+                 data=Asatdata)
+
+#- refit with fixed effect on Topt
+fitnlme1 <- nlme(Photo ~ AvtFUN(Tleaf, Jref, Topt,theta),
+                 fixed=list(Topt~Prov,Jref +  theta ~ 1),
+                 random = Jref ~ 1 | Prov,
+                 start=list(fixed=c(Topt=c(25,25,25),Jref=30,theta=20)),
+                 data=Asatdata)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+
+
+#--- Theta
+#-fit with no fixed effect on Popt
+fitnlme0 <- nlme(Photo ~ AvtFUN(Tleaf, Jref, Topt,theta),
+                 fixed=list(Jref + Topt + theta ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=30,Topt=25,theta=20)),
+                 data=Asatdata)
+
+#- refit with fixed effect on Popt
+fitnlme1 <- nlme(Photo ~ AvtFUN(Tleaf, Jref, Topt,theta),
+                 fixed=list(theta~location,Topt +  Jref ~ 1),
+                 random = Topt ~ 1 | location,
+                 start=list(fixed=c(Jref=25,Topt=25,theta=c(20,20,20))),
+                 data=Asatdata)
+
+# Likelihood ratio test
+anova(fitnlme0, fitnlme1)
+
+K <- diag(5)
+rownames(K) <- names(coef(fitnlme1))
+out <- glht(fitnlme1, linfct = K)
+summary(out)
+
+
+
+#----------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------
