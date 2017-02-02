@@ -2,6 +2,9 @@
 #- plot a conceptual model of "one curve" vs. "different curves"
 #-------------------------------------------------------------------------------------------------
 
+#- flag regarding whether to add points to the plots,
+addpointsflag <- F
+
 predJune <- function(Tleaf=10,Topt=20,Jref=1,omega=5){
   yval <- Jref*exp(-1*((Tleaf-Topt)/omega)^2)
 }
@@ -35,11 +38,28 @@ lines(c~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.5)
 legend("topright",letters[1],bty="n",cex=1.5)
 
+#-- add points along curve
+
+if(addpointsflag){
+  points(a[10]~Tleaf[10],pch=16,col=COL[1],cex=1.5)
+  points(b[40]~Tleaf[40],pch=16,col=COL[2],cex=1.5)
+  points(c[70]~Tleaf[70],pch=16,col=COL[3],cex=1.5)
+}
+
 #- one curve
 plot(a2~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n",ylim=c(0,1))
 lines(b2~Tleaf,type="l",col=COL[2],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n")
 lines(c2~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n")
 magaxis(side=c(1,2),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.5)
+
+
+#-- add points along curve
+if(addpointsflag){
+  points(a2[10]~Tleaf[10],pch=16,col=COL[1],cex=1.5)
+  points(b2[40]~Tleaf[40],pch=16,col=COL[2],cex=1.5)
+  points(c2[70]~Tleaf[70],pch=16,col=COL[3],cex=1.5)
+}
+
 legend("topright",letters[2],bty="n",cex=1.5)
 legend("bottomleft",c("Cold-origin","Central","Warm-origin"),lty=1,col=COL,lwd=3,cex=0.8,title="Provenance",bty="n")
 
