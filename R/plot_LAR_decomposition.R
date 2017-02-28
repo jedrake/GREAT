@@ -127,6 +127,26 @@ LS.pred$location <- factor(LS.pred$location,levels=c("Cold-edge","Central","Warm
 #----------------------------------------------------------------------------------------------------
 
 
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+#- merge leaf size and SLA dataframes
+dat.la.wet <- merge(dat.wet,la.wet,by=c("Code","Prov","Room","Tair","W_treatment","location"))
+dat.la.wet$Leafproduct <- with(dat.la.wet,Leafarea*Leafno)
+
+windows(100,60)
+par(mfrow=c(1,2),oma=c(1,2,0,0))
+plot(LAR~Leafarea,data=subset(dat.la.wet,Leafarea>0),xlab="Leaf size (cm2)",cex.lab=1.5)
+plot(LAR~Leafproduct,data=subset(dat.la.wet,Leafarea>0),xlab="Leaf size * leaf number",cex.lab=1.5)
+
+lm.leafarea <- lm(LAR~Leafarea,data=subset(dat.la.wet,Leafarea>0))
+summary(lm.leafarea)
+anova(lm.leafarea)
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+
+
+
 #-----------------------------------------------------------------------------------------
 #- T-response of leaf number. This list gets called below in the plotting 
 leaf_no.l <- split(leaf_no,leaf_no$location)
