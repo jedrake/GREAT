@@ -34,37 +34,44 @@ source("R/plotConceptualFig.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Figure 2. Long-term photosynthesis vs. temperature response curves.
+#- Make Figure 2. Map of provenances
+#- This can take a long time (~5 minutes) to download and interpolate all of the climate data
+source("R/plot_map_spatial_climate.R")
+#-------------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------------
+#- Figure 3. Long-term photosynthesis vs. temperature response curves.
 source("R/plot_AT_longterm.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure 3. The respiration of leaves, stems, and roots
+#- Make Figure 4. The respiration of leaves, stems, and roots
 source("R/R_components_harvest.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make figure 4. Temperature response of final mass and absolute growth rate
+#- Make figure 5. Temperature response of final mass and absolute growth rate
 source("R/plot_mass_AGR.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure 5. Growth analysis
+#- Make Figure 6. Growth analysis
 source("R/RGR_growth_analysis_interval.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure 6. LAR decomposition
+#- Make Figure 7. LAR decomposition
 source("R/plot_LAR_decomposition.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure 7. A direct comparison of GREAT and Drake et al. (2015) growth responses
+#- Make Figure 8. A direct comparison of GREAT and Drake et al. (2015) growth responses
 source("R/compare GREAT and S30.R")
 #-------------------------------------------------------------------------------------
 
@@ -85,13 +92,6 @@ source("R/make_table_Topt.R")
 source("R/make_table_Rdark_Tresponses.R")
 #-------------------------------------------------------------------------------------
 
-
-
-#-------------------------------------------------------------------------------------
-#- Make Figure S1. Map of provenances
-#- This can take a long time (~5 minutes) to download and interpolate all of the climate data
-source("R/plot_map_spatial_climate.R")
-#-------------------------------------------------------------------------------------
 
 
 
