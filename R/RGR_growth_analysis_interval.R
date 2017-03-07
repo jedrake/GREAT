@@ -54,7 +54,7 @@ dat2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF~Room,FUN=c(mean,standard.error),data=s
 
 #-----------------------------------------------------------------------------------------
 #- Make a 3-panel plot showing RGR, LAR, and NAR relative to growth temperature.
-pdf(file="output/Figure5_RGR_LAR_NAR_interval.pdf",width=3.5,height=8)
+pdf(file="output/Figure6_RGR_LAR_NAR_interval.pdf",width=3.5,height=8)
 
 #windows(30,60)
 par(mfrow=c(3,1),mar=c(3,4,1,1),oma=c(5,4,1,1))
