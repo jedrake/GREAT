@@ -1,14 +1,3 @@
-# do this once
-# devtools::install_bitbucket("remkoduursma/plotby")
-library(plotBy)
-
-r <- require(HIEv)
-if(!r)stop("Install the HIEv R package from bitbucket.org/remkoduursma/hiev")
-
-
-
-
-
 #---------------------------------------------------------------------
 #- function to load a package, and install it if necessary
 Library <- function(pkg, ...){
@@ -55,6 +44,15 @@ Library(multcomp)
 
 
 
+# do this once
+r <- require(plotBy)
+if(!r)stop("Install the plotBy R package from bitbucket.org/remkoduursma/plotby")
+# devtools::install_bitbucket("remkoduursma/plotby")
+
+r <- require(HIEv)
+if(!r)stop("Install the HIEv R package from bitbucket.org/remkoduursma/hiev")
+# devtools::install_bitbucket("remkoduursma/hiev")
+
 
 
 
@@ -64,5 +62,4 @@ Library(multcomp)
 source("R/generic_functions.R")
 source("R/GREAT_functions.R")
 #source("R/gamplotfunctions.R")
-
 #---------------------------------------------------------------------
