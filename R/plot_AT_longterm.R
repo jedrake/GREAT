@@ -32,7 +32,7 @@ A.pred$location <- factor(A.pred$location,levels=c("Cold-edge","Central","Warm-e
 
 
 #windows();
-pdf(file="output/Figure2-Photo_vs_Temperature.pdf",width=3.5,height=3)
+pdf(file="output/Figure3-Photo_vs_Temperature.pdf",width=3.5,height=3)
 par(mar=c(3.5,4,0.5,0.5),oma=c(0,0,0,0))
 
 #- plot Asat
