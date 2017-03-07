@@ -94,7 +94,7 @@ agr2 <- summaryBy(RGR+AGR+SLA+LAR+NAR+LMF~Room+Tair+location,FUN=c(mean,standard
 #-----------------------------------------------------------------------------------------
 #- set up the plot
 #windows(2*40,40);
-pdf(file="output/Figure4-Absolute_growth.pdf",width=7.3,height=4)
+pdf(file="output/Figure5-Absolute_growth.pdf",width=7.3,height=4)
 
 par(mar=c(3.5,4,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(0.5,0.5,0,0))
 palette(rev(brewer.pal(6,"Spectral")))
