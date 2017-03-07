@@ -173,7 +173,7 @@ NL.pred$location <- factor(NL.pred$location,levels=c("Cold-edge","Central","Warm
 #- plot temperature response curves for SLA, LMF, leafsize, and leaf number
 
 #windows(48,30);
-pdf(file="output/Figure6_LAR_decomposition.pdf",width=7.3,height=6)
+pdf(file="output/Figure7_LAR_decomposition.pdf",width=7.3,height=6)
 par(mfrow=c(2,2),mar=c(2,6,1,1),oma=c(3,3,1,2))
 palette(rev(brewer.pal(6,"Spectral")))
 
