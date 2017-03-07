@@ -947,8 +947,8 @@ plotAussie <- function(path="Data/Glasshouse_DRAKE_EUTE_THERMAL-NICHE/data",expo
   polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
            c(outline$y[subset], NA, rep(ybox, each=2)),
            col="white", rule="evenodd")
-  points(x=Eute.loc$long,y=Eute.loc$lat,pch=21,col="black",bg="white",lwd=1.9,cex=2.5)
-  points(x=Eute.loc2$long,y=Eute.loc2$lat,pch=21,col="black",bg="black",lwd=1.9,cex=2.5) # overly black points for the three provs studied
+  points(x=Eute.loc$long,y=Eute.loc$lat,pch=21,col="black",bg="white",lwd=1.9,cex=1.5)
+  points(x=Eute.loc2$long,y=Eute.loc2$lat,pch=21,col="black",bg="black",lwd=1.9,cex=1.5) # overly black points for the three provs studied
   if(export==T) dev.copy2pdf(file="output/FigS2_prov_map.pdf")
 }
 #--------------------------------------------------------------------------------------------------------------------
