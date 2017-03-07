@@ -6,9 +6,9 @@
 
 #- get the data
 Rdat <- returnRcomponents()
-
+Rdat$totalmass <- Rdat$leafdm+Rdat$totalRoot+Rdat$Stemmass
 #- average across provenances in each room
-Rdat.m <- summaryBy(Rarea+Rmass+Rmass_insitu+Rarea_insitu~Room+Tair+Prov+W_treatment+Organ+location,data=Rdat,FUN=c(mean,standard.error),na.rm=T)
+Rdat.m <- summaryBy(Rarea+Rmass+Rmass_insitu+Rarea_insitu+totalmass~Room+Tair+Prov+W_treatment+Organ+location,data=Rdat,FUN=c(mean,standard.error),na.rm=T)
 #Rdat.m$Rarea.standard.error[which(is.na(Rdat.m$Rarea.standard.error))] <- 0
 
 
