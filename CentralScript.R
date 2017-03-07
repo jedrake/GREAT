@@ -15,6 +15,7 @@
 #-------------------------------------------------------------------------------------
 #- load the packages and custom functions that do all the work.
 #   This will install a bunch of required libraries, including some non-standard stuff.
+#   You may need to open this file and install some packages using Rtools and the devtools package.
 source("R/loadLibraries.R")
 #-------------------------------------------------------------------------------------
 
@@ -96,23 +97,23 @@ source("R/make_table_Rdark_Tresponses.R")
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure S2. Environmental data
+#- Make Figure S1. Environmental data
 source("R/S39_climate_data.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure S3. Allometry of d2h relative to total plant mass.
+#- Make Figure S2. Allometry of d2h relative to total plant mass.
 returnMassFromAllom(d2hdat=NA,plotson=T,droughtdat=F)
 #-------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------
-#- Make Figure S4. Temperature response curves of photosynthesis
+#- Make Figure S3. Temperature response curves of photosynthesis
 source("R/photo_AvT.R")
 #-------------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------------
-#- Make Figure S5. Leaf short-term respiration response functions
+#- Make Figure S4. Leaf short-term respiration response functions
 source("R/plotRleafvsT.R")
 #-------------------------------------------------------------------------------------
