@@ -37,7 +37,7 @@ toplot <- subset(Rdat.m,W_treatment=="w")
 toplot$Room <- as.numeric(toplot$Room)
 
 #windows(60,60);
-pdf(file="output/Figure3-Respiration.pdf",width=7.3,height=8)
+pdf(file="output/Figure4-Respiration.pdf",width=7.3,height=8)
 par(mfrow=c(3,2),mar=c(0.5,0.5,0.5,0.5),oma=c(5,8,1,8),cex.lab=2)
 palette(rev(brewer.pal(6,"Spectral")))
 COL=palette()[c(1,2,6)]
