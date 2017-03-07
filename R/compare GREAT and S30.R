@@ -79,7 +79,7 @@ dat.s30.n$treat <- factor(substr(as.character(dat.s30.n$combotrt),start=1,stop=1
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- plot normalized data relative to the growth temperature
-pdf(file="output/Figure7-Compare_experiments.pdf",width=3.5,height=4)
+pdf(file="output/Figure8-Compare_experiments.pdf",width=3.5,height=4)
 #windows(40,50)
 par(mar=c(3,5,1,1),mfrow=c(1,1),cex.lab=1.3,cex.axis=1,oma=c(1,1,0,0))
 palette(c("red","green","blue"))
