@@ -30,7 +30,7 @@ RvTfits.list.st.area <- lapply(rvt.l,FUN=fitRvT,namex="Tleaf",namey="Rarea")
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 #- set up the plot
-pdf(file="output/FigureS5-RvsT.pdf",width=7.3,height=5)
+pdf(file="output/FigureS4-RvsT.pdf",width=7.3,height=5)
 par(mar=c(6,7,1,1),mfrow=c(1,2),cex.lab=1.5,cex.axis=1.2,oma=c(1,0,0,0))
 palette(rev(brewer.pal(6,"Spectral")))
 

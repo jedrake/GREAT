@@ -76,7 +76,7 @@ AvTfits.m$location <- factor(AvTfits.m$location,levels=c("Cold-edge","Central","
 #-------------------------------------------------------
 #-------------------------------------------------------
 #- set up the plot, with Area and Mass based rates
-pdf(file="output/FigureS4_Asat_vsT_area_mass.pdf",width=7.3,height=9)
+pdf(file="output/FigureS3_Asat_vsT_area_mass.pdf",width=7.3,height=9)
 par(mar=c(3,7,1,1),mfrow=c(2,1),cex.lab=2,cex.axis=1.2,oma=c(2,0,0,0))
 palette(rev(brewer.pal(6,"Spectral")))
 

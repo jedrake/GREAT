@@ -654,7 +654,7 @@ returnMassFromAllom <- function(d2hdat,plotson=T,droughtdat=F){
     palette(rev(brewer.pal(6,"Spectral")))
     COL=palette()[c(1,2,6)]
     #windows(12,12)
-    pdf(file="output/FigureS3-Allometry.pdf",width=7.3,height=8)
+    pdf(file="output/FigureS2-Allometry.pdf",width=7.3,height=8)
     par(mar=c(6,6,1,1),cex.axis=1.2,cex.lab=2)
     plotBy(logtotdm~logd2h|location,data=dat,pch=16,xlab="",ylab="",axes=F,legend=F,col=COL)
     # legend(x=-1.2,y=1.1,legend=c("Cold-edge","Central","Warm-edge"),col=COL,
