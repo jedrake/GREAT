@@ -69,7 +69,7 @@ points(Rmass.mean~Tair,data=subset(toplot,Organ=="leaf"),add=T,pch=21,cex=2,lege
 
 
 magaxis(side=1:4,labels=c(0,1,0,0),las=1)
-legend("topright",letters[1],cex=1.2,bty="n")
+legend("topright",paste("(",letters[1],")",sep=""),bty="n",cex=1.2,text.font=2)
 legend("bottomleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
 
 
@@ -93,7 +93,7 @@ points(Rmass_insitu.mean~Tair,data=subset(Rdat_mean_insitu,Organ=="leaf"),add=T,
 title(ylab=expression(atop(Leaf~R[mass]~at~T[growth],
                            (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-26,srt=90)
 magaxis(side=1:4,labels=c(0,0,0,1),las=1)
-legend("topright",letters[4],bty="n",cex=1.2)
+legend("topright",paste("(",letters[4],")",sep=""),bty="n",cex=1.2,text.font=2)
 #----------------------------------
 
 
@@ -119,7 +119,7 @@ points(Rmass.mean~Tair,data=subset(toplot,Organ=="stem"),add=T,pch=21,cex=2,lege
 title(ylab=expression(atop(Stem~R[mass]~at~25~degree*C,
                            (nmol~CO[2]~g^-1~s^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(0,1,0,0),las=1)
-legend("topright",letters[2],cex=1.2,bty="n")
+legend("topright",paste("(",letters[2],")",sep=""),bty="n",cex=1.2,text.font=2)
 
 
 
@@ -143,7 +143,7 @@ points(Rmass_insitu.mean~Tair,data=subset(Rdat_mean_insitu,Organ=="stem"),add=T,
 title(ylab=expression(atop(Stem~R[mass]~at~T[growth],
                            (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-26,srt=90)
 magaxis(side=1:4,labels=c(0,0,0,1),las=1)
-legend("topright",letters[5],bty="n",cex=1.2)
+legend("topright",paste("(",letters[5],")",sep=""),bty="n",cex=1.2,text.font=2)
 #----------------------------------
 
 
@@ -171,7 +171,7 @@ points(Rmass.mean~Tair,data=subset(toplot,Organ=="root"),add=T,pch=21,cex=2,lege
 title(ylab=expression(atop(Root~R[mass]~at~25~degree*C,
                            (nmol~CO[2]~g^-1~s^-1))),xpd=NA)
 magaxis(side=1:4,labels=c(1,1,0,0),las=1)
-legend("topright",letters[3],cex=1.2,bty="n")
+legend("topright",paste("(",letters[3],")",sep=""),bty="n",cex=1.2,text.font=2)
 
 #- Tissue specific Rmass for roots
 smoothplot(Tair, Rmass_insitu.mean , location,linecols=c(alpha(COL[1],1),alpha(COL[2],1),alpha(COL[3],1)),
@@ -192,7 +192,7 @@ points(Rmass_insitu.mean~Tair,data=subset(Rdat_mean_insitu,Organ=="root"),add=T,
 title(ylab=expression(atop(Root~R[mass]~at~T[growth],
                            (nmol~CO[2]~g^-1~s^-1))),xpd=NA,line=-26,srt=90)
 magaxis(side=1:4,labels=c(1,0,0,1),las=1)
-legend("topright",letters[6],bty="n",cex=1.2)
+legend("topright",paste("(",letters[6],")",sep=""),bty="n",cex=1.2,text.font=2)
 #----------------------------------
 
 

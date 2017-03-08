@@ -51,18 +51,18 @@ par(mfrow=c(1,2),mar=c(3,8,1,1),oma=c(6,6,1,5))
 plotAussie(export=F)
 title(ylab=expression(Latitude~(degree)),outer=F,cex.lab=1.2,xpd=NA)
 title(xlab=expression(Longitude~(degree)),outer=F,cex.lab=1.2,line=4,xpd=NA)
-legend("topright",bty="n",legend=letters[1],cex=1.2)
+legend("topright",paste("(",letters[1],")",sep=""),bty="n",cex=1.2,text.font=2)
 
 #- plot climate distributions
 plot(bio6~bio5,dat=toplot,col="grey",axes=F,ylab="",xlab="",ylim=c(-3,19),xlim=c(23,37))
 points(bio6~bio5,data=drakeseed,col="black",bg="white",pch=21,cex=1.5)
 points(bio6~bio5,data=myseed,col="black",pch=16,cex=1.5)
 title(ylab=expression(atop(bio6~":"~Mean~minimum~T~of,
-                           coldest~month~(degree*C))),xpd="NA",cex.lab=1.2,line=-13,xpd=NA)
+                           coldest~month~(degree*C))),xpd="NA",cex.lab=1.2,line=-12,xpd=NA)
 title(xlab=expression(atop(bio5~":"~Mean~maximum~T,
                            of~warmest~month~(degree*C))),xpd="NA",cex.lab=1.2,line=4)
 magaxis(side=c(1,2,4),labels=c(1,0,1),frame.plot=T)
-legend("topright",bty="n",legend=letters[2],cex=1.2)
+legend("topright",paste("(",letters[2],")",sep=""),bty="n",cex=1.2,text.font=2)
 abline(h=0,lty=2,col="grey")
 dev.off()
 #-----------------------------------------------------------------------------------------

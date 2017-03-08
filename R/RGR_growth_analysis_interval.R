@@ -95,7 +95,7 @@ points(RGR.mean~Tair,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=locati
 
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2,minorn=2,ratio=0.25)
 axis(side=1,at=c(20,25,30,35),labels=T,tick=F,cex.axis=2)
-legend("topright",letters[1],bty="n",cex=1.8)
+legend("topright",paste("(",letters[1],")",sep=""),bty="n",cex=1.2,text.font=2)
 legend("bottomleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=1.2,title="Provenance",bty="n")
 
 #legend("bottomleft",levels(dat2$location),fill=COL,cex=1.2,title="",bty="n")
@@ -129,8 +129,7 @@ plotBy(LAR.mean~Tair|location,data=dat2,las=1,xlim=c(17,37),legend=F,pch=16,
 points(LAR.mean~Tair,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=location)
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2,ratio=0.25,majorn=3)
 axis(side=1,at=c(20,25,30,35),labels=T,tick=F,cex.axis=2)
-legend("topright",letters[2],bty="n",cex=1.8)
-
+legend("topright",paste("(",letters[2],")",sep=""),bty="n",cex=1.2,text.font=2)
 
 
 
@@ -149,7 +148,7 @@ points(NAR.mean~Tair,data=dat2,add=T,pch=21,cex=2,legend=F,col="black",bg=locati
 magaxis(side=1:4,labels=c(0,1,0,0),las=1,cex.axis=2,ratio=0.25)
 axis(side=1,at=c(20,25,30,35),labels=T,tick=F,cex.axis=2)
 
-legend("topright",letters[3],bty="n",cex=1.8)
+legend("topright",paste("(",letters[3],")",sep=""),bty="n",cex=1.2,text.font=2)
 #-----------------------------------------------------------------------------------------
 
 

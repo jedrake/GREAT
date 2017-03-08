@@ -36,7 +36,7 @@ plot(a~Tleaf,type="l",col=COL[1],lwd=linewidth,xlab="",ylab="",ylim=c(0,1),xaxt=
 lines(b~Tleaf,type="l",col=COL[2],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n",lty=1)
 lines(c~Tleaf,type="l",col=COL[3],lwd=linewidth,xlab="",ylab="",xaxt="n",yaxt="n",lty=1)
 magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.5)
-legend("topright",letters[1],bty="n",cex=1.5)
+legend("topright",paste("(",letters[1],")",sep=""),bty="n",cex=1.2,text.font=2)
 
 #-- add points along curve
 
@@ -60,7 +60,7 @@ if(addpointsflag){
   points(c2[70]~Tleaf[70],pch=16,col=COL[3],cex=1.5)
 }
 
-legend("topright",letters[2],bty="n",cex=1.5)
+legend("topright",paste("(",letters[2],")",sep=""),bty="n",cex=1.2,text.font=2)
 legend("bottomleft",c("Cold-origin","Central","Warm-origin"),lty=c(1,1,1),seg.len=5,
        col=COL,lwd=3,cex=1.2,title="Provenance",bty="n")
 

@@ -146,8 +146,7 @@ points(totdm.mean~Tair.mean,data=dat3,add=T,pch=21,cex=1.2,legend=F,col="black",
 #- gussy up the graph
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.1,ratio=0.4,tcl=0.2)
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=1.5,line=2.5)
-legend("topright",letters[1],bty="n",cex=1.2)
-
+legend("topright",paste("(",letters[1],")",sep=""),bty="n",cex=1.2,text.font=2)
 
 
 #---
@@ -182,7 +181,7 @@ legend("topleft",c("Cold-origin","Central","Warm-origin"),fill=COL,cex=0.8,title
 
 
 #legend("bottomright",levels(dat2$location),fill=COL,cex=1.2,title="Provenance",bty="n")
-legend("topright",letters[2],bty="n",cex=1.2)
+legend("topright",paste("(",letters[2],")",sep=""),bty="n",cex=1.2,text.font=2)
 title(xlab=expression(Growth~T[air]~(degree*C)),cex.lab=1.5,line=2.5)
 
 
